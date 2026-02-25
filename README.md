@@ -20,7 +20,7 @@ The **Smart Parking Management System** is a web-based application developed to 
 | IT24101671 | MUNTHAS F.M. |
 | IT24101654 | HASARINDA W.D.Y.L. |
 | IT24101820 | VIKIRUTHAN P. |
-| IT24100902 | CHANDANAYAKE M.W.H.A. |
+| IT24100902 | CHANDANAYAKE S.P.V.V. |
 | IT24100036 | SURENTHIRAN K. |
 
 ---
