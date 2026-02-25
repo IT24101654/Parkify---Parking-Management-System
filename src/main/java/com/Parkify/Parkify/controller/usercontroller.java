@@ -1,5 +1,6 @@
 package com.Parkify.Parkify.controller;
 
+<<<<<<< HEAD
 import com.Parkify.Parkify.dto.ForgotPasswordRequest;
 import com.Parkify.Parkify.dto.ResetPasswordRequest;
 import com.Parkify.Parkify.dto.AdminUserDTO;
@@ -131,3 +132,7 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Password reset successful"));
     }
 }
+=======
+public class usercontroller {
+}
+>>>>>>> 5e10742 (packages)
