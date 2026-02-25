@@ -1,5 +1,6 @@
 package com.Parkify.Parkify.model;
 
+<<<<<<< HEAD
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -76,3 +77,7 @@ public class User {
         createdAt = LocalDateTime.now();
     }
 }
+=======
+public class user {
+}
+>>>>>>> 4d97f27 (add files)

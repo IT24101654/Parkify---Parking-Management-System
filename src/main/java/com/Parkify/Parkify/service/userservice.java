@@ -1,5 +1,6 @@
 package com.Parkify.Parkify.service;
 
+<<<<<<< HEAD
 import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 
@@ -41,3 +42,7 @@ public interface UserService {
 
     void updateVerificationDetails(Long userId, String nicNumber, String nicImage);
 }
+=======
+public class userservice {
+}
+>>>>>>> 4d97f27 (add files)

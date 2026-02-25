@@ -1,5 +1,6 @@
 package com.Parkify.Parkify.repository;
 
+<<<<<<< HEAD
 import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,3 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
         long countByRole(Role role);
 }
+=======
+public interface userrepository {
+}
+>>>>>>> 4d97f27 (add files)
