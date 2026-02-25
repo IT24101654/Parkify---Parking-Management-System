@@ -1,49 +1,54 @@
 package com.Parkify.Parkify.controller;
 
-import com.Parkify.Parkify.dto.LoginRequest;
-import com.Parkify.Parkify.dto.RegisterRequest;
-import com.Parkify.Parkify.dto.VerifyRequest;
-import com.Parkify.Parkify.model.User;
-import com.Parkify.Parkify.service.EmailService;
-import com.Parkify.Parkify.service.JwtService;
-import com.Parkify.Parkify.service.OtpService;
-import com.Parkify.Parkify.service.RegistrationService;
-import com.Parkify.Parkify.service.UserService;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.Optional;
+import com.Parkify.Parkify.dto.LoginRequest;
+import com.Parkify.Parkify.dto.RegisterRequest;
+import com.Parkify.Parkify.dto.VerifyRequest;
+import com.Parkify.Parkify.model.Role;
+import com.Parkify.Parkify.model.User;
+import com.Parkify.Parkify.service.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    @Autowired
-    private OtpService otpService;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private RegistrationService registrationService;
+    @Autowired private OtpService otpService;
+    @Autowired private EmailService emailService;
+    @Autowired private JwtService jwtService;
+    @Autowired private UserService userService;
+    @Autowired private RegistrationService registrationService;
+    @Autowired private NotificationService notificationService;
 
     @PostMapping("/register-otp")
     public ResponseEntity<?> sendOtpForRegistration(@RequestBody RegisterRequest registerRequest) {
+
         String email = registerRequest.getEmail().trim().toLowerCase();
 
-        if (userService.existsByEmail(email)) {
+        Role role;
+        try {
+            role = Role.valueOf(registerRequest.getRole().toUpperCase());
+        } catch (Exception e) {
+            role = Role.DRIVER;
+        }
+
+        if (role == Role.SUPER_ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "SUPER_ADMIN cannot be registered publicly"));
+        }
+
+        List<String> roles = userService.getRolesForEmail(email);
+        if (roles.contains(role.name())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Email already registered"));
+                    .body(Map.of("error", "Already registered as " + role));
         }
 
         User pending = new User();
@@ -52,101 +57,100 @@ public class AuthController {
         pending.setPassword(registerRequest.getPassword());
         pending.setPhoneNumber(registerRequest.getPhoneNumber());
         pending.setAddress(registerRequest.getAddress());
-        pending.setHasInventory(registerRequest.isHasInventory());
-        pending.setHasServiceCenter(registerRequest.isHasServiceCenter());
-        if (registerRequest.getRole() != null && !registerRequest.getRole().isBlank()) {
-            try {
-                pending.setRole(com.Parkify.Parkify.model.Role.valueOf(registerRequest.getRole().toUpperCase()));
-            } catch (IllegalArgumentException ex) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error", "Invalid role, must be DRIVER or PARKING_OWNER or SUPER_ADMIN"));
-            }
-        } else {
-            pending.setRole(null); // UserServiceImpl will default to DRIVER
-        }
+        pending.setRole(role);
 
         registrationService.storePendingUser(pending);
 
         String otp = otpService.generateOtp(email);
         emailService.sendOtpEmail(email, otp);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(Map.of("message", "OTP sent to " + email));
+        return ResponseEntity.ok(Map.of("message", "OTP sent"));
     }
 
     @PostMapping("/verify-register-otp")
-    public ResponseEntity<?> verifyRegistrationOtp(@RequestBody VerifyRequest verifyRequest) {
-        String normalizedEmail = verifyRequest.getEmail().trim().toLowerCase();
-        boolean isValid = otpService.validateOtp(normalizedEmail, verifyRequest.getOtp());
+    public ResponseEntity<?> verifyRegistrationOtp(@RequestBody VerifyRequest request) {
 
-        if (!isValid) {
+        String email = request.getEmail().trim().toLowerCase();
+
+        if (!otpService.validateOtp(email, request.getOtp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or expired OTP"));
+                    .body(Map.of("error", "Invalid OTP"));
         }
 
-        User pendingUser = registrationService.getPendingUser(normalizedEmail);
-        if (pendingUser == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "No pending registration found for this email"));
-        }
+        Role role = Role.valueOf(request.getRole().toUpperCase());
 
-        User created;
-        try {
-            created = userService.registerUser(pendingUser);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", ex.getMessage()));
-        }
+        User pending = registrationService.getPendingUser(email, role.name());
+        User created = userService.registerUser(pending);
 
-        registrationService.removePendingUser(verifyRequest.getEmail());
+        registrationService.removePendingUser(email, role.name());
+
+        notificationService.notifyAdminsOnNewUserRegistration(created);
 
         String token = jwtService.generateToken(created.getEmail(), created.getRole().name());
 
         return ResponseEntity.ok(Map.of(
-                "message", "Registration verified and user created",
                 "token", token,
                 "role", created.getRole().name(),
-                "id", created.getId()));
+                "id", created.getId()
+        ));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        if (loginRequest.getEmail() == null || loginRequest.getEmail().isBlank() ||
-                loginRequest.getPassword() == null || loginRequest.getPassword().isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Email and password must be provided"));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
+        String email = request.getEmail().trim().toLowerCase();
+
+        userService.loginUser(email, request.getPassword());
+
+        List<String> roles = userService.getRolesForEmail(email);
+
+        if (roles.size() == 1) {
+            String otp = otpService.generateOtp(email);
+            emailService.sendOtpEmail(email, otp);
+
+            return ResponseEntity.ok(Map.of(
+                    "status", "OTP_SENT",
+                    "roles", roles
+            ));
         }
 
-        String email = loginRequest.getEmail().trim().toLowerCase();
+        return ResponseEntity.ok(Map.of(
+                "status", "ROLE_SELECTION_REQUIRED",
+                "roles", roles
+        ));
+    }
 
-        try {
-            userService.loginUser(email, loginRequest.getPassword());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
-        }
+    @PostMapping("/select-role")
+    public ResponseEntity<?> selectRole(@RequestBody Map<String, String> body) {
+
+        String email = body.get("email").trim().toLowerCase();
+        String role = body.get("role");
 
         String otp = otpService.generateOtp(email);
         emailService.sendOtpEmail(email, otp);
-        return ResponseEntity.ok(Map.of("message", "OTP sent to " + email));
+
+        return ResponseEntity.ok(Map.of("status", "OTP_SENT"));
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
-        String email = verifyRequest.getEmail().trim().toLowerCase();
-        boolean isValid = otpService.validateOtp(email, verifyRequest.getOtp());
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest request) {
 
-        if (isValid) {
-            User user = userService.getUserByEmail(email);
-            String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+        String email = request.getEmail().trim().toLowerCase();
 
-            return ResponseEntity.ok(Map.of(
-                    "message", "Verification successful",
-                    "token", token,
-                    "role", user.getRole().name(),
-                    "id", user.getId()));
-        } else {
+        if (!otpService.validateOtp(email, request.getOtp())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or expired OTP"));
+                    .body(Map.of("error", "Invalid OTP"));
         }
+
+        Role role = Role.valueOf(request.getRole().toUpperCase());
+        User user = userService.getUserByEmailAndRole(email, role);
+
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "role", user.getRole().name(),
+                "id", user.getId()
+        ));
     }
 }

@@ -11,10 +11,4 @@ root.render(
   </React.StrictMode>
 );
 
-<<<<<<< HEAD
-=======
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
->>>>>>> 015e8e0 (Update parkify-frontend/src/index.js)
 reportWebVitals();

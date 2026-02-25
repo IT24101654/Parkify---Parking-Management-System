@@ -18,20 +18,21 @@ public class OtpService {
 
     @Transactional
     public String generateOtp(String email) {
+        
         String otpCode = String.valueOf(new Random().nextInt(900000) + 100000);
-
         Optional<Otp> existingOtp = otpRepository.findByEmail(email);
 
         Otp otpEntity;
         if (existingOtp.isPresent()) {
+            
             otpEntity = existingOtp.get();
         } else {
             otpEntity = new Otp();
             otpEntity.setEmail(email);
         }
-
         otpEntity.setOtp(otpCode);
         otpEntity.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+
 
         otpRepository.save(otpEntity);
 

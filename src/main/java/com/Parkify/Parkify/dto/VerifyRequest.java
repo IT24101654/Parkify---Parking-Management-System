@@ -10,4 +10,7 @@ import lombok.NoArgsConstructor;
 public class VerifyRequest {
     private String email;
     private String otp;
+
+        private String role;
+
 }

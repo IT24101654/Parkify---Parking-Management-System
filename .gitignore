@@ -1,35 +1,20 @@
-# Compiled class file
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# =========================
+# Java / Maven / Gradle
+# =========================
+/target/
 *.jar
 *.war
-*.nar
 *.ear
-<<<<<<< Updated upstream
 *.zip
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-<<<<<<< HEAD
-=======
 /build/
 !/src/main/**/build/
 !/src/test/**/build/
 !/src/main/**/target/
 !/src/test/**/target/
+
 .gradle/
 dependency-reduced-pom.xml
 .flattened-pom.xml
@@ -75,7 +60,6 @@ parkify-frontend/node_modules/
 # =========================
 # Logs and Crash Reports
 # =========================
-# http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
 build.log
@@ -101,14 +85,3 @@ manifest.yml
 overridedb.*
 secrets.yml
 .git-hooks/
->>>>>>> Stashed changes
-=======
-
-node_modules/
-parkify-frontend/node_modules/
-
-.vscode/
-.idea/
-
-target/
->>>>>>> a12251c (update gitignore rules)

@@ -20,4 +20,28 @@ public class EmailService {
 
         mailSender.send(message);
     }
+    public void sendNewUserNotificationEmail(String toAdminEmail, com.Parkify.Parkify.model.User newUser) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toAdminEmail);
+        message.setSubject("Parkify - New User Registration: " + newUser.getRole().name());
+        
+        String text = String.format(
+            "Hello Super Admin,\n\n" +
+            "A new user has registered in the Parkify system.\n\n" +
+            "Details:\n" +
+            "- Name: %s\n" +
+            "- Email: %s\n" +
+            "- Phone Number: %s\n" +
+            "- Role: %s\n\n" +
+            "Please log in to the admin dashboard for more details.\n\n" +
+            "Regards,\nParkify System",
+            newUser.getName(),
+            newUser.getEmail(),
+            newUser.getPhoneNumber(),
+            newUser.getRole().name()
+        );
+
+        message.setText(text);
+        mailSender.send(message);
+    }
 }

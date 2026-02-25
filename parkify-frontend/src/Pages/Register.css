@@ -79,7 +79,7 @@
     accent-color: #007bff;
 }
 
-/* Scrollable Form Fix */
+
 .scrollable-form {
     max-height: 80vh;
     overflow-y: auto;
@@ -127,7 +127,6 @@
     cursor: pointer;
 }
 
-/* Custom Scrollbar */
 .scrollable-form::-webkit-scrollbar {
     width: 5px;
 }
@@ -136,7 +135,6 @@
     border-radius: 10px;
 }
 
-/* අලුත් Styles */
 .step-title {
     font-weight: 800;
     color: #2D4057;
@@ -146,7 +144,6 @@
 
 .text-center { text-align: center; }
 
-/* Vehicle Options */
 .vehicle-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -173,7 +170,7 @@
     transform: scale(1.05);
 }
 
-/* Preference List */
+
 .pref-list {
     display: flex;
     flex-direction: column;

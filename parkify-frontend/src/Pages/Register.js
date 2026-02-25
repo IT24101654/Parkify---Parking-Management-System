@@ -4,22 +4,22 @@ import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Register.css';
 
-// axios.defaults.baseURL = 'http://localhost:8080';
+
 axios.defaults.timeout = 15000;
 
 function Register() {
-    const [step, setStep] = useState(1); 
+    const [step, setStep] = useState(1);
     const [role, setRole] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    
     const [selectedVehicles, setSelectedVehicles] = useState([]);
     const [driverPreferences, setDriverPreferences] = useState("");
 
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', email: '', phoneNumber: '', password: '',
-        parkingName: '', address: '', hasInventory: false, hasServiceCenter: false
+        parkingName: '', address: '', hasInventory: false, hasServiceCenter: false, nicNumber: ''
+
     });
 
     const handleRoleSelect = (selectedRole) => {
@@ -50,7 +50,9 @@ function Register() {
             address: formData.address || '',
             role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER',
             hasInventory: formData.hasInventory,
-            hasServiceCenter: formData.hasServiceCenter
+
+            hasServiceCenter: formData.hasServiceCenter,
+            ...(role === 'driver' && formData.nicNumber ? { nicNumber: formData.nicNumber } : {})
         };
 
         try {
@@ -58,7 +60,8 @@ function Register() {
             alert(data.message || "OTP sent to your email!");
             setStep(3);
         } catch (error) {
-            alert(error.response?.data?.message || "Registration failed.");
+
+            alert(error.response?.data?.error || error.response?.data?.message || "Registration failed.");
         } finally { setLoading(false); }
     };
 
@@ -67,7 +70,10 @@ function Register() {
         try {
             const response = await axios.post('/api/auth/verify-register-otp', {
                 email: formData.email,
-                otp: otp
+
+                otp: otp,
+                role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER'  
+
             });
 
             localStorage.setItem("token", response.data.token);
@@ -81,7 +87,8 @@ function Register() {
                 navigate('/po-dashboard');
             }
         } catch (error) {
-            alert("Invalid OTP. Please try again.");
+
+            alert(error.response?.data?.error || "Invalid OTP. Please try again.");
         } finally { setLoading(false); }
     };
 
@@ -102,7 +109,6 @@ function Register() {
         <div className="auth-page">
             <Navbar variant="register" />
             <div className="auth-container">
-                
                 {step === 1 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">Join Parkify as a...</h2>
@@ -128,15 +134,15 @@ function Register() {
                             <div className="question-box">
                                 <h3>Do you have an inventory?</h3>
                                 <div className="radio-group">
-                                    <label><input type="radio" name="inventory" onChange={() => setFormData({...formData, hasInventory: true})} /> Yes</label>
-                                    <label><input type="radio" name="inventory" onChange={() => setFormData({...formData, hasInventory: false})} /> No</label>
+                                    <label><input type="radio" name="inventory" onChange={() => setFormData({ ...formData, hasInventory: true })} /> Yes</label>
+                                    <label><input type="radio" name="inventory" onChange={() => setFormData({ ...formData, hasInventory: false })} /> No</label>
                                 </div>
                             </div>
                             <div className="question-box">
                                 <h3>Do you have a service center?</h3>
                                 <div className="radio-group">
-                                    <label><input type="radio" name="service" onChange={() => setFormData({...formData, hasServiceCenter: true})} /> Yes</label>
-                                    <label><input type="radio" name="service" onChange={() => setFormData({...formData, hasServiceCenter: false})} /> No</label>
+                                    <label><input type="radio" name="service" onChange={() => setFormData({ ...formData, hasServiceCenter: true })} /> Yes</label>
+                                    <label><input type="radio" name="service" onChange={() => setFormData({ ...formData, hasServiceCenter: false })} /> No</label>
                                 </div>
                             </div>
                         </div>
@@ -155,6 +161,11 @@ function Register() {
                             <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} className="form-input-styled" />
                             <input name="phoneNumber" type="tel" placeholder="Phone Number" required onChange={handleChange} className="form-input-styled" />
                             <input name="password" type="password" placeholder="Create Password" required onChange={handleChange} className="form-input-styled" />
+
+                            
+                            {role === 'driver' && (
+                                <input name="nicNumber" type="text" placeholder="National ID (NIC) (Optional)" onChange={handleChange} className="form-input-styled" />
+                            )}
                             <button type="submit" className="btn-auth-primary" disabled={loading}>{loading ? "Sending OTP..." : "Register Now"}</button>
                         </form>
                     </div>
@@ -176,7 +187,7 @@ function Register() {
                         <p>Select all that apply</p>
                         <div className="vehicle-grid">
                             {['Car', 'Bike', 'Van', 'Lorry'].map(v => (
-                                <div key={v} 
+                                <div key={v}
                                     className={`vehicle-option ${selectedVehicles.includes(v) ? 'active' : ''}`}
                                     onClick={() => toggleVehicle(v)}>
                                     <span className="material-symbols-outlined">
@@ -190,7 +201,6 @@ function Register() {
                     </div>
                 )}
 
-                {/* Step 5: Driver Preferences */}
                 {step === 5 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">Your Preference</h2>
@@ -201,7 +211,8 @@ function Register() {
                                 { id: 'near', label: 'Nearest Location', icon: 'near_me' },
                                 { id: 'avail', label: 'Maximum Availability', icon: 'event_available' }
                             ].map(p => (
-                                <div key={p.id} 
+
+                                <div key={p.id}
                                     className={`pref-option ${driverPreferences === p.id ? 'active' : ''}`}
                                     onClick={() => setDriverPreferences(p.id)}>
                                     <span className="material-symbols-outlined">{p.icon}</span>
