@@ -1,6 +1,9 @@
 {
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.13.6",
+=======
+>>>>>>> dcf8893 (Update package.json)
     "react-router-dom": "^7.13.1"
   }
 }
