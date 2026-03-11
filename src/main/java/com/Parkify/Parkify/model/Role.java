@@ -1,4 +1,5 @@
 package com.Parkify.Parkify.model;
 
-public class Role {
+public enum Role {
+    SUPER_ADMIN, PARKING_OWNER, DRIVER
 }
