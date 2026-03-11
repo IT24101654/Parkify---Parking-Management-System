@@ -1,0 +1,103 @@
+.auth-page {
+    background-color: #f4f7f6;
+    min-height: 100vh;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px); /* Navbar එකට ඉඩ තබා */
+    padding: 20px;
+}
+
+.role-selection-card {
+    background: white;
+    padding: 50px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    max-width: 700px;
+    text-align: center;
+}
+
+.role-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.role-box {
+    padding: 30px;
+    border: 2px solid #eee;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.role-box:hover {
+    border-color: #AE8E82;
+    background: #fdf5f2;
+    transform: translateY(-5px);
+}
+
+.role-box span {
+    font-size: 48px;
+    color: #AE8E82;
+}
+
+/* Scrollable Form Fix */
+.scrollable-form {
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 550px;
+}
+
+.form-input-styled {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.input-row {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-auth-primary {
+    width: 100%;
+    padding: 15px;
+    background: #2D4057;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-back {
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: #7A868E;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Custom Scrollbar */
+.scrollable-form::-webkit-scrollbar {
+    width: 5px;
+}
+.scrollable-form::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
