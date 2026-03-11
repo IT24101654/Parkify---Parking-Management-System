@@ -1,6 +1,5 @@
 package com.Parkify.Parkify.config;
 
-<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,7 +66,3 @@ public class SecurityConfig {
         return source;
     }
 }
-=======
-public class SecurityConfig {
-}
->>>>>>> 4d97f27 (add files)

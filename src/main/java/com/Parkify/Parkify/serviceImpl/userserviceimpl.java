@@ -1,6 +1,5 @@
 package com.Parkify.Parkify.serviceImpl;
 
-<<<<<<< HEAD
 import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.repository.UserRepository;
@@ -165,7 +164,3 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 }
-=======
-public class userserviceImpl {
-}
->>>>>>> 4d97f27 (add files)
