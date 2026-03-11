@@ -23,6 +23,7 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+<<<<<<< HEAD
 =======
 /build/
 !/src/main/**/build/
@@ -101,3 +102,13 @@ overridedb.*
 secrets.yml
 .git-hooks/
 >>>>>>> Stashed changes
+=======
+
+node_modules/
+parkify-frontend/node_modules/
+
+.vscode/
+.idea/
+
+target/
+>>>>>>> a12251c (update gitignore rules)
