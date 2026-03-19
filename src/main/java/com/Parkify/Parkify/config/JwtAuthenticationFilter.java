@@ -37,16 +37,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String userEmail = jwtService.extractEmail(jwt);
-            final String role = jwtService.extractRole(jwt); // Token එකෙන් Role එක ගන්නවා
+            final String role = jwtService.extractRole(jwt);
 
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 System.out.println("JWT Filter: Authenticating user: " + userEmail + " with role: " + role);
 
-                // "ROLE_" කෑල්ල අනිවාර්යයෙන්ම දාන්න ඕනේ SecurityConfig එකේ hasAuthority බලන නිසා
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userEmail,
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                        Collections.singletonList(new SimpleGrantedAuthority(role))
                 );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

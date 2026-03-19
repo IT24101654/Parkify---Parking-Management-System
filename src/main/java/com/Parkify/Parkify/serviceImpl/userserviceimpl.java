@@ -2,10 +2,10 @@ package com.Parkify.Parkify.serviceImpl;
 
 import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
-import com.Parkify.Parkify.repository.userrepository;
+import com.Parkify.Parkify.repository.UserRepository;
 import com.Parkify.Parkify.service.EmailService;
 import com.Parkify.Parkify.service.OtpService;
-import com.Parkify.Parkify.service.userservice;
+import com.Parkify.Parkify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class userserviceimpl implements userservice {
+public class UserServiceImpl implements UserService {
 
     @Autowired
-    private userrepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

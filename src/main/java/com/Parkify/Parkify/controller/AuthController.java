@@ -6,7 +6,7 @@ import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.service.EmailService;
 import com.Parkify.Parkify.service.JwtService;
 import com.Parkify.Parkify.service.OtpService;
-import com.Parkify.Parkify.service.userservice;
+import com.Parkify.Parkify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,7 @@ public class AuthController {
     private JwtService jwtService;
 
     @Autowired
-    private userservice userService;
+    private UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {

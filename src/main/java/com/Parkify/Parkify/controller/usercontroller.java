@@ -2,7 +2,7 @@ package com.Parkify.Parkify.controller;
 
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.service.UserServiceExtra;
-import com.Parkify.Parkify.service.userservice;
+import com.Parkify.Parkify.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,13 +21,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
-public class usercontroller {
+public class UserController {
 
     @Autowired
-    private userservice userService;
+    private UserService userService;
 
     @Autowired
-    private UserServiceExtra userExtraService; // අලුත් Service එක Inject කිරීම
+    private UserServiceExtra userExtraService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
@@ -149,4 +149,32 @@ public class usercontroller {
             return ResponseEntity.internalServerError().build();
         }
     }
+    @PostMapping("/forgot-password")
+public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+    try {
+        userService.forgotPassword(request.get("email"));
+        return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+    } catch (RuntimeException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+}
+
+@PostMapping("/reset-password")
+public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+    try {
+        String email = request.get("email");
+        String otp = request.get("otp");
+        String newPassword = request.get("newPassword");
+
+        boolean result = userService.resetPassword(email, otp, newPassword);
+        if (result) {
+            return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired OTP");
+        }
+    } catch (RuntimeException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+}
+
 }

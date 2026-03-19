@@ -3,7 +3,7 @@ package com.Parkify.Parkify.serviceImpl;
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.model.Vehicle;
 import com.Parkify.Parkify.repository.VehicleRepository;
-import com.Parkify.Parkify.repository.userrepository;
+import com.Parkify.Parkify.repository.UserRepository;
 import com.Parkify.Parkify.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class VehicleServiceImpl implements VehicleService {
     private VehicleRepository vehicleRepository;
 
     @Autowired
-    private userrepository userRepository;
+    private UserRepository userRepository;
 
     @Override
     public Vehicle addVehicle(Long userId, Vehicle vehicle, String vImage, String lImage) {

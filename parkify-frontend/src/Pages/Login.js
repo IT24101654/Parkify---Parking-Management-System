@@ -1,43 +1,73 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Login.css'; 
 
 function Login() {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [otp, setOtp] = useState('');
     const [showOTP, setShowOTP] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleLoginSubmit = (e) => {
+    // 1. Send OTP Request
+    const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        setShowOTP(true);
+        setLoading(true);
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/login', {
+                email: email,
+                password: password
+            });
+            alert(response.data.message); // OTP sent message
+            setShowOTP(true);
+        } catch (error) {
+            alert(error.response?.data?.error || "Login Failed. Check credentials.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const verifyOTP = () => {
-        let role = "driver";
-        if (email.includes("admin")) role = "super_admin";
-        else if (email.includes("owner")) role = "owner";
+    // 2. Verify OTP & Get JWT Token
+    const verifyOTP = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/verify-otp', {
+                email: email,
+                otp: otp
+            });
 
-        localStorage.setItem("userRole", role);
-        localStorage.setItem("userEmail", email);
-        navigate('/dashboard');
+            // බැක්එන්ඩ් එකෙන් ලැබෙන Token සහ Role එක ගන්න
+            const { token, role, message } = response.data;
+            
+            localStorage.setItem("token", token);
+            localStorage.setItem("userRole", role.toLowerCase());
+            localStorage.setItem("userEmail", email);
+
+            alert(message);
+            navigate('/dashboard');
+        } catch (error) {
+            alert(error.response?.data?.error || "Invalid OTP");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="auth-page">
             <Navbar variant="login" />
             <div className="auth-split-container">
-                <div className="auth-visual" style={{background: 'linear-gradient(rgba(45, 64, 87, 0.7), rgba(45, 64, 87, 0.7)), url("https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=1000")'}}>
+                <div className="auth-visual" style={{background: 'linear-gradient(rgba(45,64,87,0.7),rgba(45,64,87,0.7)), url("https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&q=80&w=1000")'}}>
                     <div className="visual-text">
                         <h2>Smart Parking for Smart Cities.</h2>
-                        <p>Join thousands of users optimizing their daily commute with AI.</p>
                     </div>
                 </div>
                 <div className="auth-form-container">
                     {!showOTP ? (
                         <div className="auth-card-plain">
                             <h2 style={{fontWeight:'800', color:'#2D4057'}}>Welcome Back</h2>
-                            <p style={{color:'#7A868E', marginBottom:'30px'}}>Please enter your credentials to access your account.</p>
                             <form onSubmit={handleLoginSubmit}>
                                 <div className="input-group">
                                     <label>Email Address</label>
@@ -45,28 +75,27 @@ function Login() {
                                 </div>
                                 <div className="input-group">
                                     <label>Password</label>
-                                    <input type="password" placeholder="••••••••" required />
+                                    <input type="password" placeholder="••••••••" required onChange={(e)=>setPassword(e.target.value)} />
                                 </div>
-                                <div className="forgot-pass" style={{textAlign:'right', marginBottom:'20px'}}>
-                                    <Link to="/forgot-password" style={{color:'#FF8E72', fontWeight:'600', textDecoration:'none'}}>Forgot Password?</Link>
-                                </div>
-                                <button type="submit" className="btn-auth-primary">Send OTP</button>
+                                <button type="submit" className="btn-auth-primary" disabled={loading}>
+                                    {loading ? "Sending OTP..." : "Send OTP"}
+                                </button>
                             </form>
-                            <p className="auth-footer" style={{marginTop:'25px', textAlign:'center', color:'#7A868E'}}>
-                                Don't have an account? <Link to="/register" style={{color:'#2D4057', fontWeight:'700'}}>Sign Up Now</Link>
-                            </p>
                         </div>
                     ) : (
                         <div className="auth-card-plain">
                             <h2 style={{fontWeight:'800', color:'#2D4057'}}>Verify OTP</h2>
-                            <p style={{color:'#7A868E'}}>We've sent a 6-digit code to <strong>{email}</strong></p>
-                            <div className="otp-inputs" style={{display:'flex', gap:'10px', justifyContent:'center', margin:'30px 0'}}>
-                                {[1,2,3,4,5,6].map(i => <input key={i} type="text" maxLength="1" className="otp-field" />)}
-                            </div>
-                            <button onClick={verifyOTP} className="btn-auth-primary">Verify & Login</button>
-                            <p className="auth-footer" style={{marginTop:'20px', textAlign:'center'}}>
-                                Didn't receive code? <Link to="#" style={{color:'#FF8E72', fontWeight:'700'}}>Resend OTP</Link>
-                            </p>
+                            <p>Code sent to <strong>{email}</strong></p>
+                            <input 
+                                type="text" 
+                                placeholder="Enter 6-digit OTP" 
+                                className="form-input-styled" 
+                                style={{textAlign:'center', fontSize:'1.5rem'}}
+                                onChange={(e) => setOtp(e.target.value)} 
+                            />
+                            <button onClick={verifyOTP} className="btn-auth-primary" disabled={loading} style={{marginTop:'20px'}}>
+                                {loading ? "Verifying..." : "Verify & Login"}
+                            </button>
                         </div>
                     )}
                 </div>
