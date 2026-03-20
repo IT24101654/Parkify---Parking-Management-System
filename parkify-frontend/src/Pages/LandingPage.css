@@ -2,6 +2,7 @@
     padding-top: 80px;
     font-family: 'Inter', sans-serif;
     background-color: #fdfaf5;
+    overflow-x: hidden;
 }
 
 .navbar {
@@ -54,8 +55,11 @@
 .hero {
     text-align: center;
     padding: 100px 20px;
-    max-width: 950px;
+    max-width: 1000px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .badge-ai {
@@ -67,20 +71,44 @@
     font-weight: 800;
     color: #AE8E82;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    margin-bottom: 25px;
+    margin-bottom: 35px; 
     border: 1px solid #f0f0f0;
 }
 
 .hero h1 {
-    font-size: 4.2rem;
+    font-size: 4rem;
     font-weight: 900;
-    line-height: 1.1;
+    line-height: 1.2;
     margin-bottom: 25px;
     color: #2D4057;
+    display: flex;
+    justify-content: center;
 }
 
 .hero h1 span {
     color: #AE8E82;
+}
+
+.type-container {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 4px solid #AE8E82; 
+    margin: 0 auto;
+    width: 0; 
+    animation: 
+        typing 3.5s steps(40, end) forwards,
+        blink-caret .75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #AE8E82; }
 }
 
 .hero p {
@@ -88,9 +116,9 @@
     color: #7A868E;
     margin-bottom: 40px;
     line-height: 1.6;
+    max-width: 800px;
 }
 
-/* --- MODULE CARDS --- */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

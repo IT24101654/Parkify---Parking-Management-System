@@ -23,7 +23,17 @@ function LandingPage() {
 
             <header className="hero">
                 <div className="badge-ai">⚡ PARKIFY AI ENGINE v2.0 LIVE</div>
-                <h1>Empowering Cities with <span>Smart Parking</span></h1>
+                
+                <h1>
+                    <div className="type-container">
+                        Empowering Cities with 
+                    </div>
+                </h1>
+                <h1>
+                    <div className="type-container">
+                        <span>Smart Parking</span>
+                    </div>
+                </h1>
                 <p>The world's most advanced AI-Based management system. Reduce congestion, automate billing, and maximize occupancy in real-time.</p>
                 <div className="hero-btns">
                     <button onClick={() => navigate('/register')} style={{padding:'18px 40px', borderRadius:'15px', background:'#AE8E82', color:'white', border:'none', cursor:'pointer', fontWeight:'800', fontSize:'1.1rem', boxShadow:'0 10px 20px rgba(174, 142, 130, 0.3)'}}>Register Now</button>
