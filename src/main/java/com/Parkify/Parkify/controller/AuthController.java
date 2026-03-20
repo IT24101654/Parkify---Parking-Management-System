@@ -52,6 +52,8 @@ public class AuthController {
         pending.setPassword(registerRequest.getPassword());
         pending.setPhoneNumber(registerRequest.getPhoneNumber());
         pending.setAddress(registerRequest.getAddress());
+        pending.setHasInventory(registerRequest.isHasInventory());
+        pending.setHasServiceCenter(registerRequest.isHasServiceCenter());
         if (registerRequest.getRole() != null && !registerRequest.getRole().isBlank()) {
             try {
                 pending.setRole(com.Parkify.Parkify.model.Role.valueOf(registerRequest.getRole().toUpperCase()));

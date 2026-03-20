@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Login.css'; 
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.timeout = 15000;
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -28,14 +30,16 @@ function Login() {
         }
         setLoading(true);
         try {
-            await axios.post('http://localhost:8080/api/auth/login', {
+            await axios.post('/api/auth/login', {
                 email: email.trim().toLowerCase(),
                 password: password
             });
             setLoginError('');
             setShowOTP(true);
         } catch (error) {
-            setLoginError(error.response?.data?.error || "Login Failed.");
+            const err = error.response?.data?.error || error.message || "Network Error";
+            setLoginError(err);
+            console.error('Login request failed:', error);
         } finally {
             setLoading(false);
         }
@@ -45,13 +49,15 @@ function Login() {
     const requestPasswordReset = async () => {
         setLoading(true);
         try {
-            await axios.post('http://localhost:8080/api/users/forgot-password', {
+            await axios.post('/api/users/forgot-password', {
                 email: forgotEmail.trim().toLowerCase()
             });
             setResetMessage('OTP sent to your email.');
             setResetStep(2);
         } catch (error) {
-            setResetMessage('Failed to send reset OTP');
+            const err = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to send reset OTP';
+            setResetMessage(err);
+            console.error('forgot-password request failed:', error);
         } finally {
             setLoading(false);
         }
@@ -60,7 +66,7 @@ function Login() {
     const performPasswordReset = async () => {
         setLoading(true);
         try {
-            await axios.post('http://localhost:8080/api/users/reset-password', {
+            await axios.post('/api/users/reset-password', {
                 email: forgotEmail.trim().toLowerCase(),
                 otp: forgotOtp,
                 newPassword: newPassword
@@ -69,7 +75,9 @@ function Login() {
             setShowForgotPassword(false);
             setResetStep(1);
         } catch (error) {
-            setResetMessage('Failed to reset password');
+            const err = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to reset password';
+            setResetMessage(err);
+            console.error('reset-password request failed:', error);
         } finally {
             setLoading(false);
         }
@@ -78,7 +86,7 @@ function Login() {
     const verifyOTP = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/verify-otp', {
+            const response = await axios.post('/api/auth/verify-otp', {
                 email: email,
                 otp: otp
             });

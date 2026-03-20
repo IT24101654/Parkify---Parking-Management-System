@@ -6,7 +6,7 @@ import LandingPage from './Pages/LandingPage';
 import Login from './Pages/Login';
 import Dashboard from './Pages/Super-Admin/Dashboard';
 import Register from "./Pages/Register";
-import PODashboard from './Pages/Parking-Owner/PODashboard'; // මේක හරියටම path එක බලන්න
+import PODashboard from './Pages/Parking-Owner/PODashboard';
 
 function App() {
     return (

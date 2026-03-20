@@ -14,4 +14,6 @@ public class RegisterRequest {
     private String phoneNumber;
     private String address;
     private String role;
+    private boolean hasInventory;
+    private boolean hasServiceCenter;
 }

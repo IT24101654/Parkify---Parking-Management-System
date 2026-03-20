@@ -31,6 +31,19 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Pattern(regexp = "^\\d{10}$", message = "Phone number must be 10 digits")
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "has_inventory")
+    private boolean hasInventory = false;
+
+    @Column(name = "has_service_center")
+    private boolean hasServiceCenter = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -39,25 +52,10 @@ public class User {
     private boolean active = true;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "two_factor_enabled")
     private boolean twoFactorEnabled = false;
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Vehicle> vehicles;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-    @Pattern(regexp = "^\\d{10}$", message = "Phone number must be 10 digits")
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
-    @Column(name = "address")
-    private String address;
 
     @Column(name = "profile_picture")
     private String profilePicture;
@@ -68,4 +66,13 @@ public class User {
 
     @Column(name = "nic_image")
     private String nicImage;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Vehicle> vehicles;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

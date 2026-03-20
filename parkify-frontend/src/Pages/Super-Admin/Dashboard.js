@@ -26,14 +26,14 @@ function Dashboard() {
                 // ප්‍රථමයෙන් /api/users/me එකෙන් current user data ගන්න
                 let response;
                 try {
-                    response = await axios.get('http://localhost:8080/api/users/me', {
+                    response = await axios.get('/api/users/me', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                 } catch (meErr) {
                     if (!storedUserId) {
                         throw meErr;
                     }
-                    response = await axios.get(`http://localhost:8080/api/users/${storedUserId}`, {
+                    response = await axios.get(`/api/users/${storedUserId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                 }

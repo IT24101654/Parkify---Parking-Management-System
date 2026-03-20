@@ -4,8 +4,12 @@ import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Register.css';
 
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.timeout = 15000; // 15s timeout
+
+
 function Register() {
-    const [step, setStep] = useState(1); // 1: Role, 2: Form, 3: OTP
+    const [step, setStep] = useState(1); // 1: Role, 1.5: Owner Questions, 2: Form, 3: OTP
     const [role, setRole] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,12 +22,18 @@ function Register() {
         phoneNumber: '',
         password: '',
         parkingName: '',
-        address: ''
+        address: '',
+        hasInventory: false,
+        hasServiceCenter: false
     });
 
     const handleRoleSelect = (selectedRole) => {
         setRole(selectedRole);
-        setStep(2);
+        if (selectedRole === 'owner') {
+            setStep(1.5);
+        } else {
+            setStep(2);
+        }
     };
 
     const handleChange = (e) => {
@@ -41,16 +51,19 @@ function Register() {
             password: formData.password,
             phoneNumber: formData.phoneNumber,
             address: formData.address || '',
-            role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER'
+            role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER',
+            hasInventory: formData.hasInventory,
+            hasServiceCenter: formData.hasServiceCenter
         };
 
         try {
-            const { data } = await axios.post('http://localhost:8080/api/auth/register-otp', userPayload);
+            const { data } = await axios.post('/api/auth/register-otp', userPayload);
             alert(data.message || "OTP sent to your email!");
             setStep(3);
         } catch (error) {
-            const message = error.response?.data?.error || error.response?.data?.message || "Registration failed. Try again.";
+            const message = error.response?.data?.error || error.response?.data?.message || error.message || "Registration failed. Try again.";
             alert(message);
+            console.error('Registration error detail:', error);
         } finally {
             setLoading(false);
         }
@@ -60,7 +73,7 @@ function Register() {
     const handleVerifyAndRegister = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/verify-register-otp', {
+            const response = await axios.post('/api/auth/verify-register-otp', {
                 email: formData.email,
                 otp: otp
             });
@@ -108,6 +121,39 @@ function Register() {
                                 <p>I want to list and manage my parking spaces.</p>
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* Step 1.5: Owner Questions */}
+                {step === 1.5 && (
+                    <div className="role-selection-card">
+                        <h2 style={{fontWeight:'800', color:'#2D4057', fontSize:'2rem'}}>Tell us about your parking place</h2>
+                        <div className="questions-grid">
+                            <div className="question-box">
+                                <h3>Do you have an inventory in your parking place?</h3>
+                                <div className="radio-group">
+                                    <label>
+                                        <input type="radio" name="inventory" value="yes" onChange={() => setFormData({...formData, hasInventory: true})} /> Yes
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="inventory" value="no" onChange={() => setFormData({...formData, hasInventory: false})} /> No
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="question-box">
+                                <h3>Do you have a vehicle service center in your parking place?</h3>
+                                <div className="radio-group">
+                                    <label>
+                                        <input type="radio" name="service" value="yes" onChange={() => setFormData({...formData, hasServiceCenter: true})} /> Yes
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="service" value="no" onChange={() => setFormData({...formData, hasServiceCenter: false})} /> No
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button className="btn-auth-primary" onClick={() => setStep(2)} style={{marginTop:'20px'}}>Continue</button>
+                        <button className="btn-back" onClick={() => setStep(1)}>Go Back</button>
                     </div>
                 )}
 

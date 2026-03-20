@@ -1,22 +1,52 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './PODashboard.css';
 
 function PODashboard() {
     const navigate = useNavigate();
-    const [ownerName, setOwnerName] = useState("Owner");
+    const [activeTab, setActiveTab] = useState('overview');
+    const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        // LocalStorage එකෙන් නම සහ විස්තර ගන්නවා
-        const name = localStorage.getItem("userName");
-        if(name) setOwnerName(name);
+        const fetchUserProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const storedUserId = localStorage.getItem('userId');
 
-        // Security Check: Token එකක් නැත්නම් ආපහු Login එකට යවනවා
-        const token = localStorage.getItem("token");
-        const role = localStorage.getItem("userRole");
-        if (!token || role !== 'owner') {
-            // navigate('/login'); 
-        }
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
+
+                let response;
+                try {
+                    response = await axios.get('/api/users/me', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                } catch (meErr) {
+                    if (!storedUserId) {
+                        throw meErr;
+                    }
+                    response = await axios.get(`/api/users/${storedUserId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                }
+
+                setUserData(response.data);
+            } catch (error) {
+                console.error('Failed to fetch user data', error);
+                setUserData({
+                    id: localStorage.getItem('userId') || 1,
+                    name: 'Parking Owner',
+                    email: localStorage.getItem('userEmail') || 'owner@parkify.ai',
+                    hasInventory: false,
+                    hasServiceCenter: false
+                });
+            }
+        };
+
+        fetchUserProfile();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -24,103 +54,123 @@ function PODashboard() {
         navigate('/login');
     };
 
+    if (!userData) return <div className="loading">Loading Dashboard...</div>;
+
     return (
-        <div className="po-dashboard-layout">
-            {/* --- SIDEBAR --- */}
+        <div className="po-dashboard">
+            {/* Sidebar */}
             <aside className="po-sidebar">
-                <div className="sidebar-brand">
+                <div className="sidebar-logo">
                     <span className="material-symbols-outlined">local_parking</span>
-                    <h2>Parkify PO</h2>
+                    <h2>Parkify</h2>
                 </div>
-                <nav className="sidebar-menu">
-                    <div className="menu-item active">
+                <nav className="sidebar-nav">
+                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
                         <span className="material-symbols-outlined">dashboard</span>
-                        <p>Overview</p>
-                    </div>
-                    <div className="menu-item">
+                        <span>Overview</span>
+                    </button>
+                    <button className={activeTab === 'slots' ? 'active' : ''} onClick={() => setActiveTab('slots')}>
                         <span className="material-symbols-outlined">garage</span>
-                        <p>My Parking Slots</p>
-                    </div>
-                    <div className="menu-item">
-                        <span className="material-symbols-outlined">list_alt</span>
-                        <p>Bookings</p>
-                    </div>
-                    <div className="menu-item">
-                        <span className="material-symbols-outlined">payments</span>
-                        <p>Earnings</p>
-                    </div>
-                    <div className="menu-item">
-                        <span className="material-symbols-outlined">settings</span>
-                        <p>Settings</p>
-                    </div>
+                        <span>My Slots</span>
+                    </button>
+                    {userData.hasInventory && (
+                        <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => setActiveTab('inventory')}>
+                            <span className="material-symbols-outlined">inventory</span>
+                            <span>Inventory</span>
+                        </button>
+                    )}
+                    {userData.hasServiceCenter && (
+                        <button className={activeTab === 'service' ? 'active' : ''} onClick={() => setActiveTab('service')}>
+                            <span className="material-symbols-outlined">build</span>
+                            <span>Service Center</span>
+                        </button>
+                    )}
+                    <button className={activeTab === 'earnings' ? 'active' : ''} onClick={() => setActiveTab('earnings')}>
+                        <span className="material-symbols-outlined">analytics</span>
+                        <span>Earnings</span>
+                    </button>
+                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
+                        <span className="material-symbols-outlined">person</span>
+                        <span>My Profile</span>
+                    </button>
                 </nav>
                 <div className="sidebar-footer" onClick={handleLogout}>
                     <span className="material-symbols-outlined">logout</span>
-                    <p>Logout</p>
+                    <span>Logout</span>
                 </div>
             </aside>
 
-            {/* --- MAIN CONTENT --- */}
-            <main className="po-main-section">
-                {/* TOP NAVBAR */}
-                <header className="po-top-nav">
+            {/* Main Content */}
+            <main className="po-main">
+                <header className="po-navbar">
                     <div className="nav-search">
                         <span className="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search booking ID..." />
+                        <input type="text" placeholder="Search bookings..." />
                     </div>
                     <div className="nav-profile">
-                        <span className="material-symbols-outlined icon-btn">notifications</span>
+                        <span className="material-symbols-outlined">notifications</span>
                         <div className="profile-info">
-                            <span className="owner-name">{ownerName}</span>
-                            <span className="owner-role">Parking Owner</span>
+                            <p className="profile-name">{userData.name}</p>
+                            <p className="profile-email">{userData.email}</p>
                         </div>
-                        <div className="avatar">PO</div>
+                        <div className="profile-avatar">PO</div>
                     </div>
                 </header>
 
-                {/* CONTENT BODY */}
                 <div className="po-content">
-                    <div className="welcome-section">
-                        <h1>Hello, {ownerName}!</h1>
-                        <p>Here is an update on your parking business today.</p>
-                    </div>
+                    {activeTab === 'overview' && (
+                        <>
+                            <div className="welcome-section">
+                                <h1>Welcome to your Dashboard</h1>
+                                <p>Manage your parking spaces and monitor earnings in real-time.</p>
+                            </div>
 
-                    <div className="po-stats-grid">
-                        <div className="po-stat-card">
-                            <div className="stat-icon-box" style={{background: '#E3F2FD', color: '#1E88E5'}}>
-                                <span className="material-symbols-outlined">directions_car</span>
+                            <div className="stats-grid">
+                                <div className="stat-card">
+                                    <h3>Total Slots</h3>
+                                    <p className="stat-value">24</p>
+                                </div>
+                                <div className="stat-card">
+                                    <h3>Active Bookings</h3>
+                                    <p className="stat-value">08</p>
+                                </div>
+                                <div className="stat-card">
+                                    <h3>Monthly Revenue</h3>
+                                    <p className="stat-value">Rs. 15,400</p>
+                                </div>
                             </div>
-                            <div className="stat-text">
-                                <h3>24</h3>
-                                <p>Total Slots</p>
-                            </div>
+                        </>
+                    )}
+                    {activeTab === 'slots' && (
+                        <div className="content-section">
+                            <h1>My Slots</h1>
+                            <p>Manage your parking slots here.</p>
                         </div>
-                        <div className="po-stat-card">
-                            <div className="stat-icon-box" style={{background: '#F1F8E9', color: '#7CB342'}}>
-                                <span className="material-symbols-outlined">check_circle</span>
-                            </div>
-                            <div className="stat-text">
-                                <h3>18</h3>
-                                <p>Booked Slots</p>
-                            </div>
+                    )}
+                    {activeTab === 'inventory' && userData.hasInventory && (
+                        <div className="content-section">
+                            <h1>Inventory</h1>
+                            <p>Manage your parking inventory.</p>
                         </div>
-                        <div className="po-stat-card">
-                            <div className="stat-icon-box" style={{background: '#FFF3E0', color: '#FB8C00'}}>
-                                <span className="material-symbols-outlined">pending_actions</span>
-                            </div>
-                            <div className="stat-text">
-                                <h3>06</h3>
-                                <p>Available Slots</p>
-                            </div>
+                    )}
+                    {activeTab === 'service' && userData.hasServiceCenter && (
+                        <div className="content-section">
+                            <h1>Service Center</h1>
+                            <p>Manage your vehicle service center.</p>
                         </div>
-                    </div>
-
-                    <div className="recent-activity-table">
-                        <h3>Recent Bookings</h3>
-                        <div className="table-placeholder">
-                            <p>Loading recent bookings...</p>
+                    )}
+                    {activeTab === 'earnings' && (
+                        <div className="content-section">
+                            <h1>Earnings</h1>
+                            <p>View your earnings and analytics.</p>
                         </div>
-                    </div>
+                    )}
+                    {activeTab === 'profile' && (
+                        <div className="content-section">
+                            <h1>My Profile</h1>
+                            <p>Update your profile information.</p>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>
