@@ -29,7 +29,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(User user) {
-        if(userRepository.existsByEmail(user.getEmail())){
+        String normalizedEmail = user.getEmail().trim().toLowerCase();
+        user.setEmail(normalizedEmail);
+
+        if(userRepository.existsByEmail(normalizedEmail)){
             throw new RuntimeException("Email is already registered");
         }
 
@@ -46,8 +49,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
     public User loginUser(String email, String password) {
-        User user = userRepository.findByEmail(email)
+        String normalizedEmail = email.trim().toLowerCase();
+        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!user.isActive()) {
@@ -101,11 +110,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void forgotPassword(String email) {
-        if(!userRepository.existsByEmail(email)) {
+        String normalizedEmail = email.trim().toLowerCase();
+
+        var userOpt = userRepository.findByEmailIgnoreCase(normalizedEmail);
+        if(userOpt.isEmpty()) {
+            System.out.println("[DEBUG] forgotPassword: email not found after normalization = '" + normalizedEmail + "'");
             throw new RuntimeException("User not found with this email");
         }
-        String otp = otpService.generateOtp(email);
-        emailService.sendOtpEmail(email, otp);
+
+        String otp = otpService.generateOtp(normalizedEmail);
+        emailService.sendOtpEmail(normalizedEmail, otp);
     }
 
     @Override
@@ -122,7 +136,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        String normalizedEmail = email.trim().toLowerCase();
+        return userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 
