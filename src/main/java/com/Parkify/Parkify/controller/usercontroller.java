@@ -29,6 +29,8 @@ public class UserController {
     @Autowired
     private UserServiceExtra userExtraService;
 
+    // --- පවතින Methods ---
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
         try {
@@ -40,28 +42,15 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> credentials) {
+    // IMPORTANT: මේක තමයි ඔයාගේ ප්‍රශ්නය විසඳන Method එක!
+    // Frontend එකෙන් GET /api/users/1 එවද්දී වැඩ කරන්නේ මේක.
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
-            String email = credentials.get("email");
-            String password = credentials.get("password");
-            User user = userService.loginUser(email, password);
-
-            userExtraService.logActivity(user.getId(), "USER_LOGGED_IN");
-
+            User user = userService.getUserById(id);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id){
-        try {
-            userService.deleteUser(id);
-            return ResponseEntity.ok("User removed successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -71,6 +60,20 @@ public class UserController {
             return ResponseEntity.ok(userService.getAllUsers());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(org.springframework.security.core.Authentication authentication) {
+        try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthenticated");
+            }
+            String email = authentication.getName();
+            User user = userService.getUserByEmail(email);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -84,51 +87,49 @@ public class UserController {
             String address = data.get("address");
 
             User updatedUser = userService.updateProfile(id, name, phoneNumber, address);
-
             userExtraService.logActivity(id, "PROFILE_UPDATED");
-
             return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PostMapping("/{id}/verify-nic")
-    public ResponseEntity<?> verifyNic(
+    @PostMapping("/{id}/upload-profile-image")
+    public ResponseEntity<?> uploadProfileImage(
             @PathVariable Long id,
-            @RequestParam("nicNumber") String nicNumber,
             @RequestParam("file") MultipartFile file) {
         try {
-            String uploadDir = "user-verification/";
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("No file uploaded");
+            }
+
+            if (file.getSize() > 5 * 1024 * 1024) { // 5 MB limit
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                        .body("File size exceeds 5MB limit");
+            }
+
+            String contentType = file.getContentType();
+            if (contentType == null || !(contentType.startsWith("image/"))) {
+                return ResponseEntity.badRequest().body("Only image file uploads are allowed");
+            }
+
+            String uploadDir = "user-photos/";
             File dir = new File(uploadDir);
             if (!dir.exists()) dir.mkdirs();
 
-            String fileName = "NIC_" + id + "_" + file.getOriginalFilename();
+            String fileName = "PROFILE_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(uploadDir + fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            userService.updateVerificationDetails(id, nicNumber, fileName);
-
-            userExtraService.logActivity(id, "NIC_VERIFICATION_SUBMITTED");
+            userService.updateProfilePicture(id, fileName);
+            userExtraService.logActivity(id, "PROFILE_IMAGE_UPDATED");
 
             return ResponseEntity.ok(Map.of(
-                    "message", "NIC details uploaded successfully",
-                    "nicNumber", nicNumber,
-                    "nicImage", fileName
+                    "message", "Profile image uploaded successfully",
+                    "fileName", fileName
             ));
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading NIC: " + e.getMessage());
-        }
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<?> getMyProfile(org.springframework.security.core.Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            User user = userService.getUserByEmail(email);
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 
@@ -137,7 +138,6 @@ public class UserController {
         try {
             Path path = Paths.get("user-photos/").resolve(fileName);
             org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
-
             if (resource.exists() || resource.isReadable()) {
                 return ResponseEntity.ok()
                         .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, "image/jpeg")
@@ -149,32 +149,38 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    @PostMapping("/forgot-password")
-public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
-    try {
-        userService.forgotPassword(request.get("email"));
-        return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
-    } catch (RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-}
 
-@PostMapping("/reset-password")
-public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-    try {
-        String email = request.get("email");
-        String otp = request.get("otp");
-        String newPassword = request.get("newPassword");
-
-        boolean result = userService.resetPassword(email, otp, newPassword);
-        if (result) {
-            return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
-        } else {
-            return ResponseEntity.badRequest().body("Invalid or expired OTP");
+    // --- අනෙකුත් Methods ---
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok("User removed successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-    } catch (RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
-}
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            userService.forgotPassword(request.get("email"));
+            return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String otp = request.get("otp");
+            String newPassword = request.get("newPassword");
+            boolean result = userService.resetPassword(email, otp, newPassword);
+            return result ? ResponseEntity.ok(Map.of("message", "Success")) : ResponseEntity.badRequest().body("Invalid OTP");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

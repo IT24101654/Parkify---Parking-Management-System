@@ -34,6 +34,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+        }
+
         String otp = otpService.generateOtp(loginRequest.getEmail());
         emailService.sendOtpEmail(loginRequest.getEmail(), otp);
         return ResponseEntity.ok(Map.of("message", "OTP sent to " + loginRequest.getEmail()));
@@ -50,7 +56,8 @@ public class AuthController {
             return ResponseEntity.ok(Map.of(
                     "message", "Verification successful",
                     "token", token,
-                    "role", user.getRole().name()
+                    "role", user.getRole().name(),
+                    "id", user.getId()
             ));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

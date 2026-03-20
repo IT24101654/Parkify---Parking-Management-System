@@ -11,6 +11,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -27,24 +32,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login",
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS පේළිය මෙහෙම වෙනස් කරන්න
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+                .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login",
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
                                 "/api/users/profile-image/**",
                                 "/error").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users/*/verify-nic").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/users").hasAuthority("SUPER_ADMIN")                        .requestMatchers(HttpMethod.PUT, "/api/users/*/profile").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/users/*/upload-image").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAuthority("SUPER_ADMIN")                        .requestMatchers("/api/vehicles/**").authenticated()
-                        .requestMatchers("/api/vehicles/docs/**").permitAll()
-
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .requestMatchers(HttpMethod.PUT, "/api/users/*/profile").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/users/*/upload-profile-image").authenticated()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // CORS Configuration එක මෙන්න මේ විදිහට වෙනම ලියන්න
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // ඔයාගේ React Port එක මෙතන දාන්න
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

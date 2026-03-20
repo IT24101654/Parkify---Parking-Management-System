@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Login.css'; 
@@ -10,6 +10,7 @@ function Login() {
     const [otp, setOtp] = useState('');
     const [showOTP, setShowOTP] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [loginError, setLoginError] = useState('');
     const navigate = useNavigate();
 
     // 1. Send OTP Request
@@ -21,10 +22,13 @@ function Login() {
                 email: email,
                 password: password
             });
-            alert(response.data.message); // OTP sent message
+            setLoginError('');
             setShowOTP(true);
+            alert(response.data.message); // OTP sent message
         } catch (error) {
-            alert(error.response?.data?.error || "Login Failed. Check credentials.");
+            const errMsg = error.response?.data?.error || "Login Failed. Check credentials.";
+            setLoginError(errMsg);
+            setShowOTP(false);
         } finally {
             setLoading(false);
         }
@@ -39,12 +43,20 @@ function Login() {
                 otp: otp
             });
 
-            // බැක්එන්ඩ් එකෙන් ලැබෙන Token සහ Role එක ගන්න
-            const { token, role, message } = response.data;
+            // බැක්එන්ඩ් එකෙන් ලැබෙන ID, Token සහ Role එක ගන්න
+            // බලපන් උඹේ Backend එකෙන් "id" කියන එක එවනවද කියලා. (id හෝ userId වෙන්න පුළුවන්)
+            const { token, role, message, id } = response.data;
             
             localStorage.setItem("token", token);
             localStorage.setItem("userRole", role.toLowerCase());
             localStorage.setItem("userEmail", email);
+            
+            // මේ පේළිය තමයි වැදගත්ම!
+            if (id) {
+                localStorage.setItem("userId", id); 
+            } else {
+                console.error("Backend did not return a User ID!");
+            }
 
             alert(message);
             navigate('/dashboard');
@@ -68,6 +80,7 @@ function Login() {
                     {!showOTP ? (
                         <div className="auth-card-plain">
                             <h2 style={{fontWeight:'800', color:'#2D4057'}}>Welcome Back</h2>
+                            {loginError && <div style={{color:'#d9534f', marginBottom:'12px', fontWeight:'600'}}>{loginError}</div>}
                             <form onSubmit={handleLoginSubmit}>
                                 <div className="input-group">
                                     <label>Email Address</label>
