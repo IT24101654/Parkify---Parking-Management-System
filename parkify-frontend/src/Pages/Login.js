@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Login.css'; 
@@ -11,30 +11,70 @@ function Login() {
     const [showOTP, setShowOTP] = useState(false);
     const [loading, setLoading] = useState(false);
     const [loginError, setLoginError] = useState('');
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [forgotEmail, setForgotEmail] = useState('');
+    const [forgotOtp, setForgotOtp] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [resetMessage, setResetMessage] = useState('');
+    const [resetStep, setResetStep] = useState(1);
     const navigate = useNavigate();
 
-    // 1. Send OTP Request
+    // Login logic
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
+        if (!email || !password) {
+            setLoginError('Email and password are required.');
+            return;
+        }
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', {
-                email: email,
+            await axios.post('http://localhost:8080/api/auth/login', {
+                email: email.trim().toLowerCase(),
                 password: password
             });
             setLoginError('');
             setShowOTP(true);
-            alert(response.data.message); // OTP sent message
         } catch (error) {
-            const errMsg = error.response?.data?.error || "Login Failed. Check credentials.";
-            setLoginError(errMsg);
-            setShowOTP(false);
+            setLoginError(error.response?.data?.error || "Login Failed.");
         } finally {
             setLoading(false);
         }
     };
 
-    // 2. Verify OTP & Get JWT Token
+    // Password reset logic
+    const requestPasswordReset = async () => {
+        setLoading(true);
+        try {
+            await axios.post('http://localhost:8080/api/users/forgot-password', {
+                email: forgotEmail.trim().toLowerCase()
+            });
+            setResetMessage('OTP sent to your email.');
+            setResetStep(2);
+        } catch (error) {
+            setResetMessage('Failed to send reset OTP');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const performPasswordReset = async () => {
+        setLoading(true);
+        try {
+            await axios.post('http://localhost:8080/api/users/reset-password', {
+                email: forgotEmail.trim().toLowerCase(),
+                otp: forgotOtp,
+                newPassword: newPassword
+            });
+            alert('Password reset successfully!');
+            setShowForgotPassword(false);
+            setResetStep(1);
+        } catch (error) {
+            setResetMessage('Failed to reset password');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const verifyOTP = async () => {
         setLoading(true);
         try {
@@ -42,26 +82,13 @@ function Login() {
                 email: email,
                 otp: otp
             });
-
-            // බැක්එන්ඩ් එකෙන් ලැබෙන ID, Token සහ Role එක ගන්න
-            // බලපන් උඹේ Backend එකෙන් "id" කියන එක එවනවද කියලා. (id හෝ userId වෙන්න පුළුවන්)
-            const { token, role, message, id } = response.data;
-            
+            const { token, role, id } = response.data;
             localStorage.setItem("token", token);
             localStorage.setItem("userRole", role.toLowerCase());
-            localStorage.setItem("userEmail", email);
-            
-            // මේ පේළිය තමයි වැදගත්ම!
-            if (id) {
-                localStorage.setItem("userId", id); 
-            } else {
-                console.error("Backend did not return a User ID!");
-            }
-
-            alert(message);
-            navigate('/dashboard');
+            localStorage.setItem("userId", id);
+            navigate(role === 'PARKING_OWNER' ? '/po-dashboard' : '/dashboard');
         } catch (error) {
-            alert(error.response?.data?.error || "Invalid OTP");
+            alert("Invalid OTP");
         } finally {
             setLoading(false);
         }
@@ -76,8 +103,9 @@ function Login() {
                         <h2>Smart Parking for Smart Cities.</h2>
                     </div>
                 </div>
+
                 <div className="auth-form-container">
-                    {!showOTP ? (
+                    {!showOTP && !showForgotPassword ? (
                         <div className="auth-card-plain">
                             <h2 style={{fontWeight:'800', color:'#2D4057'}}>Welcome Back</h2>
                             {loginError && <div style={{color:'#d9534f', marginBottom:'12px', fontWeight:'600'}}>{loginError}</div>}
@@ -94,21 +122,48 @@ function Login() {
                                     {loading ? "Sending OTP..." : "Send OTP"}
                                 </button>
                             </form>
+                            <div style={{marginTop:'15px', textAlign:'center'}}>
+                                <button className="btn-link" onClick={() => { setShowForgotPassword(true); setForgotEmail(email); }}>
+                                    Forgot Password?
+                                </button>
+                            </div>
+                        </div>
+                    ) : showForgotPassword ? (
+                        <div className="auth-card-plain">
+                            <h2 style={{fontWeight:'800', color:'#2D4057'}}>Reset Password</h2>
+                            {resetMessage && <div style={{color:'#d9534f', marginBottom:'12px', fontWeight:'600'}}>{resetMessage}</div>}
+                            {resetStep === 1 ? (
+                                <>
+                                    <div className="input-group">
+                                        <label>Email Address</label>
+                                        <input type="email" value={forgotEmail} placeholder="Enter your email" required onChange={(e)=>setForgotEmail(e.target.value)} />
+                                    </div>
+                                    <button onClick={requestPasswordReset} className="btn-auth-primary" disabled={loading}>Send Reset OTP</button>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="input-group"><label>OTP</label><input type="text" onChange={(e)=>setForgotOtp(e.target.value)} /></div>
+                                    <div className="input-group"><label>New Password</label><input type="password" onChange={(e)=>setNewPassword(e.target.value)} /></div>
+                                    <button onClick={performPasswordReset} className="btn-auth-primary" disabled={loading}>Reset Password</button>
+                                </>
+                            )}
+                            <div style={{marginTop:'15px', textAlign:'center'}}>
+                                <button className="btn-link" onClick={() => setShowForgotPassword(false)}>
+                                    Back to Login
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <div className="auth-card-plain">
                             <h2 style={{fontWeight:'800', color:'#2D4057'}}>Verify OTP</h2>
                             <p>Code sent to <strong>{email}</strong></p>
-                            <input 
-                                type="text" 
-                                placeholder="Enter 6-digit OTP" 
-                                className="form-input-styled" 
-                                style={{textAlign:'center', fontSize:'1.5rem'}}
-                                onChange={(e) => setOtp(e.target.value)} 
-                            />
-                            <button onClick={verifyOTP} className="btn-auth-primary" disabled={loading} style={{marginTop:'20px'}}>
-                                {loading ? "Verifying..." : "Verify & Login"}
-                            </button>
+                            <input type="text" className="form-input-styled" style={{textAlign:'center', fontSize:'1.5rem'}} onChange={(e) => setOtp(e.target.value)} />
+                            <button onClick={verifyOTP} className="btn-auth-primary" style={{marginTop:'20px'}} disabled={loading}>Verify & Login</button>
+                            <div style={{marginTop:'15px', textAlign:'center'}}>
+                                <button className="btn-link" onClick={() => setShowOTP(false)}>
+                                    Back to Login
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

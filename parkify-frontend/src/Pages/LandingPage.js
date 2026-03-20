@@ -26,7 +26,7 @@ function LandingPage() {
                 <h1>Empowering Cities with <span>Smart Parking</span></h1>
                 <p>The world's most advanced AI-Based management system. Reduce congestion, automate billing, and maximize occupancy in real-time.</p>
                 <div className="hero-btns">
-                    <button onClick={() => navigate('/login')} style={{padding:'18px 40px', borderRadius:'15px', background:'#AE8E82', color:'white', border:'none', cursor:'pointer', fontWeight:'800', fontSize:'1.1rem', boxShadow:'0 10px 20px rgba(174, 142, 130, 0.3)'}}>Register Now</button>
+                    <button onClick={() => navigate('/register')} style={{padding:'18px 40px', borderRadius:'15px', background:'#AE8E82', color:'white', border:'none', cursor:'pointer', fontWeight:'800', fontSize:'1.1rem', boxShadow:'0 10px 20px rgba(174, 142, 130, 0.3)'}}>Register Now</button>
                     <button style={{marginLeft:'20px', padding:'18px 40px', borderRadius:'15px', background:'#2D4057', color:'white', border:'none', cursor:'pointer', fontWeight:'800', fontSize:'1.1rem'}}>View Demo</button>
                 </div>
             </header>

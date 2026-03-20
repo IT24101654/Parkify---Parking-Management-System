@@ -57,32 +57,57 @@
     padding: 14px;
     border: 1.5px solid #eee;
     border-radius: 12px;
-}
-
-.otp-inputs {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.otp-field {
-    width: 45px;
-    height: 55px;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    border: 2px solid #eee;
-    border-radius: 10px;
+    outline: none;
 }
 
 .btn-auth-primary {
     width: 100%;
     padding: 16px;
-    background: var(--navy-deep);
+    background: #2D4057; /* Navy Deep */
     color: white;
     border: none;
     border-radius: 12px;
     font-weight: 800;
     cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-auth-primary:hover {
+    background: #1d2a3a;
+}
+
+.btn-link {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #61adffb7;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: #61adff89;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.btn-link:hover {
+    color: #0056b3;
+    text-decoration-color: #0056b3;
+}
+
+.btn-link:active {
+    color: #003f8a;
+}
+
+.btn-link:focus-visible {
+    outline: 2px dashed rgba(0, 123, 255, 0.6);
+    outline-offset: 2px;
+}
+
+.form-input-styled {
+    width: 100%;
+    padding: 14px;
+    border: 1.5px solid #eee;
+    border-radius: 12px;
+    outline: none;
 }
