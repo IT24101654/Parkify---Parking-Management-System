@@ -1,87 +1,120 @@
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import './Dashboard.css'; // CSS link කිරීම
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './Dashboard.css';
+
+import Overview from './Overview';
+import ManageUser from './ManageUsers';
+import AdminProfile from './AdminProfile';
 
 function Dashboard() {
     const navigate = useNavigate();
-    const role = localStorage.getItem('userRole') || 'driver';
-    const email = localStorage.getItem('userEmail') || 'User';
+    const [activeTab, setActiveTab] = useState('overview');
+    const [adminData, setAdminData] = useState(null);
+
+    useEffect(() => {
+        const fetchAdminProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const storedUserId = localStorage.getItem('userId'); // Login එකේදී මේක save කරලා තියෙන්න ඕනේ
+
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
+
+                // ප්‍රථමයෙන් /api/users/me එකෙන් current user data ගන්න
+                let response;
+                try {
+                    response = await axios.get('http://localhost:8080/api/users/me', {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                } catch (meErr) {
+                    if (!storedUserId) {
+                        throw meErr;
+                    }
+                    response = await axios.get(`http://localhost:8080/api/users/${storedUserId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                }
+
+                setAdminData(response.data);
+            } catch (error) {
+                console.error("Failed to fetch admin data", error);
+                // API එක වැඩ නැත්නම් විතරක් මේ Test Data ටික වැටෙයි
+                setAdminData({
+                    id: localStorage.getItem('userId') || 1, 
+                    name: "Super Admin",
+                    email: "admin@parkify.ai",
+                    address: "123 Parkify Blvd, Colombo",
+                    phoneNumber: "+94 77 123 4567",
+                    profilePicture: null
+                });
+            }
+        };
+
+        fetchAdminProfile();
+    }, [navigate]);
 
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
     };
 
+    if (!adminData) return <div className="loading">Loading Dashboard...</div>;
+
     return (
-        <div className="dashboard-wrapper">
-            <aside className="sidebar">
-                <div className="logo" style={{ padding: '30px 20px' }}>
-                    <span className="material-symbols-outlined logo-icon" style={{ color: 'white' }}>garage</span>
-                    <span className="logo-text" style={{ color: 'white' }}>Parkify</span>
+        <div className="db-container">
+            <aside className="db-sidebar">
+                <div className="db-logo">
+                    <span className="material-symbols-outlined">garage</span>
+                    <h1>Parkify</h1>
                 </div>
-                <nav className="side-nav">
-                    <Link to="/dashboard" className="nav-item">
-                        <span className="material-symbols-outlined">dashboard</span> Dashboard
-                    </Link>
-                    {role === 'super_admin' && (
-                        <Link to="/manage-users" className="nav-item">
-                            <span className="material-symbols-outlined">group</span> Manage Users
-                        </Link>
-                    )}
-                    {role === 'owner' && (
-                        <Link to="/my-slots" className="nav-item">
-                            <span className="material-symbols-outlined">local_parking</span> My Slots
-                        </Link>
-                    )}
-                    {role === 'driver' && (
-                        <Link to="/bookings" className="nav-item">
-                            <span className="material-symbols-outlined">history</span> My Bookings
-                        </Link>
-                    )}
-                    <Link to="/settings" className="nav-item">
-                        <span className="material-symbols-outlined">settings</span> Settings
-                    </Link>
+                <nav className="db-nav">
+                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+                        <span className="material-symbols-outlined">dashboard</span>
+                        <span className="nav-text">Overview</span>
+                    </button>
+                    <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
+                        <span className="material-symbols-outlined">group</span>
+                        <span className="nav-text">Users</span>
+                    </button>
+                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
+                        <span className="material-symbols-outlined">person</span>
+                        <span className="nav-text">Profile</span>
+                    </button>
                 </nav>
-                <button onClick={handleLogout} className="logout-btn">
-                    <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '8px' }}>logout</span>
-                    Logout
+                <button className="db-logout-bottom" onClick={handleLogout}>
+                    <span className="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
                 </button>
             </aside>
 
-            <main className="main-content">
-                <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h2 style={{ margin: 0, fontWeight: '800', color: '#2D4057' }}>Overview</h2>
-                        <p style={{ color: '#7A868E', margin: 0 }}>
-                            Welcome back, <strong>{role.replace('_', ' ').toUpperCase()}</strong>
-                        </p>
+            <main className="db-main">
+                <header className="db-header">
+                    <div className="db-search">
+                        <span className="material-symbols-outlined">search</span>
+                        <input type="text" placeholder="Search analytics..." />
                     </div>
-                    <div style={{ background: 'white', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', border: '1px solid #ddd', color: '#2D4057' }}>
-                        {email}
+                    <div className="db-nav-actions">
+                        <div className="db-user-profile" onClick={() => setActiveTab('profile')}>
+                            <img src={adminData.profilePicture ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}` : "https://ui-avatars.com/api/?name=Admin"} alt="Avatar" />
+                            <div className="db-user-info">
+                                <p className="u-name">{adminData.name}</p>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
-                <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '25px' }}>
-                    <div className="stat-box">
-                        <h4 style={{ color: '#7A868E', margin: 0 }}>
-                            Total {role === 'driver' ? 'Spent' : 'Revenue'}
-                        </h4>
-                        <p style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '10px', color: '#2D4057', margin: '10px 0 0 0' }}>
-                            {role === 'driver' ? '$120.50' : '$4,250.00'}
-                        </p>
-                    </div>
-                    <div className="stat-box">
-                        <h4 style={{ color: '#7A868E', margin: 0 }}>
-                            Active {role === 'driver' ? 'Bookings' : 'Occupancy'}
-                        </h4>
-                        <p style={{ fontSize: '2.2rem', fontWeight: '800', marginTop: '10px', color: '#AE8E82', margin: '10px 0 0 0' }}>
-                            {role === 'driver' ? '01' : '82%'}
-                        </p>
-                    </div>
+                <div className="db-content">
+                    {activeTab === 'overview' && <Overview />}
+                    {activeTab === 'users' && <ManageUser />}
+                    {activeTab === 'profile' && (
+                        <AdminProfile adminData={adminData} setAdminData={setAdminData} />
+                    )}
                 </div>
             </main>
         </div>
     );
 }
-
 export default Dashboard;
