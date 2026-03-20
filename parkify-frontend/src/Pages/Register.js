@@ -5,20 +5,19 @@ import Navbar from '../Components/Navbar';
 import './Register.css';
 
 function Register() {
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(1); // 1: Role, 2: Form, 3: OTP
     const [role, setRole] = useState('');
+    const [otp, setOtp] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     
-    // Form data state එක
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
         email: '',
         phoneNumber: '',
         password: '',
-
         parkingName: '',
-        businessReg: '',
         address: ''
     });
 
@@ -31,26 +30,60 @@ function Register() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // 1. මුලින්ම Register විස්තර යවලා OTP එකක් ගෙන්න ගන්නවා
     const handleRegisterSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         
-        // Backend එක බලාපොරොත්තු වන User object එක හදමු
         const userPayload = {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
+            name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
             email: formData.email,
-            phoneNumber: formData.phoneNumber,
             password: formData.password,
-            role: role.toUpperCase() 
+            phoneNumber: formData.phoneNumber,
+            address: formData.address || '',
+            role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER'
         };
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users/register', userPayload);
-            console.log("Registered:", response.data);
-            alert("Registration Successful! Please login.");
-            navigate('/login');
+            const { data } = await axios.post('http://localhost:8080/api/auth/register-otp', userPayload);
+            alert(data.message || "OTP sent to your email!");
+            setStep(3);
         } catch (error) {
-            alert(error.response?.data || "Registration failed. Try again.");
+            const message = error.response?.data?.error || error.response?.data?.message || "Registration failed. Try again.";
+            alert(message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // 2. OTP එක verify කරලා Register එක සම්පූර්ණ කරනවා
+    const handleVerifyAndRegister = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/verify-register-otp', {
+                email: formData.email,
+                otp: otp
+            });
+
+            // Register වුණ ගමන් විස්තර ටික save කරගන්නවා
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("userEmail", formData.email);
+            localStorage.setItem("userRole", role.toLowerCase());
+            localStorage.setItem("userId", response.data.id);
+
+            alert("Registration Successful!");
+
+            // Dashboard එකට redirect කරනවා
+            if (role === 'owner') {
+                navigate('/po-dashboard');
+            } else {
+                navigate('/dashboard');
+            }
+        } catch (error) {
+            const message = error.response?.data?.error || error.response?.data?.message || "Invalid OTP. Please try again.";
+            alert(message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -58,7 +91,9 @@ function Register() {
         <div className="auth-page">
             <Navbar variant="register" />
             <div className="auth-container">
-                {step === 1 ? (
+                
+                {/* Step 1: Role Selection */}
+                {step === 1 && (
                     <div className="role-selection-card">
                         <h2 style={{fontWeight:'800', color:'#2D4057', fontSize:'2rem'}}>Join Parkify as a...</h2>
                         <div className="role-grid">
@@ -74,7 +109,10 @@ function Register() {
                             </div>
                         </div>
                     </div>
-                ) : (
+                )}
+
+                {/* Step 2: Registration Form */}
+                {step === 2 && (
                     <div className="auth-card scrollable-form">
                         <h2 style={{fontWeight:'800', color:'#2D4057'}}>Create {role === 'driver' ? 'Driver' : 'Owner'} Account</h2>
                         <form className="register-form" onSubmit={handleRegisterSubmit}>
@@ -93,9 +131,30 @@ function Register() {
                             )}
 
                             <input name="password" type="password" placeholder="Create Password" required onChange={handleChange} className="form-input-styled" />
-                            <button type="submit" className="btn-auth-primary">Create Account</button>
+                            <button type="submit" className="btn-auth-primary" disabled={loading}>
+                                {loading ? "Sending OTP..." : "Register Now"}
+                            </button>
                         </form>
                         <button className="btn-back" onClick={() => setStep(1)}>Go Back</button>
+                    </div>
+                )}
+
+                {/* Step 3: OTP Verification */}
+                {step === 3 && (
+                    <div className="auth-card-plain">
+                        <h2 style={{fontWeight:'800', color:'#2D4057'}}>Verify Email</h2>
+                        <p>Enter the 6-digit code sent to <b>{formData.email}</b></p>
+                        <input 
+                            type="text" 
+                            placeholder="Enter OTP" 
+                            className="form-input-styled" 
+                            style={{textAlign:'center', fontSize:'1.5rem', marginTop:'20px'}}
+                            onChange={(e) => setOtp(e.target.value)}
+                        />
+                        <button onClick={handleVerifyAndRegister} className="btn-auth-primary" disabled={loading}>
+                            {loading ? "Verifying..." : "Verify & Complete"}
+                        </button>
+                        <button className="btn-back" onClick={() => setStep(2)}>Back to Form</button>
                     </div>
                 )}
             </div>
