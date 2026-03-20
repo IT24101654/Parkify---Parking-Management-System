@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface UserService {
     User registerUser(User user);
+    boolean existsByEmail(String email);
     User loginUser(String email, String password);
     User getUserById(Long id);
     List<User> getAllUsers();
