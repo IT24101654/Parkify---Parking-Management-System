@@ -1,5 +1,7 @@
 package com.Parkify.Parkify.controller;
 
+import com.Parkify.Parkify.dto.ForgotPasswordRequest;
+import com.Parkify.Parkify.dto.ResetPasswordRequest;
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.service.UserServiceExtra;
 import com.Parkify.Parkify.service.UserService;
@@ -162,25 +164,27 @@ public class UserController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         try {
-            userService.forgotPassword(request.get("email"));
+            userService.forgotPassword(request.getEmail().trim().toLowerCase());
             return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         try {
-            String email = request.get("email");
-            String otp = request.get("otp");
-            String newPassword = request.get("newPassword");
-            boolean result = userService.resetPassword(email, otp, newPassword);
-            return result ? ResponseEntity.ok(Map.of("message", "Success")) : ResponseEntity.badRequest().body("Invalid OTP");
+            boolean result = userService.resetPassword(
+                    request.getEmail().trim().toLowerCase(),
+                    request.getOtp(),
+                    request.getNewPassword()
+            );
+            return result ? ResponseEntity.ok(Map.of("message", "Password reset successful"))
+                    : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid OTP"));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 }
