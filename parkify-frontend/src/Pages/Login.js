@@ -84,23 +84,40 @@ function Login() {
     };
 
     const verifyOTP = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.post('/api/auth/verify-otp', {
-                email: email,
-                otp: otp
-            });
-            const { token, role, id } = response.data;
-            localStorage.setItem("token", token);
-            localStorage.setItem("userRole", role.toLowerCase());
-            localStorage.setItem("userId", id);
-            navigate(role === 'PARKING_OWNER' ? '/po-dashboard' : '/dashboard');
-        } catch (error) {
-            alert("Invalid OTP");
-        } finally {
-            setLoading(false);
+    setLoading(true);
+    try {
+        const response = await axios.post('/api/auth/verify-otp', {
+            email: email.trim().toLowerCase(),
+            otp: otp
+        });
+
+        const { token, role, id } = response.data;
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("userRole", role.toUpperCase());
+        localStorage.setItem("userId", id);
+
+        switch (role.toUpperCase()) {
+            case 'SUPER_ADMIN':
+                navigate('/dashboard'); 
+                break;
+            case 'PARKING_OWNER':
+                navigate('/po-dashboard');
+                break;
+            case 'DRIVER':
+                navigate('/dr-dashboard'); 
+                break;
+            default:
+                navigate('/'); 
         }
-    };
+
+    } catch (error) {
+        console.error("OTP Verification Error:", error);
+        alert(error.response?.data?.message || "Invalid OTP. Please try again.");
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <div className="auth-page">

@@ -61,43 +61,43 @@ function PODashboard() {
             {/* Sidebar */}
             <aside className="po-sidebar">
                 <div className="sidebar-logo">
-                    <span className="material-symbols-outlined">local_parking</span>
-                    <h2>Parkify</h2>
+                    <span className="material-symbols-outlined">directions_car</span>
+                    <h1>Parkify</h1>
                 </div>
                 <nav className="sidebar-nav">
                     <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
                         <span className="material-symbols-outlined">dashboard</span>
-                        <span>Overview</span>
+                        <span className="nav-text">Overview</span>
                     </button>
                     <button className={activeTab === 'slots' ? 'active' : ''} onClick={() => setActiveTab('slots')}>
                         <span className="material-symbols-outlined">garage</span>
-                        <span>My Slots</span>
+                        <span className="nav-text">My Slots</span>
                     </button>
                     {userData.hasInventory && (
                         <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => setActiveTab('inventory')}>
                             <span className="material-symbols-outlined">inventory</span>
-                            <span>Inventory</span>
+                            <span className="nav-text">Inventory</span>
                         </button>
                     )}
                     {userData.hasServiceCenter && (
                         <button className={activeTab === 'service' ? 'active' : ''} onClick={() => setActiveTab('service')}>
                             <span className="material-symbols-outlined">build</span>
-                            <span>Service Center</span>
+                            <span className="nav-text">Service Center</span>
                         </button>
                     )}
                     <button className={activeTab === 'earnings' ? 'active' : ''} onClick={() => setActiveTab('earnings')}>
                         <span className="material-symbols-outlined">analytics</span>
-                        <span>Earnings</span>
+                        <span className="nav-text">Earnings</span>
                     </button>
                     <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
                         <span className="material-symbols-outlined">person</span>
-                        <span>My Profile</span>
+                        <span className="nav-text">My Profile</span>
                     </button>
                 </nav>
-                <div className="sidebar-footer" onClick={handleLogout}>
+                <button className="po-logout-bottom" onClick={handleLogout}>
                     <span className="material-symbols-outlined">logout</span>
                     <span>Logout</span>
-                </div>
+                </button>
             </aside>
 
             {/* Main Content */}

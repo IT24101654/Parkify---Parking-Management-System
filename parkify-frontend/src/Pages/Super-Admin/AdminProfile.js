@@ -3,12 +3,12 @@ import axios from 'axios';
 import './AdminProfile.css';
 
 function AdminProfile({ adminData, setAdminData }) {
-    const [tempData, setTempData] = useState({ 
+    const [tempData, setTempData] = useState({
         name: '',
         address: '',
         phone: ''
     });
-    
+
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -16,7 +16,6 @@ function AdminProfile({ adminData, setAdminData }) {
     const API_BASE_URL = '/api/users';
     const token = localStorage.getItem('token');
 
-    // Admin Data Dashboard එකෙන් එද්දී Form එකට දාගන්න
     useEffect(() => {
         if (adminData) {
             setTempData({
@@ -30,7 +29,7 @@ function AdminProfile({ adminData, setAdminData }) {
     const handleUpdate = async () => {
         // ID එක නැත්නම් Update කරන්න දෙන්න එපා
         const userId = adminData?.id || localStorage.getItem('userId');
-        
+
         if (!userId) {
             alert("Error: User ID is missing! Please re-login.");
             return;
@@ -39,7 +38,6 @@ function AdminProfile({ adminData, setAdminData }) {
         try {
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
-            // 1. Text Data Update කිරීම
             const profileResponse = await axios.put(`${API_BASE_URL}/${userId}/profile`, {
                 name: tempData.name,
                 phoneNumber: tempData.phone,
@@ -48,7 +46,6 @@ function AdminProfile({ adminData, setAdminData }) {
 
             let updatedUser = profileResponse.data;
 
-            // 2. Image එකක් තෝරාගෙන තිබේ නම් එය Upload කිරීම
             if (selectedFile) {
                 const formData = new FormData();
                 formData.append("file", selectedFile);
@@ -84,12 +81,14 @@ function AdminProfile({ adminData, setAdminData }) {
             <h2>Admin Profile (ID: {adminData?.id || 'N/A'})</h2>
             <div className="prof-grid">
                 <div className="prof-left">
-                    <img 
-                        src={previewUrl || (adminData?.profilePicture ? `${API_BASE_URL}/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')} 
-                        className="profile-avatar" alt="profile"
-                    />
+                    <div className="avatar-wrapper">
+                        <img
+                            src={previewUrl || (adminData?.profilePicture ? `${API_BASE_URL}/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')}
+                            className="profile-avatar" alt="profile"
+                        />
+                    </div>
                     {isEditMode && (
-                        <div className="file-input-wrapper" style={{marginTop: '10px'}}>
+                        <div className="file-input-wrapper" style={{ marginTop: '10px' }}>
                             <input type="file" accept="image/*" onChange={(e) => {
                                 if (e.target.files[0]) {
                                     const file = e.target.files[0];
@@ -108,7 +107,7 @@ function AdminProfile({ adminData, setAdminData }) {
                 <div className="prof-right">
                     <div className="input-group">
                         <label>Display Name</label>
-                        <input type="text" disabled={!isEditMode} value={tempData.name} onChange={e => setTempData({...tempData, name: e.target.value})} />
+                        <input type="text" disabled={!isEditMode} value={tempData.name} onChange={e => setTempData({ ...tempData, name: e.target.value })} />
                     </div>
                     <div className="input-group">
                         <label>Email Address</label>
@@ -117,18 +116,18 @@ function AdminProfile({ adminData, setAdminData }) {
                     </div>
                     <div className="input-group">
                         <label>Address</label>
-                        <input type="text" disabled={!isEditMode} value={tempData.address} onChange={e => setTempData({...tempData, address: e.target.value})} />
+                        <input type="text" disabled={!isEditMode} value={tempData.address} onChange={e => setTempData({ ...tempData, address: e.target.value })} />
                     </div>
                     <div className="input-group">
                         <label>Phone Number</label>
-                        <input type="text" disabled={!isEditMode} value={tempData.phone} onChange={e => setTempData({...tempData, phone: e.target.value})} />
+                        <input type="text" disabled={!isEditMode} value={tempData.phone} onChange={e => setTempData({ ...tempData, phone: e.target.value })} />
                     </div>
-                    
-                    <div className="actions" style={{marginTop: '20px'}}>
+
+                    <div className="actions" style={{ marginTop: '20px' }}>
                         <button className="save-btn" onClick={() => isEditMode ? handleUpdate() : setIsEditMode(true)}>
                             {isEditMode ? "Save to Database" : "Edit Profile"}
                         </button>
-                        {isEditMode && <button className="cancel-btn" onClick={handleCancel} style={{marginLeft: '10px'}}>Cancel</button>}
+                        {isEditMode && <button className="cancel-btn" onClick={handleCancel} style={{ marginLeft: '10px' }}>Cancel</button>}
                     </div>
                 </div>
             </div>

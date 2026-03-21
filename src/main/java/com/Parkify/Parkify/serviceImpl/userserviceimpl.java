@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!user.isActive()) {
+        if (!Boolean.TRUE.equals(user.getActive())) {
             throw new RuntimeException("Account is deactivated");
         }
 

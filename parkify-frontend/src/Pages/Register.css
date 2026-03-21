@@ -135,3 +135,62 @@
     background: #ccc;
     border-radius: 10px;
 }
+
+/* අලුත් Styles */
+.step-title {
+    font-weight: 800;
+    color: #2D4057;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.text-center { text-align: center; }
+
+/* Vehicle Options */
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.vehicle-option, .pref-option {
+    padding: 20px;
+    border: 2px solid #eee;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.vehicle-option span, .pref-option span {
+    font-size: 2.5rem;
+    color: #2D4057;
+}
+
+.vehicle-option.active, .pref-option.active {
+    border-color: #AE8E82;
+    background: #fdf5f2;
+    transform: scale(1.05);
+}
+
+/* Preference List */
+.pref-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.pref-option {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-align: left;
+    padding: 15px 25px;
+}
+
+.pref-option p {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0;
+}

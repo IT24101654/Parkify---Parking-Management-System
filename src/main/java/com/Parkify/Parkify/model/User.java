@@ -39,23 +39,23 @@ public class User {
     private String address;
 
     @Column(name = "has_inventory")
-    private boolean hasInventory = false;
+    private Boolean hasInventory = false;
 
     @Column(name = "has_service_center")
-    private boolean hasServiceCenter = false;
+    private Boolean hasServiceCenter = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
     @Column(nullable = false)
-    private boolean active = true;
+    private Boolean active = true;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "two_factor_enabled")
-    private boolean twoFactorEnabled = false;
+    private Boolean twoFactorEnabled = false;
 
     @Column(name = "profile_picture")
     private String profilePicture;
