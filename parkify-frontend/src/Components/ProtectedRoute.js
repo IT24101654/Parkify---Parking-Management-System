@@ -5,14 +5,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('userRole');
 
-    // Not logged in
     if (!token) {
         return <Navigate to="/login" replace />;
     }
 
-    // Role checks
     if (allowedRoles && userRole && !allowedRoles.includes(userRole.toUpperCase())) {
-        // Determine correct redirect based on their proper role instead of blindly failing
         switch (userRole.toUpperCase()) {
             case 'SUPER_ADMIN':
                 return <Navigate to="/dashboard" replace />;
@@ -25,7 +22,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         }
     }
 
-    // Authorized
     return children;
 };
 

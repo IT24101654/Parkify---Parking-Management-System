@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Login.css'; 
-axios.defaults.baseURL = 'http://localhost:8080';
+// axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.timeout = 15000;
 
 function Login() {
@@ -99,13 +99,13 @@ function Login() {
 
         switch (role.toUpperCase()) {
             case 'SUPER_ADMIN':
-                navigate('/dashboard'); 
+                navigate('/admin-dashboard'); 
                 break;
             case 'PARKING_OWNER':
                 navigate('/po-dashboard');
                 break;
             case 'DRIVER':
-                navigate('/dr-dashboard'); 
+                navigate('/driver-dashboard'); 
                 break;
             default:
                 navigate('/'); 

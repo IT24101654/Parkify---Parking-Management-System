@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Register.css';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+// axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.timeout = 15000;
 
 function Register() {
@@ -14,7 +14,6 @@ function Register() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     
-    // Driver preferences සහ vehicles සඳහා අලුත් state
     const [selectedVehicles, setSelectedVehicles] = useState([]);
     const [driverPreferences, setDriverPreferences] = useState("");
 
@@ -75,7 +74,7 @@ function Register() {
             localStorage.setItem("userRole", role.toLowerCase());
 
             if (role === 'driver') {
-                setStep(4); // OTP වලින් පස්සේ කෙලින්ම Vehicle Selection එකට
+                setStep(4);
             } else {
                 alert("Registration Successful!");
                 navigate('/po-dashboard');
@@ -85,12 +84,10 @@ function Register() {
         } finally { setLoading(false); }
     };
 
-    // අවසාන වශයෙන් Driver Setup එක ඉවර කරන function එක
     const handleFinalizeDriver = async () => {
         setLoading(true);
         try {
-            // මෙතනදී ඔයාට Backend එකට preferences/vehicles ටික යවන්න API එකක් තියෙනවා නම් call කරන්න පුළුවන්
-            // දැනට අපි කෙලින්ම Dashboard එකට යමු
+
             console.log("Saving preferences:", { selectedVehicles, driverPreferences });
             alert("Setup Complete! Welcome to Parkify.");
             navigate('/dr-dashboard');
@@ -104,7 +101,6 @@ function Register() {
             <Navbar variant="register" />
             <div className="auth-container">
                 
-                {/* Step 1 & 2 & 3: (කලින් තිබුණු විදිහටමයි, කිසිම වෙනසක් නැහැ) */}
                 {step === 1 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">Join Parkify as a...</h2>
@@ -171,9 +167,7 @@ function Register() {
                     </div>
                 )}
 
-                {/* --- අලුතින් එකතු කළ පියවරවල් --- */}
 
-                {/* Step 4: Driver Vehicle Selection */}
                 {step === 4 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">What vehicles do you have?</h2>

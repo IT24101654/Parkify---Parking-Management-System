@@ -27,7 +27,6 @@ function AdminProfile({ adminData, setAdminData }) {
     }, [adminData]);
 
     const handleUpdate = async () => {
-        // ID එක නැත්නම් Update කරන්න දෙන්න එපා
         const userId = adminData?.id || localStorage.getItem('userId');
 
         if (!userId) {

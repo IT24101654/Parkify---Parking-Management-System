@@ -219,3 +219,96 @@
     font-size: 18px;
     color: var(--navy);
 }
+
+/* QUICK TASKS SCROLLABLE CARDS */
+.quick-tasks-section {
+  margin-bottom: 30px;
+}
+
+.quick-tasks-section h2 {
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.cards-wrapper {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.cards-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.cards-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.task-card {
+  min-width: 260px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--sand);
+  box-shadow: 0 15px 30px rgba(174, 142, 130, 0.15);
+}
+
+.task-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(45, 64, 87, 0.05);
+  color: var(--navy);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.task-icon span {
+  font-size: 26px;
+}
+
+.task-card:hover .task-icon {
+  background: var(--navy);
+  color: white;
+}
+
+.task-info h3 {
+  font-size: 16px;
+  color: var(--navy);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.task-info p {
+  color: #6c757d;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Glass Card Reusable */
+.glass-card {
+  background: white;
+  padding: 30px;
+  border-radius: 25px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
+}

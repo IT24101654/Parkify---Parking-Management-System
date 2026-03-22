@@ -16,14 +16,13 @@ function Dashboard() {
         const fetchAdminProfile = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const storedUserId = localStorage.getItem('userId'); // Login එකේදී මේක save කරලා තියෙන්න ඕනේ
+                const storedUserId = localStorage.getItem('userId'); 
 
                 if (!token) {
                     navigate('/login');
                     return;
                 }
 
-                // ප්‍රථමයෙන් /api/users/me එකෙන් current user data ගන්න
                 let response;
                 try {
                     response = await axios.get('/api/users/me', {
@@ -41,7 +40,6 @@ function Dashboard() {
                 setAdminData(response.data);
             } catch (error) {
                 console.error("Failed to fetch admin data", error);
-                // API එක වැඩ නැත්නම් විතරක් මේ Test Data ටික වැටෙයි
                 setAdminData({
                     id: localStorage.getItem('userId') || 1, 
                     name: "Super Admin",

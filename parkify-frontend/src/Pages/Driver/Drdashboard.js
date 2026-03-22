@@ -5,7 +5,7 @@ import './Drdashboard.css';
 
 function Drdashboard() {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('find-slots');
+    const [activeTab, setActiveTab] = useState('overview');
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
@@ -53,21 +53,29 @@ function Drdashboard() {
                     <h1>Parkify</h1>
                 </div>
                 <nav className="sidebar-nav">
+                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+                        <span className="material-symbols-outlined">dashboard</span>
+                        <span className="nav-text">Overview</span>
+                    </button>
                     <button className={activeTab === 'find-slots' ? 'active' : ''} onClick={() => setActiveTab('find-slots')}>
                         <span className="material-symbols-outlined">explore</span>
-                        <span className="nav-text">Find Slots</span>
+                        <span className="nav-text">Parking Slots</span>
                     </button>
                     <button className={activeTab === 'my-bookings' ? 'active' : ''} onClick={() => setActiveTab('my-bookings')}>
                         <span className="material-symbols-outlined">book_online</span>
-                        <span className="nav-text">My Bookings</span>
-                    </button>
-                    <button className={activeTab === 'vehicles' ? 'active' : ''} onClick={() => setActiveTab('vehicles')}>
-                        <span className="material-symbols-outlined">minor_crash</span>
-                        <span className="nav-text">My Vehicles</span>
+                        <span className="nav-text">Reservations</span>
                     </button>
                     <button className={activeTab === 'payments' ? 'active' : ''} onClick={() => setActiveTab('payments')}>
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                         <span className="nav-text">Payments</span>
+                    </button>
+                    <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => setActiveTab('inventory')}>
+                        <span className="material-symbols-outlined">inventory</span>
+                        <span className="nav-text">Inventory</span>
+                    </button>
+                    <button className={activeTab === 'services' ? 'active' : ''} onClick={() => setActiveTab('services')}>
+                        <span className="material-symbols-outlined">build</span>
+                        <span className="nav-text">Vehicle Services</span>
                     </button>
                     <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
                         <span className="material-symbols-outlined">person</span>
@@ -98,11 +106,52 @@ function Drdashboard() {
                 </header>
 
                 <div className="dr-content">
-                    {activeTab === 'find-slots' && (
+                    {activeTab === 'overview' && (
                         <>
                             <div className="welcome-section">
                                 <h1>Hello, {userData.name.split(' ')[0]}!</h1>
                                 <p>Ready to find the perfect parking spot today?</p>
+                            </div>
+
+                            <div className="quick-tasks-section" style={{marginTop:'25px'}}>
+                                <h2>Main Tasks</h2>
+                                <div className="cards-wrapper">
+                                    <div className="task-card" onClick={() => setActiveTab('find-slots')}>
+                                        <div className="task-icon"><span className="material-symbols-outlined">explore</span></div>
+                                        <div className="task-info">
+                                            <h3>Parking Slots</h3>
+                                            <p>Find & book spots</p>
+                                        </div>
+                                    </div>
+                                    <div className="task-card" onClick={() => setActiveTab('my-bookings')}>
+                                        <div className="task-icon"><span className="material-symbols-outlined">book_online</span></div>
+                                        <div className="task-info">
+                                            <h3>Reservations</h3>
+                                            <p>View your bookings</p>
+                                        </div>
+                                    </div>
+                                    <div className="task-card" onClick={() => setActiveTab('payments')}>
+                                        <div className="task-icon"><span className="material-symbols-outlined">account_balance_wallet</span></div>
+                                        <div className="task-info">
+                                            <h3>Payments</h3>
+                                            <p>Manage transactions</p>
+                                        </div>
+                                    </div>
+                                    <div className="task-card" onClick={() => setActiveTab('inventory')}>
+                                        <div className="task-icon"><span className="material-symbols-outlined">inventory</span></div>
+                                        <div className="task-info">
+                                            <h3>Inventory</h3>
+                                            <p>Shop accessories</p>
+                                        </div>
+                                    </div>
+                                    <div className="task-card" onClick={() => setActiveTab('services')}>
+                                        <div className="task-icon"><span className="material-symbols-outlined">build</span></div>
+                                        <div className="task-info">
+                                            <h3>Vehicle Services</h3>
+                                            <p>Book maintenance</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="stats-grid">
@@ -119,7 +168,15 @@ function Drdashboard() {
                                     <p className="stat-value">450</p>
                                 </div>
                             </div>
+                        </>
+                    )}
 
+                    {activeTab === 'find-slots' && (
+                        <>
+                            <div className="content-section">
+                                <h1>Find Parking Slots</h1>
+                                <p>Search and book your ideal parking space.</p>
+                            </div>
                             {/* Nearby Parking (Sample) */}
                             <div className="nearby-section" style={{marginTop:'30px'}}>
                                 <h2>Recommended for you</h2>
@@ -131,21 +188,35 @@ function Drdashboard() {
                     )}
 
                     {activeTab === 'my-bookings' && (
-                        <div className="content-section">
-                            <h1>My Bookings</h1>
+                        <div className="content-section glass-card">
+                            <h1>Reservations</h1>
                             <p>History of your parking reservations.</p>
                         </div>
                     )}
 
-                    {activeTab === 'vehicles' && (
-                        <div className="content-section">
-                            <h1>My Vehicles</h1>
-                            <p>Manage your registered vehicles.</p>
+                    {activeTab === 'payments' && (
+                        <div className="content-section glass-card">
+                            <h1>Payments</h1>
+                            <p>Manage your transactions and payment methods.</p>
+                        </div>
+                    )}
+
+                    {activeTab === 'inventory' && (
+                        <div className="content-section glass-card">
+                            <h1>Inventory</h1>
+                            <p>Browse and purchase vehicle accessories.</p>
+                        </div>
+                    )}
+
+                    {activeTab === 'services' && (
+                        <div className="content-section glass-card">
+                            <h1>Vehicle Services</h1>
+                            <p>Book and track your vehicle maintenance.</p>
                         </div>
                     )}
 
                     {activeTab === 'profile' && (
-                        <div className="content-section">
+                        <div className="content-section glass-card">
                             <h1>My Profile</h1>
                             <p>Update your personal and preference settings.</p>
                         </div>

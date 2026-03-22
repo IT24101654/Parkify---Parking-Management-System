@@ -7,7 +7,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 80px); /* Navbar එකට ඉඩ තබා */
+    min-height: calc(100vh - 80px); 
     padding: 20px;
 }
 
