@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
                                 "/api/users/profile-image/**",
+                                "/api/vehicles/docs/**",
                                 "/error").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/users/*/profile").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/users/*/upload-profile-image").authenticated()

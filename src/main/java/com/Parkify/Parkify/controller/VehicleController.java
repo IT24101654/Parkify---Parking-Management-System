@@ -76,10 +76,49 @@ public class VehicleController {
     }
 
     @PutMapping("/{vehicleId}")
-    public ResponseEntity<Vehicle> updateVehicle(@PathVariable Long vehicleId, @RequestBody Vehicle vehicle) {
-        return ResponseEntity.ok(vehicleService.updateVehicle(vehicleId, vehicle));
+    public ResponseEntity<?> updateVehicle(
+            @PathVariable Long vehicleId,
+            @RequestParam("vehicleNumber") String vehicleNumber,
+            @RequestParam("brand") String brand,
+            @RequestParam("model") String model,
+            @RequestParam("type") String type,
+            @RequestParam("fuelType") String fuelType,
+            @RequestParam(value = "vehicleImage", required = false) MultipartFile vImage,
+            @RequestParam(value = "licenseImage", required = false) MultipartFile lImage) {
+        
+        try {
+            String uploadDir = "vehicle-docs/";
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            String vFileName = null;
+            if (vImage != null && !vImage.isEmpty()) {
+                vFileName = "VEH_UPD_" + vehicleNumber + "_" + vImage.getOriginalFilename();
+                Files.copy(vImage.getInputStream(), Paths.get(uploadDir + vFileName), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            String lFileName = null;
+            if (lImage != null && !lImage.isEmpty()) {
+                lFileName = "LIC_UPD_" + vehicleNumber + "_" + lImage.getOriginalFilename();
+                Files.copy(lImage.getInputStream(), Paths.get(uploadDir + lFileName), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Vehicle vehicle = new Vehicle();
+            vehicle.setVehicleNumber(vehicleNumber);
+            vehicle.setBrand(brand);
+            vehicle.setModel(model);
+            vehicle.setType(type);
+            vehicle.setFuelType(fuelType);
+
+            Vehicle updatedVehicle = vehicleService.updateVehicle(vehicleId, vehicle, vFileName, lFileName);
+            return ResponseEntity.ok(updatedVehicle);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
     }
-    @GetMapping("/docs/{fileName}")
+
+    @GetMapping("/docs/{fileName:.+}")
     public ResponseEntity<org.springframework.core.io.Resource> getVehicleDocument(@PathVariable String fileName) {
         try {
             Path path = Paths.get("vehicle-docs/").resolve(fileName);
@@ -87,7 +126,7 @@ public class VehicleController {
 
             if (resource.exists() || resource.isReadable()) {
                 return ResponseEntity.ok()
-                        .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, "image/jpeg") // පින්තූරයක් බව හඳුනා ගැනීමට
+                        .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, "image/jpeg")
                         .body(resource);
             } else {
                 return ResponseEntity.notFound().build();

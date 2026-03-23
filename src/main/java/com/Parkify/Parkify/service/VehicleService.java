@@ -6,7 +6,7 @@ import java.util.List;
 public interface VehicleService {
     Vehicle addVehicle(Long userId, Vehicle vehicle, String vImage, String lImage);
     List<Vehicle> getVehiclesByUserId(Long userId);
-    Vehicle updateVehicle(Long vehicleId, Vehicle vehicleDetails);
+    Vehicle updateVehicle(Long vehicleId, Vehicle vehicleDetails, String vImage, String lImage);
     void deleteVehicle(Long vehicleId);
     Vehicle getVehicleById(Long vehicleId);
 }

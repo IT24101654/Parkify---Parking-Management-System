@@ -41,7 +41,7 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle updateVehicle(Long vehicleId, Vehicle vehicleDetails) {
+    public Vehicle updateVehicle(Long vehicleId, Vehicle vehicleDetails, String vImage, String lImage) {
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
@@ -49,6 +49,14 @@ public class VehicleServiceImpl implements VehicleService {
         vehicle.setModel(vehicleDetails.getModel());
         vehicle.setFuelType(vehicleDetails.getFuelType());
         vehicle.setType(vehicleDetails.getType());
+        vehicle.setVehicleNumber(vehicleDetails.getVehicleNumber());
+
+        if (vImage != null && !vImage.isEmpty()) {
+            vehicle.setVehicleImage(vImage);
+        }
+        if (lImage != null && !lImage.isEmpty()) {
+            vehicle.setRevenueLicenseImage(lImage);
+        }
 
         return vehicleRepository.save(vehicle);
     }

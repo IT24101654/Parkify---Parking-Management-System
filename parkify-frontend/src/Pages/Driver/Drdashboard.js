@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Drdashboard.css';
+import VehicleManagement from './VehicleManagement';
 
 function Drdashboard() {
     const navigate = useNavigate();
@@ -107,6 +108,10 @@ function Drdashboard() {
                         <span className="material-symbols-outlined">build</span>
                         <span className="nav-text">Vehicle Services</span>
                     </button>
+                    <button className={activeTab === 'vehicles' ? 'active' : ''} onClick={() => scrollToSection('vehicles')}>
+                        <span className="material-symbols-outlined">directions_car</span>
+                        <span className="nav-text">Vehicles</span>
+                    </button>
                     <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => scrollToSection('profile')}>
                         <span className="material-symbols-outlined">person</span>
                         <span className="nav-text">Profile</span>
@@ -203,6 +208,15 @@ function Drdashboard() {
                                 <div className="fc-footer"><span className="material-symbols-outlined">handyman</span><span>Expert Care</span></div>
                             </div>
 
+                            <div className="feature-card" onClick={() => scrollToSection('vehicles')}>
+                                <div className="fc-icon-wrapper fc-color-green">
+                                    <span className="material-symbols-outlined">directions_car</span>
+                                </div>
+                                <h3 className="fc-title">My Vehicles</h3>
+                                <p className="fc-desc">Manage your registered vehicles, view details, and add new ones.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">garage</span><span>Fleet Management</span></div>
+                            </div>
+
                             <div className="feature-card" onClick={() => scrollToSection('profile')}>
                                 <div className="fc-icon-wrapper fc-color-blue">
                                     <span className="material-symbols-outlined">person</span>
@@ -260,6 +274,11 @@ function Drdashboard() {
                         <div className="inner-card">
                             <p style={{color: 'var(--text-muted)'}}>Select a nearby service center to book maintenance.</p>
                         </div>
+                    </section>
+
+                    {/* SECTION: VEHICLES */}
+                    <section id="vehicles" className="dashboard-section">
+                        <VehicleManagement />
                     </section>
 
                     {/* SECTION: PROFILE */}

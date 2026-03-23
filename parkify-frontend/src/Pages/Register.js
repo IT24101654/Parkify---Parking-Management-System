@@ -90,6 +90,7 @@ function Register() {
         try {
 
             console.log("Saving preferences:", { selectedVehicles, driverPreferences });
+            localStorage.setItem("selectedVehicles", JSON.stringify(selectedVehicles));
             alert("Setup Complete! Welcome to Parkify.");
             navigate('/driver-dashboard');
         } catch (error) {
