@@ -18,14 +18,12 @@ function Drdashboard() {
                     return;
                 }
 
-                // Backend එකෙන් user data ගමු
                 const response = await axios.get('/api/users/me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserData(response.data);
             } catch (error) {
                 console.error('Failed to fetch user data', error);
-                // API එක වැඩ නැත්තම් local storage එකෙන් තාවකාලිකව දත්ත ගමු
                 setUserData({
                     name: localStorage.getItem('userName') || 'Driver Name',
                     email: localStorage.getItem('userEmail') || 'driver@parkify.ai',
@@ -37,6 +35,38 @@ function Drdashboard() {
         fetchUserProfile();
     }, [navigate]);
 
+    // Intersection Observer for scroll synchronization
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveTab(entry.target.id);
+                    }
+                });
+            },
+            { rootMargin: '-20% 0px -70% 0px' } 
+        );
+        
+        const timeoutId = setTimeout(() => {
+            const sections = document.querySelectorAll('.dashboard-section');
+            sections.forEach((section) => observer.observe(section));
+        }, 300);
+
+        return () => {
+            observer.disconnect();
+            clearTimeout(timeoutId);
+        };
+    }, [userData]); 
+
+    const scrollToSection = (id) => {
+        setActiveTab(id);
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
@@ -46,38 +76,38 @@ function Drdashboard() {
 
     return (
         <div className="dr-dashboard">
-            {/* Sidebar */}
+            {/* Sidebar (Structure untouched, onClick updated to scrollToSection) */}
             <aside className="dr-sidebar">
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
                     <h1>Parkify</h1>
                 </div>
                 <nav className="sidebar-nav">
-                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => scrollToSection('overview')}>
                         <span className="material-symbols-outlined">dashboard</span>
                         <span className="nav-text">Overview</span>
                     </button>
-                    <button className={activeTab === 'find-slots' ? 'active' : ''} onClick={() => setActiveTab('find-slots')}>
+                    <button className={activeTab === 'find-slots' ? 'active' : ''} onClick={() => scrollToSection('find-slots')}>
                         <span className="material-symbols-outlined">explore</span>
                         <span className="nav-text">Parking Slots</span>
                     </button>
-                    <button className={activeTab === 'my-bookings' ? 'active' : ''} onClick={() => setActiveTab('my-bookings')}>
+                    <button className={activeTab === 'my-bookings' ? 'active' : ''} onClick={() => scrollToSection('my-bookings')}>
                         <span className="material-symbols-outlined">book_online</span>
                         <span className="nav-text">Reservations</span>
                     </button>
-                    <button className={activeTab === 'payments' ? 'active' : ''} onClick={() => setActiveTab('payments')}>
+                    <button className={activeTab === 'payments' ? 'active' : ''} onClick={() => scrollToSection('payments')}>
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                         <span className="nav-text">Payments</span>
                     </button>
-                    <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => setActiveTab('inventory')}>
+                    <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => scrollToSection('inventory')}>
                         <span className="material-symbols-outlined">inventory</span>
                         <span className="nav-text">Inventory</span>
                     </button>
-                    <button className={activeTab === 'services' ? 'active' : ''} onClick={() => setActiveTab('services')}>
+                    <button className={activeTab === 'services' ? 'active' : ''} onClick={() => scrollToSection('services')}>
                         <span className="material-symbols-outlined">build</span>
                         <span className="nav-text">Vehicle Services</span>
                     </button>
-                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
+                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => scrollToSection('profile')}>
                         <span className="material-symbols-outlined">person</span>
                         <span className="nav-text">Profile</span>
                     </button>
@@ -105,122 +135,142 @@ function Drdashboard() {
                     </div>
                 </header>
 
-                <div className="dr-content">
-                    {activeTab === 'overview' && (
-                        <>
-                            <div className="welcome-section">
-                                <h1>Hello, {userData.name.split(' ')[0]}!</h1>
-                                <p>Ready to find the perfect parking spot today?</p>
+                <div className="dr-scroll-container">
+                    {/* SECTION: OVERVIEW */}
+                    <section id="overview" className="dashboard-section">
+                        <h1 className="section-title">Hello, {userData.name.split(' ')[0]}!</h1>
+                        <p className="section-subtitle">Ready to find the perfect parking spot today?</p>
+
+                        <div className="stats-grid">
+                            <div className="stat-card">
+                                <h3>Total Parkings</h3>
+                                <p className="stat-value">12</p>
+                            </div>
+                            <div className="stat-card">
+                                <h3>Ongoing Session</h3>
+                                <p className="stat-value">None</p>
+                            </div>
+                            <div className="stat-card">
+                                <h3>Points Earned</h3>
+                                <p className="stat-value">450</p>
+                            </div>
+                        </div>
+
+                        <h2 className="section-title" style={{ fontSize: '20px', marginTop: '20px' }}>Dashboard Features</h2>
+                        <div className="features-grid">
+                            <div className="feature-card" onClick={() => scrollToSection('find-slots')}>
+                                <div className="fc-icon-wrapper fc-color-blue">
+                                    <span className="material-symbols-outlined">explore</span>
+                                </div>
+                                <h3 className="fc-title">Parking Slots</h3>
+                                <p className="fc-desc">Search, locate, and smoothly book your ideal parking space across the city.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">today</span><span>Updated Recently</span></div>
                             </div>
 
-                            <div className="quick-tasks-section" style={{marginTop:'25px'}}>
-                                <h2>Main Tasks</h2>
-                                <div className="cards-wrapper">
-                                    <div className="task-card" onClick={() => setActiveTab('find-slots')}>
-                                        <div className="task-icon"><span className="material-symbols-outlined">explore</span></div>
-                                        <div className="task-info">
-                                            <h3>Parking Slots</h3>
-                                            <p>Find & book spots</p>
-                                        </div>
-                                    </div>
-                                    <div className="task-card" onClick={() => setActiveTab('my-bookings')}>
-                                        <div className="task-icon"><span className="material-symbols-outlined">book_online</span></div>
-                                        <div className="task-info">
-                                            <h3>Reservations</h3>
-                                            <p>View your bookings</p>
-                                        </div>
-                                    </div>
-                                    <div className="task-card" onClick={() => setActiveTab('payments')}>
-                                        <div className="task-icon"><span className="material-symbols-outlined">account_balance_wallet</span></div>
-                                        <div className="task-info">
-                                            <h3>Payments</h3>
-                                            <p>Manage transactions</p>
-                                        </div>
-                                    </div>
-                                    <div className="task-card" onClick={() => setActiveTab('inventory')}>
-                                        <div className="task-icon"><span className="material-symbols-outlined">inventory</span></div>
-                                        <div className="task-info">
-                                            <h3>Inventory</h3>
-                                            <p>Shop accessories</p>
-                                        </div>
-                                    </div>
-                                    <div className="task-card" onClick={() => setActiveTab('services')}>
-                                        <div className="task-icon"><span className="material-symbols-outlined">build</span></div>
-                                        <div className="task-info">
-                                            <h3>Vehicle Services</h3>
-                                            <p>Book maintenance</p>
-                                        </div>
-                                    </div>
+                            <div className="feature-card" onClick={() => scrollToSection('my-bookings')}>
+                                <div className="fc-icon-wrapper fc-color-green">
+                                    <span className="material-symbols-outlined">book_online</span>
                                 </div>
+                                <h3 className="fc-title">Reservations</h3>
+                                <p className="fc-desc">View your upcoming and past parking reservations with ease.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">history</span><span>Active Bookings</span></div>
                             </div>
 
-                            <div className="stats-grid">
-                                <div className="stat-card">
-                                    <h3>Total Parkings</h3>
-                                    <p className="stat-value">12</p>
+                            <div className="feature-card" onClick={() => scrollToSection('payments')}>
+                                <div className="fc-icon-wrapper fc-color-taupe">
+                                    <span className="material-symbols-outlined">account_balance_wallet</span>
                                 </div>
-                                <div className="stat-card">
-                                    <h3>Ongoing Session</h3>
-                                    <p className="stat-value">None</p>
-                                </div>
-                                <div className="stat-card">
-                                    <h3>Points Earned</h3>
-                                    <p className="stat-value">450</p>
-                                </div>
+                                <h3 className="fc-title">Payments</h3>
+                                <p className="fc-desc">Manage transactions, receipts, and preferred payment methods.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">security</span><span>Secure Wallet</span></div>
                             </div>
-                        </>
-                    )}
 
-                    {activeTab === 'find-slots' && (
-                        <>
-                            <div className="content-section">
-                                <h1>Find Parking Slots</h1>
-                                <p>Search and book your ideal parking space.</p>
-                            </div>
-                            {/* Nearby Parking (Sample) */}
-                            <div className="nearby-section" style={{marginTop:'30px'}}>
-                                <h2>Recommended for you</h2>
-                                <div className="parking-list-demo">
-                                    <p style={{color: '#6c757d'}}>Interactive Map and nearby locations will appear here.</p>
+                            <div className="feature-card" onClick={() => scrollToSection('inventory')}>
+                                <div className="fc-icon-wrapper fc-color-rose">
+                                    <span className="material-symbols-outlined">inventory</span>
                                 </div>
+                                <h3 className="fc-title">Inventory</h3>
+                                <p className="fc-desc">Shop and browse available vehicle accessories from nearby centers.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">shopping_cart</span><span>Shop Now</span></div>
                             </div>
-                        </>
-                    )}
 
-                    {activeTab === 'my-bookings' && (
-                        <div className="content-section glass-card">
-                            <h1>Reservations</h1>
-                            <p>History of your parking reservations.</p>
-                        </div>
-                    )}
+                            <div className="feature-card" onClick={() => scrollToSection('services')}>
+                                <div className="fc-icon-wrapper fc-color-dark">
+                                    <span className="material-symbols-outlined">build</span>
+                                </div>
+                                <h3 className="fc-title">Vehicle Services</h3>
+                                <p className="fc-desc">Book scheduled maintenance and professional vehicle care.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">handyman</span><span>Expert Care</span></div>
+                            </div>
 
-                    {activeTab === 'payments' && (
-                        <div className="content-section glass-card">
-                            <h1>Payments</h1>
-                            <p>Manage your transactions and payment methods.</p>
+                            <div className="feature-card" onClick={() => scrollToSection('profile')}>
+                                <div className="fc-icon-wrapper fc-color-blue">
+                                    <span className="material-symbols-outlined">person</span>
+                                </div>
+                                <h3 className="fc-title">My Profile</h3>
+                                <p className="fc-desc">Adjust your personal details, preferences, and account security.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">settings</span><span>Manage Settings</span></div>
+                            </div>
                         </div>
-                    )}
+                    </section>
 
-                    {activeTab === 'inventory' && (
-                        <div className="content-section glass-card">
-                            <h1>Inventory</h1>
-                            <p>Browse and purchase vehicle accessories.</p>
+                    {/* SECTION: FIND SLOTS */}
+                    <section id="find-slots" className="dashboard-section">
+                        <h2 className="section-title">Find Parking Slots</h2>
+                        <p className="section-subtitle">Search and book your ideal parking space.</p>
+                        <div className="inner-card">
+                            <h3 style={{marginBottom: '15px'}}>Recommended for you</h3>
+                            <div className="parking-list-demo">
+                                Interactive Map and nearby locations will appear here.
+                            </div>
                         </div>
-                    )}
+                    </section>
 
-                    {activeTab === 'services' && (
-                        <div className="content-section glass-card">
-                            <h1>Vehicle Services</h1>
-                            <p>Book and track your vehicle maintenance.</p>
+                    {/* SECTION: RESERVATIONS */}
+                    <section id="my-bookings" className="dashboard-section">
+                        <h2 className="section-title">Reservations</h2>
+                        <p className="section-subtitle">History of your parking reservations.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>No recent reservations found.</p>
                         </div>
-                    )}
+                    </section>
 
-                    {activeTab === 'profile' && (
-                        <div className="content-section glass-card">
-                            <h1>My Profile</h1>
-                            <p>Update your personal and preference settings.</p>
+                    {/* SECTION: PAYMENTS */}
+                    <section id="payments" className="dashboard-section">
+                        <h2 className="section-title">Payments</h2>
+                        <p className="section-subtitle">Manage your transactions and payment methods.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Payment gateway overview will load here.</p>
                         </div>
-                    )}
+                    </section>
+
+                    {/* SECTION: INVENTORY */}
+                    <section id="inventory" className="dashboard-section">
+                        <h2 className="section-title">Inventory</h2>
+                        <p className="section-subtitle">Browse and purchase vehicle accessories.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Accessory store is currently empty.</p>
+                        </div>
+                    </section>
+
+                    {/* SECTION: SERVICES */}
+                    <section id="services" className="dashboard-section">
+                        <h2 className="section-title">Vehicle Services</h2>
+                        <p className="section-subtitle">Book and track your vehicle maintenance.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Select a nearby service center to book maintenance.</p>
+                        </div>
+                    </section>
+
+                    {/* SECTION: PROFILE */}
+                    <section id="profile" className="dashboard-section">
+                        <h2 className="section-title">My Profile</h2>
+                        <p className="section-subtitle">Update your personal and preference settings.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Profile settings panel.</p>
+                        </div>
+                    </section>
+
                 </div>
             </main>
         </div>

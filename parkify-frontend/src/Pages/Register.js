@@ -71,7 +71,8 @@ function Register() {
             });
 
             localStorage.setItem("token", response.data.token);
-            localStorage.setItem("userRole", role.toLowerCase());
+            localStorage.setItem("userRole", response.data.role.toUpperCase());
+            localStorage.setItem("userId", response.data.id);
 
             if (role === 'driver') {
                 setStep(4);
@@ -90,7 +91,7 @@ function Register() {
 
             console.log("Saving preferences:", { selectedVehicles, driverPreferences });
             alert("Setup Complete! Welcome to Parkify.");
-            navigate('/dr-dashboard');
+            navigate('/driver-dashboard');
         } catch (error) {
             alert("Something went wrong.");
         } finally { setLoading(false); }

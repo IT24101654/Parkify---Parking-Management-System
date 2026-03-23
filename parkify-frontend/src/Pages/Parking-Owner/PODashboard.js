@@ -49,6 +49,38 @@ function PODashboard() {
         fetchUserProfile();
     }, [navigate]);
 
+    // Intersection Observer for scroll synchronization
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveTab(entry.target.id);
+                    }
+                });
+            },
+            { rootMargin: '-20% 0px -70% 0px' } 
+        );
+        
+        const timeoutId = setTimeout(() => {
+            const sections = document.querySelectorAll('.dashboard-section');
+            sections.forEach((section) => observer.observe(section));
+        }, 300);
+
+        return () => {
+            observer.disconnect();
+            clearTimeout(timeoutId);
+        };
+    }, [userData]); 
+
+    const scrollToSection = (id) => {
+        setActiveTab(id);
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     const handleLogout = () => {
         localStorage.clear();
         navigate('/login');
@@ -58,38 +90,38 @@ function PODashboard() {
 
     return (
         <div className="po-dashboard">
-            {/* Sidebar */}
+            {/* Sidebar (Structure untouched) */}
             <aside className="po-sidebar">
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
                     <h1>Parkify</h1>
                 </div>
                 <nav className="sidebar-nav">
-                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => scrollToSection('overview')}>
                         <span className="material-symbols-outlined">dashboard</span>
                         <span className="nav-text">Overview</span>
                     </button>
-                    <button className={activeTab === 'slots' ? 'active' : ''} onClick={() => setActiveTab('slots')}>
+                    <button className={activeTab === 'slots' ? 'active' : ''} onClick={() => scrollToSection('slots')}>
                         <span className="material-symbols-outlined">garage</span>
                         <span className="nav-text">My Slots</span>
                     </button>
                     {userData.hasInventory && (
-                        <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => setActiveTab('inventory')}>
+                        <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => scrollToSection('inventory')}>
                             <span className="material-symbols-outlined">inventory</span>
                             <span className="nav-text">Inventory</span>
                         </button>
                     )}
                     {userData.hasServiceCenter && (
-                        <button className={activeTab === 'service' ? 'active' : ''} onClick={() => setActiveTab('service')}>
+                        <button className={activeTab === 'service' ? 'active' : ''} onClick={() => scrollToSection('service')}>
                             <span className="material-symbols-outlined">build</span>
                             <span className="nav-text">Service Center</span>
                         </button>
                     )}
-                    <button className={activeTab === 'earnings' ? 'active' : ''} onClick={() => setActiveTab('earnings')}>
+                    <button className={activeTab === 'earnings' ? 'active' : ''} onClick={() => scrollToSection('earnings')}>
                         <span className="material-symbols-outlined">analytics</span>
                         <span className="nav-text">Earnings</span>
                     </button>
-                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
+                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => scrollToSection('profile')}>
                         <span className="material-symbols-outlined">person</span>
                         <span className="nav-text">My Profile</span>
                     </button>
@@ -100,6 +132,7 @@ function PODashboard() {
                 </button>
             </aside>
 
+            {/* Main Content */}
             <main className="po-main">
                 <header className="po-navbar">
                     <div className="nav-search">
@@ -116,60 +149,130 @@ function PODashboard() {
                     </div>
                 </header>
 
-                <div className="po-content">
-                    {activeTab === 'overview' && (
-                        <>
-                            <div className="welcome-section">
-                                <h1>Welcome to your Dashboard</h1>
-                                <p>Manage your parking spaces and monitor earnings in real-time.</p>
+                <div className="po-scroll-container">
+                    {/* SECTION: OVERVIEW */}
+                    <section id="overview" className="dashboard-section">
+                        <div className="welcome-section">
+                            <h1 className="section-title">Welcome to your Dashboard</h1>
+                            <p className="section-subtitle">Manage your parking spaces and monitor earnings in real-time.</p>
+                        </div>
+
+                        <div className="stats-grid">
+                            <div className="stat-card">
+                                <h3>Total Slots</h3>
+                                <p className="stat-value">24</p>
+                            </div>
+                            <div className="stat-card">
+                                <h3>Active Bookings</h3>
+                                <p className="stat-value">08</p>
+                            </div>
+                            <div className="stat-card">
+                                <h3>Monthly Revenue</h3>
+                                <p className="stat-value">Rs. 15,400</p>
+                            </div>
+                        </div>
+
+                        <h2 className="section-title" style={{ fontSize: '20px', marginTop: '20px' }}>Dashboard Features</h2>
+                        <div className="features-grid">
+                            <div className="feature-card" onClick={() => scrollToSection('slots')}>
+                                <div className="fc-icon-wrapper fc-color-blue">
+                                    <span className="material-symbols-outlined">garage</span>
+                                </div>
+                                <h3 className="fc-title">My Slots</h3>
+                                <p className="fc-desc">Review and manage your listed parking slots availability and pricing.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">update</span><span>Manage Listings</span></div>
                             </div>
 
-                            <div className="stats-grid">
-                                <div className="stat-card">
-                                    <h3>Total Slots</h3>
-                                    <p className="stat-value">24</p>
+                            {userData.hasInventory && (
+                                <div className="feature-card" onClick={() => scrollToSection('inventory')}>
+                                    <div className="fc-icon-wrapper fc-color-rose">
+                                        <span className="material-symbols-outlined">inventory</span>
+                                    </div>
+                                    <h3 className="fc-title">Inventory</h3>
+                                    <p className="fc-desc">Track and restock vehicle accessories sold at your location.</p>
+                                    <div className="fc-footer"><span className="material-symbols-outlined">storefront</span><span>Shop Inventory</span></div>
                                 </div>
-                                <div className="stat-card">
-                                    <h3>Active Bookings</h3>
-                                    <p className="stat-value">08</p>
+                            )}
+
+                            {userData.hasServiceCenter && (
+                                <div className="feature-card" onClick={() => scrollToSection('service')}>
+                                    <div className="fc-icon-wrapper fc-color-green">
+                                        <span className="material-symbols-outlined">build</span>
+                                    </div>
+                                    <h3 className="fc-title">Service Center</h3>
+                                    <p className="fc-desc">Manage repair bookings, mechanic assignments, and service history.</p>
+                                    <div className="fc-footer"><span className="material-symbols-outlined">handyman</span><span>Manage Services</span></div>
                                 </div>
-                                <div className="stat-card">
-                                    <h3>Monthly Revenue</h3>
-                                    <p className="stat-value">Rs. 15,400</p>
+                            )}
+
+                            <div className="feature-card" onClick={() => scrollToSection('earnings')}>
+                                <div className="fc-icon-wrapper fc-color-taupe">
+                                    <span className="material-symbols-outlined">analytics</span>
                                 </div>
+                                <h3 className="fc-title">Earnings</h3>
+                                <p className="fc-desc">Monitor financial reports, revenue analytics, and withdraw funds.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">trending_up</span><span>Financial Insights</span></div>
                             </div>
-                        </>
-                    )}
-                    {activeTab === 'slots' && (
-                        <div className="content-section">
-                            <h1>My Slots</h1>
-                            <p>Manage your parking slots here.</p>
+
+                            <div className="feature-card" onClick={() => scrollToSection('profile')}>
+                                <div className="fc-icon-wrapper fc-color-dark">
+                                    <span className="material-symbols-outlined">person</span>
+                                </div>
+                                <h3 className="fc-title">My Profile</h3>
+                                <p className="fc-desc">Update your owner profile, billing details, and configurations.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">settings</span><span>Profile Settings</span></div>
+                            </div>
                         </div>
-                    )}
-                    {activeTab === 'inventory' && userData.hasInventory && (
-                        <div className="content-section">
-                            <h1>Inventory</h1>
-                            <p>Manage your parking inventory.</p>
+                    </section>
+
+                    {/* SECTION: SLOTS */}
+                    <section id="slots" className="dashboard-section">
+                        <h2 className="section-title">My Slots</h2>
+                        <p className="section-subtitle">Manage your parking slots here.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Slot management interface will appear here.</p>
                         </div>
+                    </section>
+                    
+                    {/* SECTION: INVENTORY */}
+                    {userData.hasInventory && (
+                        <section id="inventory" className="dashboard-section">
+                            <h2 className="section-title">Inventory</h2>
+                            <p className="section-subtitle">Manage your parking inventory.</p>
+                            <div className="inner-card">
+                                <p style={{color: 'var(--text-muted)'}}>Inventory management interface will appear here.</p>
+                            </div>
+                        </section>
                     )}
-                    {activeTab === 'service' && userData.hasServiceCenter && (
-                        <div className="content-section">
-                            <h1>Service Center</h1>
-                            <p>Manage your vehicle service center.</p>
+
+                    {/* SECTION: SERVICE */}
+                    {userData.hasServiceCenter && (
+                        <section id="service" className="dashboard-section">
+                            <h2 className="section-title">Service Center</h2>
+                            <p className="section-subtitle">Manage your vehicle service center.</p>
+                            <div className="inner-card">
+                                <p style={{color: 'var(--text-muted)'}}>Service center management interface will appear here.</p>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* SECTION: EARNINGS */}
+                    <section id="earnings" className="dashboard-section">
+                        <h2 className="section-title">Earnings</h2>
+                        <p className="section-subtitle">View your earnings and analytics.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Reporting graphs and earning analytics will load here.</p>
                         </div>
-                    )}
-                    {activeTab === 'earnings' && (
-                        <div className="content-section">
-                            <h1>Earnings</h1>
-                            <p>View your earnings and analytics.</p>
+                    </section>
+
+                    {/* SECTION: PROFILE */}
+                    <section id="profile" className="dashboard-section">
+                        <h2 className="section-title">My Profile</h2>
+                        <p className="section-subtitle">Update your profile information.</p>
+                        <div className="inner-card">
+                            <p style={{color: 'var(--text-muted)'}}>Profile configuration and contact info settings.</p>
                         </div>
-                    )}
-                    {activeTab === 'profile' && (
-                        <div className="content-section">
-                            <h1>My Profile</h1>
-                            <p>Update your profile information.</p>
-                        </div>
-                    )}
+                    </section>
                 </div>
             </main>
         </div>
