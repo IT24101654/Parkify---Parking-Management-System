@@ -39,7 +39,7 @@ public interface UserService {
     /** Returns list of role names registered under an email. */
     List<String> getRolesForEmail(String email);
 
-    User updateProfile(Long userId, String name, String phoneNumber, String address);
+    User updateProfile(Long userId, String name, String phoneNumber, String address, String nicNumber);
 
     void updateProfilePicture(Long userId, String fileName);
 
