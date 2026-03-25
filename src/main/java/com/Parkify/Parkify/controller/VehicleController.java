@@ -25,7 +25,7 @@ public class VehicleController {
 
     @PostMapping("/add/{userId}")
     public ResponseEntity<?> addVehicle(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @RequestParam("vehicleNumber") String vehicleNumber,
             @RequestParam("brand") String brand,
             @RequestParam("model") String model,
@@ -55,29 +55,31 @@ public class VehicleController {
             Vehicle savedVehicle = vehicleService.addVehicle(userId, vehicle, vFileName, lFileName);
             return ResponseEntity.ok(savedVehicle);
 
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle number is already registered.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Vehicle>> getUserVehicles(@PathVariable Long userId) {
+    public ResponseEntity<List<Vehicle>> getUserVehicles(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(vehicleService.getVehiclesByUserId(userId));
     }
 
     @DeleteMapping("/{vehicleId}")
-    public ResponseEntity<String> deleteVehicle(@PathVariable Long vehicleId) {
+    public ResponseEntity<String> deleteVehicle(@PathVariable("vehicleId") Long vehicleId) {
         vehicleService.deleteVehicle(vehicleId);
         return ResponseEntity.ok("Vehicle deleted successfully");
     }
     @GetMapping("/{vehicleId}")
-    public ResponseEntity<Vehicle> getVehicleById(@PathVariable Long vehicleId) {
+    public ResponseEntity<Vehicle> getVehicleById(@PathVariable("vehicleId") Long vehicleId) {
         return ResponseEntity.ok(vehicleService.getVehicleById(vehicleId));
     }
 
     @PutMapping("/{vehicleId}")
     public ResponseEntity<?> updateVehicle(
-            @PathVariable Long vehicleId,
+            @PathVariable("vehicleId") Long vehicleId,
             @RequestParam("vehicleNumber") String vehicleNumber,
             @RequestParam("brand") String brand,
             @RequestParam("model") String model,
@@ -113,13 +115,15 @@ public class VehicleController {
             Vehicle updatedVehicle = vehicleService.updateVehicle(vehicleId, vehicle, vFileName, lFileName);
             return ResponseEntity.ok(updatedVehicle);
 
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vehicle number is already registered.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 
     @GetMapping("/docs/{fileName:.+}")
-    public ResponseEntity<org.springframework.core.io.Resource> getVehicleDocument(@PathVariable String fileName) {
+    public ResponseEntity<org.springframework.core.io.Resource> getVehicleDocument(@PathVariable("fileName") String fileName) {
         try {
             Path path = Paths.get("vehicle-docs/").resolve(fileName);
             org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
