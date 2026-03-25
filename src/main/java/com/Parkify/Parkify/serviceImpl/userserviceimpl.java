@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,48 +28,103 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 
+    // ─────────────────────────────────────────────────────────────
+    // REGISTRATION
+    // ─────────────────────────────────────────────────────────────
+
     @Override
     public User registerUser(User user) {
         String normalizedEmail = user.getEmail().trim().toLowerCase();
         user.setEmail(normalizedEmail);
 
-        if(userRepository.existsByEmail(normalizedEmail)){
-            throw new RuntimeException("Email is already registered");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         if (user.getRole() == null) {
             user.setRole(Role.DRIVER);
         }
 
+        // Prevent duplicate (email + role) pair
+        if (userRepository.existsByEmailIgnoreCaseAndRole(normalizedEmail, user.getRole())) {
+            throw new RuntimeException("This email is already registered as " + user.getRole().name());
+        }
+
+        // Only one SUPER_ADMIN allowed system-wide
+        if (user.getRole() == Role.SUPER_ADMIN) {
+            long adminCount = userRepository.countByRole(Role.SUPER_ADMIN);
+            if (adminCount >= 1) {
+                throw new RuntimeException("A SUPER_ADMIN account already exists in the system.");
+            }
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setActive(true);
         user.setTwoFactorEnabled(false);
 
         return userRepository.save(user);
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // LOGIN – validate credentials (role-agnostic password check)
+    // ─────────────────────────────────────────────────────────────
+
+    @Override
+    public User loginUser(String email, String password) {
+        String normalizedEmail = email.trim().toLowerCase();
+
+        List<User> users = userRepository.findAllByEmailIgnoreCase(normalizedEmail);
+        if (users.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        // All rows share the same password (they belong to the same person).
+        // Validate against the first row; they should all match.
+        User anyUser = users.get(0);
+
+        if (!Boolean.TRUE.equals(anyUser.getActive())) {
+            throw new RuntimeException("Account is deactivated");
+        }
+
+        if (!passwordEncoder.matches(password, anyUser.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        return anyUser; // caller only needs confirmation; roles fetched separately
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MULTI-ROLE LOOKUPS
+    // ─────────────────────────────────────────────────────────────
+
+    @Override
+    public List<User> getUsersByEmail(String email) {
+        return userRepository.findAllByEmailIgnoreCase(email.trim().toLowerCase());
+    }
+
+    @Override
+    public User getUserByEmailAndRole(String email, Role role) {
+        return userRepository.findByEmailIgnoreCaseAndRole(email.trim().toLowerCase(), role)
+                .orElseThrow(() -> new RuntimeException(
+                        "No account found for email " + email + " with role " + role.name()));
+    }
+
+    @Override
+    public List<String> getRolesForEmail(String email) {
+        return userRepository.findAllByEmailIgnoreCase(email.trim().toLowerCase())
+                .stream()
+                .map(u -> u.getRole().name())
+                .collect(Collectors.toList());
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // EXISTENCE CHECKS
+    // ─────────────────────────────────────────────────────────────
+
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    @Override
-    public User loginUser(String email, String password) {
-        String normalizedEmail = email.trim().toLowerCase();
-        User user = userRepository.findByEmailIgnoreCase(normalizedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new RuntimeException("Account is deactivated");
-        }
-
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return user;
-        } else {
-            throw new RuntimeException("Invalid credentials");
-        }
-    }
+    // ─────────────────────────────────────────────────────────────
+    // STANDARD CRUD
+    // ─────────────────────────────────────────────────────────────
 
     @Override
     public User getUserById(Long id) {
@@ -90,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        if(!userRepository.existsById(id)){
+        if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found");
         }
         userRepository.deleteById(id);
@@ -102,37 +158,46 @@ public class UserServiceImpl implements UserService {
         if (userDetails.getName() != null) {
             user.setName(userDetails.getName());
         }
-        if(userDetails.getRole() != null) {
+        if (userDetails.getRole() != null) {
             user.setRole(userDetails.getRole());
         }
         return userRepository.save(user);
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // PASSWORD RESET
+    // ─────────────────────────────────────────────────────────────
+
     @Override
     public void forgotPassword(String email) {
         String normalizedEmail = email.trim().toLowerCase();
-
-        var userOpt = userRepository.findByEmailIgnoreCase(normalizedEmail);
-        if(userOpt.isEmpty()) {
-            System.out.println("[DEBUG] forgotPassword: email not found after normalization = '" + normalizedEmail + "'");
+        List<User> users = userRepository.findAllByEmailIgnoreCase(normalizedEmail);
+        if (users.isEmpty()) {
             throw new RuntimeException("User not found with this email");
         }
-
         String otp = otpService.generateOtp(normalizedEmail);
         emailService.sendOtpEmail(normalizedEmail, otp);
     }
 
     @Override
     public boolean resetPassword(String email, String otp, String newPassword) {
-        if(otpService.validateOtp(email, otp)) {
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            user.setPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(user);
+        String normalizedEmail = email.trim().toLowerCase();
+        if (otpService.validateOtp(normalizedEmail, otp)) {
+            // Reset password on ALL role-accounts for this email
+            List<User> users = userRepository.findAllByEmailIgnoreCase(normalizedEmail);
+            String encoded = passwordEncoder.encode(newPassword);
+            users.forEach(u -> {
+                u.setPassword(encoded);
+                userRepository.save(u);
+            });
             return true;
         }
         return false;
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // PROFILE
+    // ─────────────────────────────────────────────────────────────
 
     @Override
     public User getUserByEmail(String email) {
@@ -156,6 +221,7 @@ public class UserServiceImpl implements UserService {
         user.setProfilePicture(fileName);
         userRepository.save(user);
     }
+
     @Override
     public void updateVerificationDetails(Long userId, String nicNumber, String nicImage) {
         User user = getUserById(userId);
