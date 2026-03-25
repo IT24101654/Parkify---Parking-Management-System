@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -17,17 +18,30 @@ public class OtpService {
 
     @Transactional
     public String generateOtp(String email) {
-        otpRepository.deleteByEmail(email);
+        // Aluth OTP eka generate karaganna
+        String otpCode = String.valueOf(new Random().nextInt(900000) + 100000);
 
-        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+        // 1. Kalin me email ekata OTP ekak thiyeda kiyala check karanna
+        Optional<Otp> existingOtp = otpRepository.findByEmail(email);
 
-        Otp otpEntity = new Otp();
-        otpEntity.setEmail(email);
-        otpEntity.setOtp(otp);
+        Otp otpEntity;
+        if (existingOtp.isPresent()) {
+            // 2. Thiyenawa nam e record ekama aran update karanna
+            otpEntity = existingOtp.get();
+        } else {
+            // 3. Nathnam aluth record ekak hadanna
+            otpEntity = new Otp();
+            otpEntity.setEmail(email);
+        }
+
+        // Data set karanna
+        otpEntity.setOtp(otpCode);
         otpEntity.setExpiryTime(LocalDateTime.now().plusMinutes(5));
 
+        // Save karanna (Memege update ekak hari insert ekak hari wenawa)
         otpRepository.save(otpEntity);
-        return otp;
+
+        return otpCode;
     }
 
     public boolean validateOtp(String email, String enteredOtp) {
