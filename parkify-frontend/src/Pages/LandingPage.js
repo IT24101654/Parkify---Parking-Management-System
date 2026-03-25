@@ -15,7 +15,7 @@ function LandingPage() {
                     </div>
                     <div className="nav-links">
                         <a href="#solutions" style={{textDecoration:'none', color:'#2D4057', fontWeight:'700'}}>Solutions</a>
-                        <button className="btn-login" onClick={() => navigate('/login')} style={{background:'none', border:'none', cursor:'pointer', fontWeight:'bold', color:'#2D4057', marginLeft:'20px'}}>Log In</button>
+                        <button className="btn-login" onClick={() => navigate('/login')} style={{background:'none', border:'none', cursor:'pointer', fontWeight:'bold',fontSize:'1rem', color:'#2D4057', marginLeft:'20px'}}>Log In</button>
                         <button onClick={() => navigate('/login')} style={{marginLeft:'20px', padding:'12px 25px', borderRadius:'12px', background:'#2D4057', color:'white', border:'none', cursor:'pointer', fontWeight:'700'}}>Get Started</button>
                     </div>
                 </div>
