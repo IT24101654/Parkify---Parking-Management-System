@@ -135,9 +135,13 @@ function Drdashboard() {
                         <span className="material-symbols-outlined">notifications</span>
                         <div className="profile-info">
                             <p className="profile-name">{userData.name}</p>
-                            <p className="profile-email">Driver Account</p>
+                            <p className="profile-email">{userData.email}</p>
                         </div>
-                        <div className="profile-avatar">DR</div>
+                        {userData.profilePicture ? (
+                            <img src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`} alt="Avatar" className="profile-avatar" style={{objectFit: 'cover'}} />
+                        ) : (
+                            <div className="profile-avatar">DR</div>
+                        )}
                     </div>
                 </header>
 
