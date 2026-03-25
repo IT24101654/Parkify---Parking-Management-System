@@ -49,7 +49,7 @@ function AdminProfile({ adminData, setAdminData }) {
                 const formData = new FormData();
                 formData.append("file", selectedFile);
                 const imgResponse = await axios.post(`${API_BASE_URL}/${userId}/upload-profile-image`, formData, {
-                    headers: { ...config.headers, 'Content-Type': 'multipart/form-data' }
+                    headers: config.headers
                 });
                 updatedUser.profilePicture = imgResponse.data.fileName;
             }
@@ -59,7 +59,20 @@ function AdminProfile({ adminData, setAdminData }) {
             alert("Profile updated successfully!");
         } catch (error) {
             console.error("Update failed:", error);
-            const msg = error.response?.data || error.message || "Unknown error";
+            let msg = "Unknown error";
+            if (error.response && error.response.data) {
+                if (typeof error.response.data === 'string') {
+                    msg = error.response.data;
+                } else if (error.response.data.message) {
+                    msg = error.response.data.message;
+                } else if (error.response.data.error) {
+                    msg = error.response.data.error;
+                } else {
+                    msg = JSON.stringify(error.response.data);
+                }
+            } else {
+                msg = error.message;
+            }
             alert("Update failed! " + msg);
         }
     };
@@ -82,7 +95,7 @@ function AdminProfile({ adminData, setAdminData }) {
                 <div className="prof-left">
                     <div className="avatar-wrapper">
                         <img
-                            src={previewUrl || (adminData?.profilePicture ? `${API_BASE_URL}/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')}
+                            src={previewUrl || (adminData?.profilePicture ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')}
                             className="profile-avatar" alt="profile"
                         />
                     </div>
