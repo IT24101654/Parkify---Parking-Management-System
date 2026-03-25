@@ -14,7 +14,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = @jakarta.persistence.UniqueConstraint(
+        name = "uk_users_email_role",
+        columnNames = {"email", "role"}
+    )
+)
 public class User {
 
     @Id
@@ -25,7 +31,7 @@ public class User {
     private String name;
 
     @Email(message = "Invalid email format")
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -61,7 +67,7 @@ public class User {
     private String profilePicture;
 
     @Pattern(regexp = "^([0-9]{9}[vVxX]|[0-9]{12})$", message = "Invalid NIC format. Must be 10 (with V/X) or 12 digits.")
-    @Column(name = "nic_number", unique = true)
+    @Column(name = "nic_number")
     private String nicNumber;
 
     @Column(name = "nic_image")
