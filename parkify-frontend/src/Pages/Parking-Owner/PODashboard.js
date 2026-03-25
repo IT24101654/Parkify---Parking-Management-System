@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './PODashboard.css';
+import POProfile from './POProfile';
 
 function PODashboard() {
     const navigate = useNavigate();
@@ -145,7 +146,11 @@ function PODashboard() {
                             <p className="profile-name">{userData.name}</p>
                             <p className="profile-email">{userData.email}</p>
                         </div>
-                        <div className="profile-avatar">PO</div>
+                        {userData.profilePicture ? (
+                            <img src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`} alt="Avatar" className="profile-avatar" style={{objectFit: 'cover'}} />
+                        ) : (
+                            <div className="profile-avatar">PO</div>
+                        )}
                     </div>
                 </header>
 
@@ -267,11 +272,7 @@ function PODashboard() {
 
                     {/* SECTION: PROFILE */}
                     <section id="profile" className="dashboard-section">
-                        <h2 className="section-title">My Profile</h2>
-                        <p className="section-subtitle">Update your profile information.</p>
-                        <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Profile configuration and contact info settings.</p>
-                        </div>
+                        <POProfile user={userData} authToken={localStorage.getItem('token')} onProfileUpdate={setUserData} />
                     </section>
                 </div>
             </main>
