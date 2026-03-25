@@ -117,7 +117,8 @@ public class UserController {
 
             String uploadDir = "user-photos/";
             File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
+            if (!dir.exists())
+                dir.mkdirs();
 
             String fileName = "PROFILE_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(uploadDir + fileName);
@@ -128,8 +129,7 @@ public class UserController {
 
             return ResponseEntity.ok(Map.of(
                     "message", "Profile image uploaded successfully",
-                    "fileName", fileName
-            ));
+                    "fileName", fileName));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
@@ -154,7 +154,7 @@ public class UserController {
 
     // --- අනෙකුත් Methods ---
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);
             return ResponseEntity.ok("User removed successfully");
@@ -179,8 +179,7 @@ public class UserController {
             boolean result = userService.resetPassword(
                     request.getEmail().trim().toLowerCase(),
                     request.getOtp(),
-                    request.getNewPassword()
-            );
+                    request.getNewPassword());
             return result ? ResponseEntity.ok(Map.of("message", "Password reset successful"))
                     : ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Invalid OTP"));
         } catch (RuntimeException e) {
