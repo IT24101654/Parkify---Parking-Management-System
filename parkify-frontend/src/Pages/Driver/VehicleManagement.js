@@ -8,7 +8,7 @@ function VehicleManagement() {
     const [error, setError] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [editingVehicle, setEditingVehicle] = useState(null);
-    
+
     // Dynamic vehicle types based on User's registered selections
     const storedTypes = JSON.parse(localStorage.getItem("selectedVehicles")) || ['Car', 'Bike', 'Van'];
 
@@ -70,9 +70,8 @@ function VehicleManagement() {
 
     const handleAddOrUpdateVehicle = async (e) => {
         e.preventDefault();
-        
+
         if (editingVehicle) {
-            // Update logic (Backend expects FormData including optional images via PUT)
             const data = new FormData();
             data.append("vehicleNumber", formData.vehicleNumber);
             data.append("brand", formData.brand);
@@ -85,7 +84,7 @@ function VehicleManagement() {
             try {
                 const token = localStorage.getItem('token');
                 await axios.put(`/api/vehicles/${editingVehicle.id}`, data, {
-                    headers: { 
+                    headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
                     }
@@ -116,12 +115,12 @@ function VehicleManagement() {
             try {
                 const token = localStorage.getItem('token');
                 await axios.post(`/api/vehicles/add/${userId}`, data, {
-                    headers: { 
+                    headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-                
+
                 alert("Vehicle added successfully!");
                 fetchVehicles();
                 resetForm();
@@ -192,7 +191,7 @@ function VehicleManagement() {
                             <span className="material-symbols-outlined">close</span>
                         </button>
                     </div>
-                    
+
                     <form className="vm-form" onSubmit={handleAddOrUpdateVehicle}>
                         <div className="vm-form-row">
                             <div className="vm-form-group">
@@ -263,21 +262,21 @@ function VehicleManagement() {
                                 <img src={getImageUrl(v.vehicleImage)} alt={v.model} className="vm-vehicle-img-new" />
                                 <div className="vm-vehicle-badge-modern">My {v.type}</div>
                             </div>
-                            
+
                             <div className="vm-vehicle-info-modern">
                                 <div className="vm-vehicle-title-row">
                                     <h3 className="vm-vehicle-title">{v.brand} {v.model}</h3>
                                 </div>
-                                
+
                                 <p className="vm-vehicle-subtitle">Registered Fleet Vehicle</p>
-                                
+
                                 <div className="vm-vehicle-tags">
                                     <span className="vm-tag vm-tag-primary">
-                                        <span className="material-symbols-outlined" style={{fontSize: '14px'}}>ev_station</span>
+                                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>ev_station</span>
                                         {v.fuelType}
                                     </span>
                                     <span className="vm-tag">
-                                        <span className="material-symbols-outlined" style={{fontSize: '14px'}}>category</span>
+                                        <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>category</span>
                                         {v.type}
                                     </span>
                                 </div>
