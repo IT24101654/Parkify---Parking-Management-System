@@ -207,11 +207,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateProfile(Long userId, String name, String phoneNumber, String address) {
+    public User updateProfile(Long userId, String name, String phoneNumber, String address, String nicNumber) {
         User user = getUserById(userId);
         if (name != null) user.setName(name);
         if (phoneNumber != null) user.setPhoneNumber(phoneNumber);
         if (address != null) user.setAddress(address);
+        if (nicNumber != null) user.setNicNumber(nicNumber);
         return userRepository.save(user);
     }
 
