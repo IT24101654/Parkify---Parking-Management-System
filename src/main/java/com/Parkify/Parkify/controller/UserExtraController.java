@@ -14,18 +14,18 @@ public class UserExtraController {
     private UserServiceExtra service;
 
     @GetMapping("/logs/{userId}")
-    public ResponseEntity<?> getLogs(@PathVariable Long userId) {
+    public ResponseEntity<?> getLogs(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(service.getUserLogs(userId));
     }
 
     @PostMapping("/favorites/add")
-    public ResponseEntity<?> addFavorite(@RequestParam Long userId, @RequestParam Long slotId) {
+    public ResponseEntity<?> addFavorite(@RequestParam("userId") Long userId, @RequestParam("slotId") Long slotId) {
         FavoriteLocation fav = service.addFavorite(userId, slotId);
         return fav != null ? ResponseEntity.ok(fav) : ResponseEntity.badRequest().body("Already in favorites");
     }
 
     @GetMapping("/favorites/{userId}")
-    public ResponseEntity<?> getFavorites(@PathVariable Long userId) {
+    public ResponseEntity<?> getFavorites(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(service.getFavorites(userId));
     }
 }
