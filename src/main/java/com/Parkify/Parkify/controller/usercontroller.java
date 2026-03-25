@@ -18,7 +18,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+
+import com.Parkify.Parkify.dto.AdminUserDTO;
+import com.Parkify.Parkify.service.VehicleService;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,6 +35,9 @@ public class UserController {
 
     @Autowired
     private UserServiceExtra userExtraService;
+
+    @Autowired
+    private VehicleService vehicleService;
 
     // --- පවතින Methods ---
 
@@ -47,7 +55,7 @@ public class UserController {
     // IMPORTANT: මේක තමයි ඔයාගේ ප්‍රශ්නය විසඳන Method එක!
     // Frontend එකෙන් GET /api/users/1 එවද්දී වැඩ කරන්නේ මේක.
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) {
         try {
             User user = userService.getUserById(id);
             return ResponseEntity.ok(user);
@@ -60,6 +68,36 @@ public class UserController {
     public ResponseEntity<?> getAllUsers() {
         try {
             return ResponseEntity.ok(userService.getAllUsers());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/admin/all")
+    public ResponseEntity<?> getAllUsersForAdmin() {
+        try {
+            List<User> users = userService.getAllUsers();
+            List<AdminUserDTO> adminUsers = new ArrayList<>();
+            
+            for (User user : users) {
+                AdminUserDTO dto = new AdminUserDTO();
+                dto.setId(user.getId());
+                dto.setName(user.getName());
+                dto.setEmail(user.getEmail());
+                dto.setPhoneNumber(user.getPhoneNumber());
+                dto.setRole(user.getRole());
+                dto.setActive(user.getActive());
+                dto.setAddress(user.getAddress());
+                dto.setProfilePicture(user.getProfilePicture());
+                
+                if (user.getRole() != null && user.getRole().name().equals("DRIVER")) {
+                    dto.setVehicles(vehicleService.getVehiclesByUserId(user.getId()));
+                } else {
+                    dto.setVehicles(new ArrayList<>());
+                }
+                adminUsers.add(dto);
+            }
+            return ResponseEntity.ok(adminUsers);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
@@ -81,14 +119,15 @@ public class UserController {
 
     @PutMapping("/{id}/profile")
     public ResponseEntity<?> updateFullProfile(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody Map<String, String> data) {
         try {
             String name = data.get("name");
             String phoneNumber = data.get("phoneNumber");
             String address = data.get("address");
+            String nicNumber = data.get("nicNumber");
 
-            User updatedUser = userService.updateProfile(id, name, phoneNumber, address);
+            User updatedUser = userService.updateProfile(id, name, phoneNumber, address, nicNumber);
             userExtraService.logActivity(id, "PROFILE_UPDATED");
             return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
@@ -98,7 +137,7 @@ public class UserController {
 
     @PostMapping("/{id}/upload-profile-image")
     public ResponseEntity<?> uploadProfileImage(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam("file") MultipartFile file) {
         try {
             if (file == null || file.isEmpty()) {
@@ -136,7 +175,7 @@ public class UserController {
     }
 
     @GetMapping("/profile-image/{fileName}")
-    public ResponseEntity<org.springframework.core.io.Resource> getProfileImage(@PathVariable String fileName) {
+    public ResponseEntity<org.springframework.core.io.Resource> getProfileImage(@PathVariable("fileName") String fileName) {
         try {
             Path path = Paths.get("user-photos/").resolve(fileName);
             org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
@@ -154,7 +193,7 @@ public class UserController {
 
     // --- අනෙකුත් Methods ---
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try {
             userService.deleteUser(id);
             return ResponseEntity.ok("User removed successfully");
