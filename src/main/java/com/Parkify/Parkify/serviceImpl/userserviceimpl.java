@@ -28,9 +28,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 
-    // ─────────────────────────────────────────────────────────────
-    // REGISTRATION
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public User registerUser(User user) {
@@ -41,12 +41,12 @@ public class UserServiceImpl implements UserService {
             user.setRole(Role.DRIVER);
         }
 
-        // Prevent duplicate (email + role) pair
+        
         if (userRepository.existsByEmailIgnoreCaseAndRole(normalizedEmail, user.getRole())) {
             throw new RuntimeException("This email is already registered as " + user.getRole().name());
         }
 
-        // Only one SUPER_ADMIN allowed system-wide
+        
         if (user.getRole() == Role.SUPER_ADMIN) {
             long adminCount = userRepository.countByRole(Role.SUPER_ADMIN);
             if (adminCount >= 1) {
@@ -61,9 +61,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // LOGIN – validate credentials (role-agnostic password check)
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public User loginUser(String email, String password) {
@@ -74,8 +74,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not found");
         }
 
-        // All rows share the same password (they belong to the same person).
-        // Validate against the first row; they should all match.
+        
+        
         User anyUser = users.get(0);
 
         if (!Boolean.TRUE.equals(anyUser.getActive())) {
@@ -86,12 +86,12 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return anyUser; // caller only needs confirmation; roles fetched separately
+        return anyUser; 
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // MULTI-ROLE LOOKUPS
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public List<User> getUsersByEmail(String email) {
@@ -113,18 +113,18 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // EXISTENCE CHECKS
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // STANDARD CRUD
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public User getUserById(Long id) {
@@ -164,9 +164,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // PASSWORD RESET
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public void forgotPassword(String email) {
@@ -183,7 +183,7 @@ public class UserServiceImpl implements UserService {
     public boolean resetPassword(String email, String otp, String newPassword) {
         String normalizedEmail = email.trim().toLowerCase();
         if (otpService.validateOtp(normalizedEmail, otp)) {
-            // Reset password on ALL role-accounts for this email
+            
             List<User> users = userRepository.findAllByEmailIgnoreCase(normalizedEmail);
             String encoded = passwordEncoder.encode(newPassword);
             users.forEach(u -> {
@@ -195,9 +195,9 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // PROFILE
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @Override
     public User getUserByEmail(String email) {
