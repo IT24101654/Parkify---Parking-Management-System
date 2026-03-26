@@ -11,24 +11,22 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // --- Single-result lookups (for password reset / single-role flows) ---
+    List<User> findAllByRole(Role role);
+
+    
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailIgnoreCase(String email);
 
-    // --- Multi-role lookups ---
-    /** Returns all accounts (rows) associated with an email, across all roles. */
-    List<User> findAllByEmailIgnoreCase(String email);
+    
+        List<User> findAllByEmailIgnoreCase(String email);
 
-    /** Returns the account for a specific (email, role) pair. */
-    Optional<User> findByEmailIgnoreCaseAndRole(String email, Role role);
+        Optional<User> findByEmailIgnoreCaseAndRole(String email, Role role);
 
-    // --- Existence checks ---
+    
     boolean existsByEmail(String email);
     boolean existsByEmailIgnoreCase(String email);
 
-    /** True only if this exact (email, role) combination already exists. */
-    boolean existsByEmailIgnoreCaseAndRole(String email, Role role);
+        boolean existsByEmailIgnoreCaseAndRole(String email, Role role);
 
-    /** Count how many SUPER_ADMIN accounts exist. */
-    long countByRole(Role role);
+        long countByRole(Role role);
 }
