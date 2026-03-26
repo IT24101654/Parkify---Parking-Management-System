@@ -86,7 +86,7 @@
   position: absolute;
   bottom: 8px;
   right: 8px;
-  background: #2d7ef9;
+  background: #2D4057;
   color: #fff;
   width: 32px;
   height: 32px;
@@ -166,8 +166,15 @@
 }
 
 .save-btn {
-  background: linear-gradient(90deg, #2d7ef9 0%, #1f6fe2 100%);
+  background: #2D4057 !important;
   color: white;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.save-btn:hover {
+  background: #1e2c3c !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 64, 87, 0.2);
 }
 
 .cancel-btn {
