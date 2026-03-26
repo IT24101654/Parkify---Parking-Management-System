@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Register.css';
 
-// axios.defaults.baseURL = 'http://localhost:8080';
+
 axios.defaults.timeout = 15000;
 
 function Register() {
@@ -68,7 +68,7 @@ function Register() {
             const response = await axios.post('/api/auth/verify-register-otp', {
                 email: formData.email,
                 otp: otp,
-                role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER'  // required by updated backend
+                role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER'  
             });
 
             localStorage.setItem("token", response.data.token);
@@ -191,7 +191,7 @@ function Register() {
                     </div>
                 )}
 
-                {/* Step 5: Driver Preferences */}
+                {}
                 {step === 5 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">Your Preference</h2>
