@@ -10,21 +10,22 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
     const [profileData, setProfileData] = useState(user || {});
     const [isEditMode, setIsEditMode] = useState(false);
     
-    // Parking Locations State
+    
     const [locations, setLocations] = useState([]);
     const [isAddingLocation, setIsAddingLocation] = useState(false);
     const [newLocation, setNewLocation] = useState({ name: '', address: '', lat: null, lng: null, availableFrom: '08:00', availableTo: '22:00' });
     
-    // UI Modals
+    
     const [mapModalOpen, setMapModalOpen] = useState(false);
-    const [activeMapField, setActiveMapField] = useState(null); // 'profile' or 'location'
+    const [activeMapField, setActiveMapField] = useState(null); 
 
-    // Fetch initial Profile & Locations
+    
     useEffect(() => {
         if (user && user.id) {
             setProfileData(user);
             fetchLocations(user.id);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     const fetchLocations = async (userId) => {
@@ -38,7 +39,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         }
     };
 
-    // --- Profile Handlers ---
+    
     const handleProfileChange = (e) => {
         setProfileData({ ...profileData, [e.target.name]: e.target.value });
     };
@@ -84,7 +85,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         }
     };
 
-    // --- Location Form Handlers ---
+    
     const handleAddLocationSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -122,7 +123,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         }
     };
 
-    // --- Map Selection Handlers ---
+    
     const openMapForProfile = () => {
         setActiveMapField('profile');
         setMapModalOpen(true);
@@ -147,7 +148,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
 
     return (
         <div className="po-profile-container">
-            {/* Header Card */}
+            {}
             <div className="po-profile-header card-glass">
                 <div className="header-left">
                     <div className="avatar-wrapper">
@@ -168,10 +169,10 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
                 </button>
             </div>
 
-            {/* Content Split: Profile Details & Parking Locations */}
+            {}
             <div className="po-content-grid">
                 
-                {/* Profile Details Panel */}
+                {}
                 <div className="po-panel card-glass">
                     <h3 className="panel-title">Personal Details</h3>
                     <div className="panel-body">
@@ -230,7 +231,6 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
                     </div>
                 </div>
 
-                {/* Parking Locations Panel */}
                 <div className="po-panel card-glass locations-panel">
                     <div className="panel-header-row">
                         <h3 className="panel-title">My Parking Locations</h3>
