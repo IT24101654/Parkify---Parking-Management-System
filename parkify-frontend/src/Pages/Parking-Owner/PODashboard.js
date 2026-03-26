@@ -50,7 +50,6 @@ function PODashboard() {
         fetchUserProfile();
     }, [navigate]);
 
-    // Intersection Observer for scroll synchronization
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -91,7 +90,6 @@ function PODashboard() {
 
     return (
         <div className="po-dashboard">
-            {/* Sidebar (Structure untouched) */}
             <aside className="po-sidebar">
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
@@ -133,7 +131,6 @@ function PODashboard() {
                 </button>
             </aside>
 
-            {/* Main Content */}
             <main className="po-main">
                 <header className="po-navbar">
                     <div className="nav-search">
@@ -155,7 +152,6 @@ function PODashboard() {
                 </header>
 
                 <div className="po-scroll-container">
-                    {/* SECTION: OVERVIEW */}
                     <section id="overview" className="dashboard-section">
                         <div className="welcome-section">
                             <h1 className="section-title">Welcome to your Dashboard</h1>
@@ -230,7 +226,6 @@ function PODashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: SLOTS */}
                     <section id="slots" className="dashboard-section">
                         <h2 className="section-title">My Slots</h2>
                         <p className="section-subtitle">Manage your parking slots here.</p>
@@ -239,7 +234,6 @@ function PODashboard() {
                         </div>
                     </section>
                     
-                    {/* SECTION: INVENTORY */}
                     {userData.hasInventory && (
                         <section id="inventory" className="dashboard-section">
                             <h2 className="section-title">Inventory</h2>
@@ -250,7 +244,6 @@ function PODashboard() {
                         </section>
                     )}
 
-                    {/* SECTION: SERVICE */}
                     {userData.hasServiceCenter && (
                         <section id="service" className="dashboard-section">
                             <h2 className="section-title">Service Center</h2>
@@ -261,7 +254,6 @@ function PODashboard() {
                         </section>
                     )}
 
-                    {/* SECTION: EARNINGS */}
                     <section id="earnings" className="dashboard-section">
                         <h2 className="section-title">Earnings</h2>
                         <p className="section-subtitle">View your earnings and analytics.</p>
@@ -270,7 +262,6 @@ function PODashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: PROFILE */}
                     <section id="profile" className="dashboard-section">
                         <POProfile user={userData} authToken={localStorage.getItem('token')} onProfileUpdate={setUserData} />
                     </section>
