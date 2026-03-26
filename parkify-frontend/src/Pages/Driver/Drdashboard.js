@@ -4,11 +4,14 @@ import axios from 'axios';
 import './Drdashboard.css';
 import VehicleManagement from './VehicleManagement';
 import DrProfile from './DrProfile';
+import VoiceWave from './VoiceWave';
+import VoiceButton from './VoiceButton';
 
 function Drdashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [userData, setUserData] = useState(null);
+    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -153,21 +156,23 @@ function Drdashboard() {
                 <div className="dr-scroll-container">
                     {}
                     <section id="overview" className="dashboard-section">
-                        <h1 className="section-title">Hello, {userData.name.split(' ')[0]}!</h1>
-                        <p className="section-subtitle">Ready to find the perfect parking spot today?</p>
-
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <h3>Total Parkings</h3>
-                                <p className="stat-value">12</p>
+                        <div className="overview-header-row" style={{ position: 'relative' }}>
+                            <div className="overview-greeting">
+                                <h1 className="section-title">Hello, {userData.name.split(' ')[0]}!</h1>
+                                <p className="section-subtitle">Ready to find the perfect parking spot today?</p>
                             </div>
-                            <div className="stat-card">
-                                <h3>Ongoing Session</h3>
-                                <p className="stat-value">None</p>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Points Earned</h3>
-                                <p className="stat-value">450</p>
+                            
+                            <div className="voice-widget-container">
+                                <VoiceWave isActive={isVoiceAssistantOpen} />
+                                <VoiceButton 
+                                    isListening={isVoiceAssistantOpen} 
+                                    onClick={() => setIsVoiceAssistantOpen(!isVoiceAssistantOpen)} 
+                                />
+                                {isVoiceAssistantOpen && (
+                                    <div className="va-assistant-message">
+                                        Hey Driver, how can I help you?
+                                    </div>
+                                )}
                             </div>
                         </div>
 
