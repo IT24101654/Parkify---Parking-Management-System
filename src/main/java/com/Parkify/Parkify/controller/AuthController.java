@@ -18,6 +18,7 @@ import com.Parkify.Parkify.service.JwtService;
 import com.Parkify.Parkify.service.OtpService;
 import com.Parkify.Parkify.service.RegistrationService;
 import com.Parkify.Parkify.service.UserService;
+import com.Parkify.Parkify.service.NotificationService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,16 +30,16 @@ public class AuthController {
     @Autowired private JwtService jwtService;
     @Autowired private UserService userService;
     @Autowired private RegistrationService registrationService;
+    @Autowired private NotificationService notificationService;
 
-    // ─────────────────────────────────────────────────────────────
-    // REGISTRATION – Step 1: validate + send OTP
-    // ─────────────────────────────────────────────────────────────
+
+    
 
     @PostMapping("/register-otp")
     public ResponseEntity<?> sendOtpForRegistration(@RequestBody RegisterRequest registerRequest) {
         String email = registerRequest.getEmail().trim().toLowerCase();
 
-        // Parse role
+        
         Role role;
         if (registerRequest.getRole() != null && !registerRequest.getRole().isBlank()) {
             try {
@@ -51,20 +52,20 @@ public class AuthController {
             role = Role.DRIVER;
         }
 
-        // Nobody can self-register as SUPER_ADMIN (unless it's the very first one)
+        
         if (role == Role.SUPER_ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "SUPER_ADMIN cannot be created through public registration."));
         }
 
-        // Check (email + role) uniqueness
+        
         List<String> existingRoles = userService.getRolesForEmail(email);
         if (existingRoles.contains(role.name())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "This email is already registered as " + role.name()));
         }
 
-        // Build pending user object
+        
         User pending = new User();
         pending.setName(registerRequest.getName());
         pending.setEmail(email);
@@ -84,9 +85,9 @@ public class AuthController {
                 .body(Map.of("message", "OTP sent to " + email));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // REGISTRATION – Step 2: verify OTP + create account
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @PostMapping("/verify-register-otp")
     public ResponseEntity<?> verifyRegistrationOtp(@RequestBody VerifyRequest verifyRequest) {
@@ -98,7 +99,7 @@ public class AuthController {
                     .body(Map.of("error", "Invalid or expired OTP"));
         }
 
-        // Role is required for registration OTP so we know which pending entry to fetch
+        
         String roleStr = verifyRequest.getRole();
         if (roleStr == null || roleStr.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -129,6 +130,13 @@ public class AuthController {
 
         registrationService.removePendingUser(normalizedEmail, role.name());
 
+        // Trigger notification to Super Admins
+        try {
+            notificationService.notifyAdminsOnNewUserRegistration(created);
+        } catch (Exception e) {
+            System.err.println("Failed to send admin notification: " + e.getMessage());
+        }
+
         String token = jwtService.generateToken(created.getEmail(), created.getRole().name());
 
         return ResponseEntity.ok(Map.of(
@@ -138,9 +146,9 @@ public class AuthController {
                 "id", created.getId()));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // LOGIN – Step 1: validate credentials → decide OTP or role-select
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -152,7 +160,7 @@ public class AuthController {
 
         String email = loginRequest.getEmail().trim().toLowerCase();
 
-        // Validate credentials (throws if invalid)
+        
         try {
             userService.loginUser(email, loginRequest.getPassword());
         } catch (RuntimeException e) {
@@ -162,7 +170,7 @@ public class AuthController {
 
         List<String> roles = userService.getRolesForEmail(email);
 
-        // Case 3: SUPER_ADMIN present → send OTP immediately for SUPER_ADMIN
+        
         if (roles.contains(Role.SUPER_ADMIN.name())) {
             String otp = otpService.generateOtp(email);
             emailService.sendOtpEmail(email, otp);
@@ -171,7 +179,7 @@ public class AuthController {
                     "roles", List.of(Role.SUPER_ADMIN.name())));
         }
 
-        // Case 1: only one role → send OTP immediately
+        
         if (roles.size() == 1) {
             String otp = otpService.generateOtp(email);
             emailService.sendOtpEmail(email, otp);
@@ -180,15 +188,15 @@ public class AuthController {
                     "roles", roles));
         }
 
-        // Case 2: multiple roles → ask frontend to let user choose
+        
         return ResponseEntity.ok(Map.of(
                 "status", "ROLE_SELECTION_REQUIRED",
                 "roles", roles));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // LOGIN – Step 1b (NEW): user selects role → send OTP
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @PostMapping("/select-role")
     public ResponseEntity<?> selectRole(@RequestBody Map<String, String> body) {
@@ -210,7 +218,7 @@ public class AuthController {
                     .body(Map.of("error", "Invalid role: " + roleStr));
         }
 
-        // Confirm this role actually exists for this email
+        
         List<String> roles = userService.getRolesForEmail(email);
         if (!roles.contains(role.name())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -223,9 +231,9 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("status", "OTP_SENT"));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // LOGIN – Step 2: verify OTP → issue JWT
-    // ─────────────────────────────────────────────────────────────
+    
+    
+    
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyRequest verifyRequest) {
@@ -237,12 +245,12 @@ public class AuthController {
                     .body(Map.of("error", "Invalid or expired OTP"));
         }
 
-        // Determine which role to issue the token for
+        
         String roleStr = verifyRequest.getRole();
         User user;
 
         if (roleStr != null && !roleStr.isBlank()) {
-            // Role was explicitly selected by the user
+            
             Role role;
             try {
                 role = Role.valueOf(roleStr.toUpperCase());
@@ -252,7 +260,7 @@ public class AuthController {
             }
             user = userService.getUserByEmailAndRole(email, role);
         } else {
-            // Single-role flow: use the only account for this email
+            
             List<User> users = userService.getUsersByEmail(email);
             if (users.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
