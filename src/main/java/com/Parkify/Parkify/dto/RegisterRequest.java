@@ -16,4 +16,5 @@ public class RegisterRequest {
     private String role;
     private boolean hasInventory;
     private boolean hasServiceCenter;
+    private String nicNumber;
 }

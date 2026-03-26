@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Drdashboard.css';
 import VehicleManagement from './VehicleManagement';
+import DrProfile from './DrProfile';
 
 function Drdashboard() {
     const navigate = useNavigate();
@@ -18,8 +19,13 @@ function Drdashboard() {
                     navigate('/login');
                     return;
                 }
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
+                    navigate('/login');
+                    return;
+                }
 
-                const response = await axios.get('/api/users/me', {
+                const response = await axios.get(`/api/users/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserData(response.data);
@@ -287,11 +293,13 @@ function Drdashboard() {
 
                     {}
                     <section id="profile" className="dashboard-section">
-                        <h2 className="section-title">My Profile</h2>
-                        <p className="section-subtitle">Update your personal and preference settings.</p>
-                        <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Profile settings panel.</p>
-                        </div>
+                        <DrProfile 
+                            user={userData} 
+                            authToken={localStorage.getItem('token')} 
+                            onProfileUpdate={(updatedUser) => {
+                                setUserData(prev => ({...prev, ...updatedUser}));
+                            }}
+                        />
                     </section>
 
                 </div>

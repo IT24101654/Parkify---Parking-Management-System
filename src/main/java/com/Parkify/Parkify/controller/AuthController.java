@@ -75,6 +75,10 @@ public class AuthController {
         pending.setHasInventory(registerRequest.isHasInventory());
         pending.setHasServiceCenter(registerRequest.isHasServiceCenter());
         pending.setRole(role);
+        
+        if (registerRequest.getNicNumber() != null && !registerRequest.getNicNumber().isBlank()) {
+            pending.setNicNumber(registerRequest.getNicNumber());
+        }
 
         registrationService.storePendingUser(pending);
 
