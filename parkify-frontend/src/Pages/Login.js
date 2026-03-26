@@ -20,14 +20,12 @@ function Login() {
     const [resetMessage, setResetMessage] = useState('');
     const [resetStep, setResetStep] = useState(1);
 
-    // Role selection state (only shown when backend returns ROLE_SELECTION_REQUIRED)
     const [showRoleSelect, setShowRoleSelect] = useState(false);
     const [availableRoles, setAvailableRoles] = useState([]);
     const [selectedRole, setSelectedRole] = useState('');
 
     const navigate = useNavigate();
 
-    // ── Step 1: Submit email + password ──────────────────────────
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password) {
@@ -44,12 +42,12 @@ function Login() {
             const { status, roles } = response.data;
 
             if (status === 'OTP_SENT') {
-                // Single role or SUPER_ADMIN – OTP already sent, go straight to OTP screen
+                
                 setSelectedRole(roles[0]);
                 setLoginError('');
                 setShowOTP(true);
             } else if (status === 'ROLE_SELECTION_REQUIRED') {
-                // Multiple roles – show role selection before sending OTP
+                
                 setAvailableRoles(roles);
                 setLoginError('');
                 setShowRoleSelect(true);
@@ -63,7 +61,7 @@ function Login() {
         }
     };
 
-    // ── Step 1b: User picks a role → select-role endpoint sends OTP ──
+    
     const handleRoleSelection = async (role) => {
         setSelectedRole(role);
         setLoading(true);
@@ -83,14 +81,14 @@ function Login() {
         }
     };
 
-    // ── Step 2: Verify OTP ────────────────────────────────────────
+    
     const verifyOTP = async () => {
         setLoading(true);
         try {
             const response = await axios.post('/api/auth/verify-otp', {
                 email: email.trim().toLowerCase(),
                 otp: otp,
-                role: selectedRole   // tells backend which account to authenticate
+                role: selectedRole   
             });
 
             const { token, role, id } = response.data;
@@ -120,7 +118,7 @@ function Login() {
         }
     };
 
-    // ── Password reset ────────────────────────────────────────────
+    
     const requestPasswordReset = async () => {
         setLoading(true);
         try {
@@ -156,7 +154,7 @@ function Login() {
         }
     };
 
-    // ── Role display helpers ──────────────────────────────────────
+    
     const roleLabel = (role) => {
         switch (role) {
             case 'DRIVER': return 'Driver';
@@ -175,7 +173,7 @@ function Login() {
         }
     };
 
-    // ── Render ────────────────────────────────────────────────────
+    
     return (
         <div className="auth-page">
             <Navbar variant="login" />
@@ -187,7 +185,7 @@ function Login() {
                 </div>
 
                 <div className="auth-form-container">
-                    {/* ── Login form ── */}
+                    {}
                     {!showOTP && !showForgotPassword && !showRoleSelect && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Welcome Back</h2>
@@ -213,7 +211,7 @@ function Login() {
                         </div>
                     )}
 
-                    {/* ── Role selection (only when ROLE_SELECTION_REQUIRED) ── */}
+                    {}
                     {showRoleSelect && !showOTP && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Choose Account</h2>
@@ -245,7 +243,6 @@ function Login() {
                         </div>
                     )}
 
-                    {/* ── OTP verification ── */}
                     {showOTP && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Verify OTP</h2>
@@ -272,7 +269,7 @@ function Login() {
                         </div>
                     )}
 
-                    {/* ── Forgot password ── */}
+                    {}
                     {showForgotPassword && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Reset Password</h2>
