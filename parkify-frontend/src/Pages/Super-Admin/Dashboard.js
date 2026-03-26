@@ -16,7 +16,6 @@ function Dashboard() {
     const [unreadCount, setUnreadCount] = useState(0);
     const notificationRef = useRef(null);
 
-    // --- Fetch Notifications ---
     const fetchNotifications = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
@@ -37,7 +36,6 @@ function Dashboard() {
         return () => clearInterval(interval);
     }, [fetchNotifications]);
 
-    // --- Close dropdown when clicking outside ---
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -48,7 +46,6 @@ function Dashboard() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // --- Mark single notification as read ---
     const handleNotificationClick = async (id) => {
         try {
             const token = localStorage.getItem('token');
@@ -62,7 +59,6 @@ function Dashboard() {
         }
     };
 
-    // --- Mark ALL notifications as read ---
     const handleMarkAllRead = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -81,7 +77,6 @@ function Dashboard() {
         }
     };
 
-    // --- Fetch Admin Profile ---
     useEffect(() => {
         const fetchAdminProfile = async () => {
             try {
@@ -116,7 +111,6 @@ function Dashboard() {
         fetchAdminProfile();
     }, [navigate]);
 
-    // --- IntersectionObserver for scroll-spy active tab ---
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -139,7 +133,6 @@ function Dashboard() {
 
     const handleLogout = () => { localStorage.clear(); navigate('/login'); };
 
-    // --- Icon per notification type ---
     const getNotificationIcon = (notif) => {
         const msg = (notif.message || '').toLowerCase();
         if (msg.includes('parking_owner') || msg.includes('parking owner')) return 'local_parking';
@@ -248,7 +241,6 @@ function Dashboard() {
                             )}
                         </div>
 
-                        {/* ─── Admin Avatar ─── */}
                         <div className="db-user-profile" onClick={() => scrollToSection('profile')}>
                             <img
                                 src={adminData.profilePicture

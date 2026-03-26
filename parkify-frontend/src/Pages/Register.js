@@ -19,7 +19,10 @@ function Register() {
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', email: '', phoneNumber: '', password: '',
         parkingName: '', address: '', hasInventory: false, hasServiceCenter: false, nicNumber: ''
+<<<<<<< HEAD
 
+=======
+>>>>>>> f06744d (driver profile updated)
     });
 
     const handleRoleSelect = (selectedRole) => {
@@ -50,7 +53,10 @@ function Register() {
             address: formData.address || '',
             role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER',
             hasInventory: formData.hasInventory,
+<<<<<<< HEAD
 
+=======
+>>>>>>> f06744d (driver profile updated)
             hasServiceCenter: formData.hasServiceCenter,
             ...(role === 'driver' && formData.nicNumber ? { nicNumber: formData.nicNumber } : {})
         };
@@ -161,11 +167,18 @@ function Register() {
                             <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} className="form-input-styled" />
                             <input name="phoneNumber" type="tel" placeholder="Phone Number" required onChange={handleChange} className="form-input-styled" />
                             <input name="password" type="password" placeholder="Create Password" required onChange={handleChange} className="form-input-styled" />
+<<<<<<< HEAD
 
+=======
+>>>>>>> f06744d (driver profile updated)
                             
                             {role === 'driver' && (
                                 <input name="nicNumber" type="text" placeholder="National ID (NIC) (Optional)" onChange={handleChange} className="form-input-styled" />
                             )}
+<<<<<<< HEAD
+=======
+
+>>>>>>> f06744d (driver profile updated)
                             <button type="submit" className="btn-auth-primary" disabled={loading}>{loading ? "Sending OTP..." : "Register Now"}</button>
                         </form>
                     </div>

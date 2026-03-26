@@ -58,6 +58,10 @@ public class AuthController {
         pending.setPhoneNumber(registerRequest.getPhoneNumber());
         pending.setAddress(registerRequest.getAddress());
         pending.setRole(role);
+        
+        if (registerRequest.getNicNumber() != null && !registerRequest.getNicNumber().isBlank()) {
+            pending.setNicNumber(registerRequest.getNicNumber());
+        }
 
         registrationService.storePendingUser(pending);
 
