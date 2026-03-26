@@ -78,7 +78,6 @@
   object-fit: cover;
 }
 
-/* Badges */
 .role-badge {
   padding: 6px 12px;
   border-radius: 20px;
@@ -111,7 +110,6 @@
   font-weight: 500;
 }
 
-/* Modal Styles */
 .um-modal-overlay {
   position: fixed;
   top: 0;
