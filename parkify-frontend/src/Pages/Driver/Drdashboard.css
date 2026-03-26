@@ -29,7 +29,7 @@
     color: var(--text-dark);
 }
 
-/* Sidebar */
+
 .dr-sidebar {
   width: 250px;
   background: #2D4057;
@@ -115,7 +115,7 @@
   font-weight: 700;
 }
 
-/* SIDEBAR LOGOUT (BOTTOM) */
+
 .dr-logout-bottom {
   background: rgba(178, 105, 105, 0.15);
   border: 1px solid transparent;
@@ -141,7 +141,7 @@
   color: var(--white);
 }
 
-/* Main Content Area */
+
 .dr-main {
     flex: 1;
     display: flex;
@@ -213,7 +213,7 @@
     scroll-margin-top: 40px;
 }
 
-/* Typography Headings */
+
 .section-title {
     font-size: 26px;
     font-weight: 700;
@@ -227,7 +227,7 @@
     margin-bottom: 30px;
 }
 
-/* Cards Grid (Overview) */
+
 .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -263,7 +263,7 @@
     color: var(--white);
 }
 
-/* Distinct card icon colors based on palette */
+
 .fc-color-green { background: var(--accent-green); box-shadow: 0 4px 12px rgba(125, 133, 112, 0.3); }
 .fc-color-blue { background: var(--accent-blue); box-shadow: 0 4px 12px rgba(121, 139, 150, 0.3); }
 .fc-color-rose { background: var(--accent-rose); box-shadow: 0 4px 12px rgba(174, 149, 139, 0.3); }
@@ -299,7 +299,7 @@
     font-size: 14px;
 }
 
-/* Stats Grid */
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -323,7 +323,7 @@
 
 .stat-value { font-size: 28px; font-weight: 800; color: var(--text-dark); }
 
-/* Other Sections place-holders */
+
 .inner-card {
     background: var(--white);
     border-radius: var(--radius);
