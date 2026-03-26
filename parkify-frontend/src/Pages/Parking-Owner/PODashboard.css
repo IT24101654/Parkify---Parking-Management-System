@@ -2,22 +2,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 :root {
-    /* Accessible Beige Theme */
-    --bg-primary: #e4dfd3; /* White Duck */
-    --bg-secondary: #d1c9ba; /* Accessible Beige */
+    --bg-primary: #e4dfd3;
+    --bg-secondary: #d1c9ba;
     
-    /* Accents */
-    --accent-blue: #798b96; /* De Nimes */
-    --accent-rose: #ae958b; /* Redend Point */
-    --accent-green: #7d8570; /* Dried Thyme */
-    --accent-taupe: #9b8c7b; /* Moth Wing */
+    --accent-blue: #798b96;
+    --accent-rose: #ae958b; 
+    --accent-green: #7d8570; 
+    --accent-taupe: #9b8c7b;
     
-    /* Text & Basic */
     --text-dark: #2c2c2c;
     --text-muted: #6b6b6b;
     --white: #ffffff;
     
-    /* Effects */
     --shadow-soft: 0 4px 20px rgba(0,0,0,0.04);
     --shadow-hover: 0 10px 25px rgba(0,0,0,0.08);
     --radius: 12px;
@@ -33,7 +29,6 @@
     color: var(--text-dark);
 }
 
-/* Sidebar */
 .po-sidebar {
   width: 250px;
   background: #2D4057;
@@ -119,7 +114,6 @@
   font-weight: 700;
 }
 
-/* SIDEBAR LOGOUT (BOTTOM) */
 .po-logout-bottom {
   background:  rgba(178, 105, 105, 0.15);
   border: 1px solid transparent;
