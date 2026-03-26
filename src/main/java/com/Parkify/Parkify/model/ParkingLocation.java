@@ -27,18 +27,18 @@ public class ParkingLocation {
     private Double longitude;
 
     @Column(name = "available_from")
-    private String availableFrom; // format HH:mm
+    private String availableFrom; 
 
     @Column(name = "available_to")
-    private String availableTo; // format HH:mm
+    private String availableTo; 
 
     private Boolean active = true;
 
-    // Default Constructor
+    
     public ParkingLocation() {
     }
 
-    // Getters and Setters
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
