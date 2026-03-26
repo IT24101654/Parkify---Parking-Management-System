@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Dashboard.css';
 
-import Overview from './Overview';
+
 import ManageUser from './ManageUsers';
 import AdminProfile from './AdminProfile';
 
@@ -292,9 +292,7 @@ function Dashboard() {
                             </div>
                         </div>
 
-                        <div className="overview-wrapper" style={{ marginTop: '40px' }}>
-                            <Overview />
-                        </div>
+
                     </section>
 
                     <section id="users" className="dashboard-section">
