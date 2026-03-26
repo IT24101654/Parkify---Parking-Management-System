@@ -10,11 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
 
-    /**
-     * Key format: "email:ROLE" — e.g. "alice@example.com:DRIVER"
-     * This allows the same email to have separate pending entries per role.
-     */
-    private final Map<String, User> pendingUsers = new ConcurrentHashMap<>();
+        private final Map<String, User> pendingUsers = new ConcurrentHashMap<>();
 
     private String key(String email, String role) {
         return email.trim().toLowerCase() + ":" + role.toUpperCase();
