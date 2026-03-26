@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Dashboard.css';
@@ -11,37 +11,100 @@ function Dashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [adminData, setAdminData] = useState(null);
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const notificationRef = useRef(null);
 
+    // --- Fetch Notifications ---
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const response = await axios.get('http://localhost:8080/api/notifications', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setNotifications(response.data);
+            setUnreadCount(response.data.filter(n => !n.read).length);
+        } catch (error) {
+            console.error("Failed to fetch notifications", error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, [fetchNotifications]);
+
+    // --- Close dropdown when clicking outside ---
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setShowNotifications(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    // --- Mark single notification as read ---
+    const handleNotificationClick = async (id) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`http://localhost:8080/api/notifications/${id}/read`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+            setUnreadCount(prev => Math.max(0, prev - 1));
+        } catch (error) {
+            console.error("Failed to mark notification as read", error);
+        }
+    };
+
+    // --- Mark ALL notifications as read ---
+    const handleMarkAllRead = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const unread = notifications.filter(n => !n.read);
+            await Promise.all(
+                unread.map(n =>
+                    axios.put(`http://localhost:8080/api/notifications/${n.id}/read`, {}, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                )
+            );
+            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+            setUnreadCount(0);
+        } catch (error) {
+            console.error("Failed to mark all as read", error);
+        }
+    };
+
+    // --- Fetch Admin Profile ---
     useEffect(() => {
         const fetchAdminProfile = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const storedUserId = localStorage.getItem('userId'); 
-
-                if (!token) {
-                    navigate('/login');
-                    return;
-                }
+                const storedUserId = localStorage.getItem('userId');
+                if (!token) { navigate('/login'); return; }
 
                 let response;
                 try {
                     response = await axios.get('/api/users/me', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                } catch (meErr) {
-                    if (!storedUserId) {
-                        throw meErr;
-                    }
+                } catch {
+                    if (!storedUserId) throw new Error("No user ID");
                     response = await axios.get(`/api/users/${storedUserId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                 }
-
                 setAdminData(response.data);
             } catch (error) {
                 console.error("Failed to fetch admin data", error);
                 setAdminData({
-                    id: localStorage.getItem('userId') || 1, 
+                    id: localStorage.getItem('userId') || 1,
                     name: "Super Admin",
                     email: "admin@parkify.ai",
                     address: "123 Parkify Blvd, Colombo",
@@ -50,45 +113,38 @@ function Dashboard() {
                 });
             }
         };
-
         fetchAdminProfile();
     }, [navigate]);
 
-    // Intersection Observer for scroll synchronization
+    // --- IntersectionObserver for scroll-spy active tab ---
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveTab(entry.target.id);
-                    }
+                    if (entry.isIntersecting) setActiveTab(entry.target.id);
                 });
             },
-            { rootMargin: '-20% 0px -70% 0px' } 
+            { rootMargin: '-20% 0px -70% 0px' }
         );
-        
         const timeoutId = setTimeout(() => {
-            const sections = document.querySelectorAll('.dashboard-section');
-            sections.forEach((section) => observer.observe(section));
+            document.querySelectorAll('.dashboard-section').forEach(s => observer.observe(s));
         }, 300);
-
-        return () => {
-            observer.disconnect();
-            clearTimeout(timeoutId);
-        };
-    }, [adminData]); 
+        return () => { observer.disconnect(); clearTimeout(timeoutId); };
+    }, [adminData]);
 
     const scrollToSection = (id) => {
         setActiveTab(id);
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const handleLogout = () => {
-        localStorage.clear();
-        navigate('/login');
+    const handleLogout = () => { localStorage.clear(); navigate('/login'); };
+
+    // --- Icon per notification type ---
+    const getNotificationIcon = (notif) => {
+        const msg = (notif.message || '').toLowerCase();
+        if (msg.includes('parking_owner') || msg.includes('parking owner')) return 'local_parking';
+        if (msg.includes('driver')) return 'directions_car';
+        return 'person_add';
     };
 
     if (!adminData) return <div className="loading">Loading Dashboard...</div>;
@@ -126,9 +182,80 @@ function Dashboard() {
                         <span className="material-symbols-outlined">search</span>
                         <input type="text" placeholder="Search analytics..." />
                     </div>
+
                     <div className="db-nav-actions">
+
+                        {/* ─── Notification Bell ─── */}
+                        <div className="db-notification-wrapper" ref={notificationRef}>
+                            <button
+                                className="db-notification-icon"
+                                onClick={() => setShowNotifications(prev => !prev)}
+                                aria-label="Notifications"
+                            >
+                                <span className="material-symbols-outlined">notifications</span>
+                                {unreadCount > 0 && (
+                                    <span className="db-notification-badge">
+                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            {showNotifications && (
+                                <div className="db-notification-dropdown">
+                                    <div className="db-notification-header">
+                                        <div className="db-notif-header-left">
+                                            <span className="material-symbols-outlined db-notif-bell-icon">notifications_active</span>
+                                            <h4>Notifications</h4>
+                                            {unreadCount > 0 && (
+                                                <span className="db-notif-count-chip">{unreadCount} new</span>
+                                            )}
+                                        </div>
+                                        {unreadCount > 0 && (
+                                            <button className="db-mark-all-btn" onClick={handleMarkAllRead}>
+                                                Mark all read
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="db-notification-list">
+                                        {notifications.length === 0 ? (
+                                            <div className="db-no-notifications">
+                                                <span className="material-symbols-outlined db-no-notif-icon">notifications_off</span>
+                                                <p>No notifications yet</p>
+                                            </div>
+                                        ) : (
+                                            notifications.map(notif => (
+                                                <div
+                                                    key={notif.id}
+                                                    className={`db-notification-item ${notif.read ? 'read' : 'unread'}`}
+                                                    onClick={() => !notif.read && handleNotificationClick(notif.id)}
+                                                >
+                                                    <div className="db-notif-icon-wrap">
+                                                        <span className="material-symbols-outlined">{getNotificationIcon(notif)}</span>
+                                                    </div>
+                                                    <div className="db-notification-content">
+                                                        <p>{notif.message}</p>
+                                                        <span className="db-notification-time">
+                                                            {new Date(notif.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                                        </span>
+                                                    </div>
+                                                    {!notif.read && <div className="db-notification-dot"></div>}
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ─── Admin Avatar ─── */}
                         <div className="db-user-profile" onClick={() => scrollToSection('profile')}>
-                            <img src={adminData.profilePicture ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}` : "https://ui-avatars.com/api/?name=Admin"} alt="Avatar" />
+                            <img
+                                src={adminData.profilePicture
+                                    ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}`
+                                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(adminData.name)}&background=2D4057&color=fff`}
+                                alt="Avatar"
+                            />
                             <div className="db-user-info">
                                 <p className="u-name">{adminData.name}</p>
                             </div>
@@ -183,7 +310,7 @@ function Dashboard() {
                         <p className="section-subtitle">View, edit, or remove registered platform users.</p>
                         <ManageUser />
                     </section>
-                    
+
                     <section id="profile" className="dashboard-section">
                         <h2 className="section-title">Admin Profile</h2>
                         <p className="section-subtitle">Modify your Super Admin settings and avatar.</p>
