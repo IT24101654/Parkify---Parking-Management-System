@@ -37,7 +37,7 @@ function Drdashboard() {
         fetchUserProfile();
     }, [navigate]);
 
-    // Intersection Observer for scroll synchronization
+    
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -78,7 +78,7 @@ function Drdashboard() {
 
     return (
         <div className="dr-dashboard">
-            {/* Sidebar (Structure untouched, onClick updated to scrollToSection) */}
+            {}
             <aside className="dr-sidebar">
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
@@ -124,7 +124,7 @@ function Drdashboard() {
                 </button>
             </aside>
 
-            {/* Main Content */}
+            {}
             <main className="dr-main">
                 <header className="dr-navbar">
                     <div className="nav-search">
@@ -146,7 +146,7 @@ function Drdashboard() {
                 </header>
 
                 <div className="dr-scroll-container">
-                    {/* SECTION: OVERVIEW */}
+                    {}
                     <section id="overview" className="dashboard-section">
                         <h1 className="section-title">Hello, {userData.name.split(' ')[0]}!</h1>
                         <p className="section-subtitle">Ready to find the perfect parking spot today?</p>
@@ -233,14 +233,14 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: FIND SLOTS */}
+                    {}
                     <section id="find-slots" className="dashboard-section">
                         <h2 className="section-title">Find Parking Slots</h2>
                         <p className="section-subtitle" style={{marginBottom: '20px'}}>Search and book your ideal parking space visually on the map.</p>
                         <DriverMap />
                     </section>
 
-                    {/* SECTION: RESERVATIONS */}
+                    {}
                     <section id="my-bookings" className="dashboard-section">
                         <h2 className="section-title">Reservations</h2>
                         <p className="section-subtitle">History of your parking reservations.</p>
@@ -249,7 +249,7 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: PAYMENTS */}
+                    {}
                     <section id="payments" className="dashboard-section">
                         <h2 className="section-title">Payments</h2>
                         <p className="section-subtitle">Manage your transactions and payment methods.</p>
@@ -258,7 +258,7 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: INVENTORY */}
+                    {}
                     <section id="inventory" className="dashboard-section">
                         <h2 className="section-title">Inventory</h2>
                         <p className="section-subtitle">Browse and purchase vehicle accessories.</p>
@@ -267,7 +267,7 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: SERVICES */}
+                    {}
                     <section id="services" className="dashboard-section">
                         <h2 className="section-title">Vehicle Services</h2>
                         <p className="section-subtitle">Book and track your vehicle maintenance.</p>
@@ -276,12 +276,12 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* SECTION: VEHICLES */}
+                    {}
                     <section id="vehicles" className="dashboard-section">
                         <VehicleManagement />
                     </section>
 
-                    {/* SECTION: PROFILE */}
+                    {}
                     <section id="profile" className="dashboard-section">
                         <h2 className="section-title">My Profile</h2>
                         <p className="section-subtitle">Update your personal and preference settings.</p>
