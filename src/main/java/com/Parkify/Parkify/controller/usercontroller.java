@@ -39,7 +39,7 @@ public class UserController {
     @Autowired
     private VehicleService vehicleService;
 
-    // --- පවතින Methods ---
+    
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
@@ -52,8 +52,8 @@ public class UserController {
         }
     }
 
-    // IMPORTANT: මේක තමයි ඔයාගේ ප්‍රශ්නය විසඳන Method එක!
-    // Frontend එකෙන් GET /api/users/1 එවද්දී වැඩ කරන්නේ මේක.
+    
+    
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable("id") Long id) {
         try {
@@ -144,7 +144,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body("No file uploaded");
             }
 
-            if (file.getSize() > 5 * 1024 * 1024) { // 5 MB limit
+            if (file.getSize() > 5 * 1024 * 1024) { 
                 return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                         .body("File size exceeds 5MB limit");
             }
@@ -191,7 +191,7 @@ public class UserController {
         }
     }
 
-    // --- අනෙකුත් Methods ---
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try {
