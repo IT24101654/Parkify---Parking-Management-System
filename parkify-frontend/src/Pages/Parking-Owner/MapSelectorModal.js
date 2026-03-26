@@ -8,27 +8,25 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-  lat: 6.9271, // default Colombo, Sri Lanka
+  lat: 6.9271,
   lng: 79.8612
 };
 
 const MapSelectorModal = ({ isOpen, onClose, onSelectLocation, initialLocation }) => {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    // It's recommended that the user configures their own key in .env
-    // REACT_APP_GOOGLE_MAPS_API_KEY
+
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '' 
   });
 
   const [markerPos, setMarkerPos] = useState(initialLocation || defaultCenter);
-  const [map, setMap] = useState(null);
 
-  const onLoad = useCallback(function callback(map) {
-    setMap(map);
+  const onLoad = useCallback(function callback() {
+    // Keep reference if needed
   }, []);
 
-  const onUnmount = useCallback(function callback(map) {
-    setMap(null);
+  const onUnmount = useCallback(function callback() {
+    // Cleanup if needed
   }, []);
 
   const handleMapClick = (event) => {
@@ -39,10 +37,8 @@ const MapSelectorModal = ({ isOpen, onClose, onSelectLocation, initialLocation }
   };
 
   const handleConfirm = async () => {
-    // Basic reverse geocoding if possible, or just return coordinates
     let formattedAddress = `Lat: ${markerPos.lat.toFixed(4)}, Lng: ${markerPos.lng.toFixed(4)}`;
     
-    // We can try to use Google Geocoder if loaded
     if (window.google && window.google.maps) {
       const geocoder = new window.google.maps.Geocoder();
       try {
