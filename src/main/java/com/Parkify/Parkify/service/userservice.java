@@ -10,8 +10,7 @@ public interface UserService {
 
     boolean existsByEmail(String email);
 
-    /** Validates credentials; returns any matching user row (password is shared across roles). */
-    User loginUser(String email, String password);
+        User loginUser(String email, String password);
 
     User getUserById(Long id);
 
@@ -27,17 +26,13 @@ public interface UserService {
 
     boolean resetPassword(String email, String otp, String newPassword);
 
-    /** Returns first user row for the email (used for password reset). */
-    User getUserByEmail(String email);
+        User getUserByEmail(String email);
 
-    /** Returns ALL user rows for the email (all roles). */
-    List<User> getUsersByEmail(String email);
+        List<User> getUsersByEmail(String email);
 
-    /** Returns the specific (email, role) account. */
-    User getUserByEmailAndRole(String email, Role role);
+        User getUserByEmailAndRole(String email, Role role);
 
-    /** Returns list of role names registered under an email. */
-    List<String> getRolesForEmail(String email);
+        List<String> getRolesForEmail(String email);
 
     User updateProfile(Long userId, String name, String phoneNumber, String address, String nicNumber);
 
