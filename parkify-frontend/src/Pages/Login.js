@@ -42,12 +42,12 @@ function Login() {
             const { status, roles } = response.data;
 
             if (status === 'OTP_SENT') {
-                
+
                 setSelectedRole(roles[0]);
                 setLoginError('');
                 setShowOTP(true);
             } else if (status === 'ROLE_SELECTION_REQUIRED') {
-                
+
                 setAvailableRoles(roles);
                 setLoginError('');
                 setShowRoleSelect(true);
@@ -61,7 +61,7 @@ function Login() {
         }
     };
 
-    
+
     const handleRoleSelection = async (role) => {
         setSelectedRole(role);
         setLoading(true);
@@ -81,14 +81,14 @@ function Login() {
         }
     };
 
-    
+
     const verifyOTP = async () => {
         setLoading(true);
         try {
             const response = await axios.post('/api/auth/verify-otp', {
                 email: email.trim().toLowerCase(),
                 otp: otp,
-                role: selectedRole   
+                role: selectedRole
             });
 
             const { token, role, id } = response.data;
@@ -118,7 +118,7 @@ function Login() {
         }
     };
 
-    
+
     const requestPasswordReset = async () => {
         setLoading(true);
         try {
@@ -154,7 +154,7 @@ function Login() {
         }
     };
 
-    
+
     const roleLabel = (role) => {
         switch (role) {
             case 'DRIVER': return 'Driver';
@@ -173,7 +173,7 @@ function Login() {
         }
     };
 
-    
+
     return (
         <div className="auth-page">
             <Navbar variant="login" />
@@ -185,7 +185,7 @@ function Login() {
                 </div>
 
                 <div className="auth-form-container">
-                    {}
+                    { }
                     {!showOTP && !showForgotPassword && !showRoleSelect && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Welcome Back</h2>
@@ -211,7 +211,7 @@ function Login() {
                         </div>
                     )}
 
-                    {}
+                    { }
                     {showRoleSelect && !showOTP && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Choose Account</h2>
@@ -269,7 +269,7 @@ function Login() {
                         </div>
                     )}
 
-                    {}
+                    { }
                     {showForgotPassword && (
                         <div className="auth-card-plain">
                             <h2 style={{ fontWeight: '800', color: '#2D4057' }}>Reset Password</h2>
