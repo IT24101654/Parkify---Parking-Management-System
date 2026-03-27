@@ -178,7 +178,6 @@ function Dashboard() {
 
                     <div className="db-nav-actions">
 
-                        {/* ─── Notification Bell ─── */}
                         <div className="db-notification-wrapper" ref={notificationRef}>
                             <button
                                 className="db-notification-icon"
@@ -240,6 +239,7 @@ function Dashboard() {
                                 </div>
                             )}
                         </div>
+                        
 
                         <div className="db-user-profile" onClick={() => scrollToSection('profile')}>
                             <img

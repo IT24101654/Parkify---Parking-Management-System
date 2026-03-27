@@ -9,7 +9,7 @@ function VehicleManagement() {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [editingVehicle, setEditingVehicle] = useState(null);
 
-    
+
     const storedTypes = JSON.parse(localStorage.getItem("selectedVehicles")) || ['Car', 'Bike', 'Van'];
 
     const [formData, setFormData] = useState({
@@ -98,7 +98,7 @@ function VehicleManagement() {
                 alert("Failed to update vehicle details.");
             }
         } else {
-            
+
             if (!vImage || !lImage) {
                 alert("Please upload both Vehicle Image and Revenue License Image.");
                 return;
@@ -158,7 +158,7 @@ function VehicleManagement() {
             fuelType: vehicle.fuelType,
         });
         setIsFormVisible(true);
-        
+
         const formEl = document.getElementById("vehicle-form-card");
         if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };

@@ -7,7 +7,7 @@
     align-items: center;
     justify-content: center;
     z-index: 10;
-    margin-top: 10px; /* Slight offset if needed */
+    margin-top: 10px; 
 }
 
 .va-wave-wrapper {

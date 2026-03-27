@@ -13,15 +13,14 @@ const VoiceWave = ({ isActive }) => {
                         <feComposite in="SourceGraphic" in2="blur" operator="over" />
                     </filter>
                     
-                    {/* Using the Accessible Beige palette */}
                     <linearGradient id="gradTheme1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#7A8487" />  {/* muted blue-gray */}
-                        <stop offset="50%" stopColor="#A88373" /> {/* dusty rose */}
-                        <stop offset="100%" stopColor="#7D846C" /> {/* sage green */}
+                        <stop offset="0%" stopColor="#7A8487" /> 
+                        <stop offset="50%" stopColor="#A88373" />
+                        <stop offset="100%" stopColor="#7D846C" /> 
                     </linearGradient>
                     <linearGradient id="gradTheme2" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="#A88373" />
-                        <stop offset="50%" stopColor="#9C8B7A" /> {/* taupe/brown */}
+                        <stop offset="50%" stopColor="#9C8B7A" /> 
                         <stop offset="100%" stopColor="#7A8487" />
                     </linearGradient>
                     <linearGradient id="gradTheme3" x1="0%" y1="0%" x2="100%" y2="0%">
