@@ -27,22 +27,17 @@ const LocationMarker = ({ selectedLocation, setSelectedLocation }) => {
     );
 };
 
+const palette = {
+    darkBlue: '#34495E',
+    orange: '#D35400'
+};
+
+vdshjqdfsdfjhdgjeg
+
 const ParkingManagement = () => {
-    const [parkingPlaces, setParkingPlaces] = useState([]);
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editId, setEditId] = useState(null);
-    const [imageFile, setImageFile] = useState(null);
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [mapCenter, setMapCenter] = useState(defaultMapCenter);
     const [selectedLocation, setSelectedLocation] = useState(null);
-
-    // CSS එකේ palette එකට අනුව colors (Inline styles සඳහා)
-    const palette = {
-        darkBlue: '#34495E',
-        orange: '#D35400'
-    };
-
     const [formData, setFormData] = useState({
         parkingName: '',
         slots: '',
@@ -50,6 +45,12 @@ const ParkingManagement = () => {
         price: '',
         type: 'Private'
     });
+    const [parkingPlaces, setParkingPlaces] = useState([]);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editId, setEditId] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
@@ -113,6 +114,11 @@ const ParkingManagement = () => {
             newErrors.price = "Price is required.";
         } else if (isNaN(formData.price) || Number(formData.price) <= 0) {
             newErrors.price = "Price must be a valid positive number.";
+        }
+
+        if (!selectedLocation) {
+            newErrors.map = "Please explicitly pin the exact location on the map.";
+            alert("❗ Please pinpoint the exact location on the map before proceeding.");
         }
 
         setErrors(newErrors);
@@ -275,7 +281,7 @@ const ParkingManagement = () => {
                     </div>
                 </div>
 
-                {/* ඔයාගේ CSS එකේ Class Names වලට අනුව සැකසූ Form එක */}
+                {/* CSS */}
                 {showAddForm && (
                     <div className="pm-form-reveal">
                         <div className="pm-form-card">
