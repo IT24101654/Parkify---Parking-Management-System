@@ -32,7 +32,6 @@ const palette = {
     orange: '#D35400'
 };
 
-vdshjqdfsdfjhdgjeg
 
 const ParkingManagement = () => {
     const [selectedPlace, setSelectedPlace] = useState(null);
