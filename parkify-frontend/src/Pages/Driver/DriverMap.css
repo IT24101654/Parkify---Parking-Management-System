@@ -1,6 +1,6 @@
 
 
-/* ── Wrapper ─────────────────────────────────────────────────── */
+/* ── Wrapper  */
 .driver-map-wrapper {
     width: 100%;
     margin-top: 10px;
@@ -10,7 +10,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* ── Search Row ──────────────────────────────────────────────── */
+/* Search Row */
 .dm-search-row {
     display: flex;
     align-items: center;
@@ -94,7 +94,7 @@
 }
 .dm-search-clear:hover { color: #e74c3c; }
 
-/* ── Legend ──────────────────────────────────────────────────── */
+/*  Legend  */
 .dm-legend {
     display: flex;
     align-items: center;
@@ -115,7 +115,7 @@
     box-shadow: 0 0 0 3px rgba(52,152,219,0.25);
 }
 
-/* ── Nearby Strip ────────────────────────────────────────────── */
+/* Nearby Strip  */
 .dm-nearby-strip {
     background: linear-gradient(135deg, #fff9f0, #fff);
     border: 1.5px solid #fde8c0;
@@ -359,7 +359,7 @@
 .dm-close-card:hover { background: #e74c3c; color: #fff; transform: rotate(90deg); }
 .dm-close-card .material-symbols-outlined { font-size: 18px; }
 
-/* ── Card Content ────────────────────────────────────────────── */
+/*  Card Content  */
 .dm-card-content {
     padding: 4px 18px 18px;
     text-align: center;
@@ -426,7 +426,7 @@
     word-break: break-word;
 }
 
-/* ── Status Chip ─────────────────────────────────────────────── */
+/*  Status Chip */
 .dm-status-chip {
     display: inline-flex;
     align-items: center;
@@ -443,7 +443,7 @@
 .dm-chip-green { background: #e8f8f0; color: #27ae60; }
 .dm-chip-red   { background: #fdf0ed; color: #e74c3c; }
 
-/* ── Action Row ──────────────────────────────────────────────── */
+/*  Action Row  */
 .dm-action-row {
     display: flex;
     gap: 10px;
@@ -498,7 +498,7 @@
 .dm-explicit-fav-btn .material-symbols-outlined { font-size: 18px; }
 .dm-explicit-fav-btn.active .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
 
-/* ── Booking Modal ───────────────────────────────────────────── */
+/* Booking Modal  */
 .dm-modal-overlay {
     position: fixed;
     inset: 0;
