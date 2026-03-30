@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Dashboard.css';
 
-
 import ManageUser from './ManageUsers';
 import AdminProfile from './AdminProfile';
 
@@ -11,22 +10,30 @@ function Dashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [adminData, setAdminData] = useState(null);
+
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+
+    const [selectedNotification, setSelectedNotification] = useState(null);
+    const [showNotificationModal, setShowNotificationModal] = useState(false);
+
     const notificationRef = useRef(null);
 
     const fetchNotifications = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             if (!token) return;
+
             const response = await axios.get('http://localhost:8080/api/notifications', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setNotifications(response.data);
-            setUnreadCount(response.data.filter(n => !n.read).length);
+
+            const notificationData = Array.isArray(response.data) ? response.data : [];
+            setNotifications(notificationData);
+            setUnreadCount(notificationData.filter((n) => !n.read).length);
         } catch (error) {
-            console.error("Failed to fetch notifications", error);
+            console.error('Failed to fetch notifications', error);
         }
     }, []);
 
@@ -38,42 +45,72 @@ function Dashboard() {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+            if (
+                notificationRef.current &&
+                !notificationRef.current.contains(event.target)
+            ) {
                 setShowNotifications(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    const handleNotificationClick = async (id) => {
+    const handleNotificationClick = async (notif) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:8080/api/notifications/${id}/read`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-            setUnreadCount(prev => Math.max(0, prev - 1));
+
+            if (!notif.read) {
+                await axios.put(
+                    `http://localhost:8080/api/notifications/${notif.id}/read`,
+                    {},
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                );
+
+                setNotifications((prev) =>
+                    prev.map((n) =>
+                        n.id === notif.id ? { ...n, read: true } : n
+                    )
+                );
+
+                setUnreadCount((prev) => Math.max(0, prev - 1));
+            }
+
+            setSelectedNotification({ ...notif, read: true });
+            setShowNotificationModal(true);
         } catch (error) {
-            console.error("Failed to mark notification as read", error);
+            console.error('Failed to mark notification as read', error);
         }
     };
 
-    const handleMarkAllRead = async () => {
+    const handleMarkAllRead = async (e) => {
+        e.stopPropagation();
+
         try {
             const token = localStorage.getItem('token');
-            const unread = notifications.filter(n => !n.read);
+            const unreadNotifications = notifications.filter((n) => !n.read);
+
             await Promise.all(
-                unread.map(n =>
-                    axios.put(`http://localhost:8080/api/notifications/${n.id}/read`, {}, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
+                unreadNotifications.map((n) =>
+                    axios.put(
+                        `http://localhost:8080/api/notifications/${n.id}/read`,
+                        {},
+                        {
+                            headers: { Authorization: `Bearer ${token}` }
+                        }
+                    )
                 )
             );
-            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+
+            setNotifications((prev) =>
+                prev.map((n) => ({ ...n, read: true }))
+            );
             setUnreadCount(0);
         } catch (error) {
-            console.error("Failed to mark all as read", error);
+            console.error('Failed to mark all as read', error);
         }
     };
 
@@ -82,32 +119,40 @@ function Dashboard() {
             try {
                 const token = localStorage.getItem('token');
                 const storedUserId = localStorage.getItem('userId');
-                if (!token) { navigate('/login'); return; }
+
+                if (!token) {
+                    navigate('/login');
+                    return;
+                }
 
                 let response;
+
                 try {
                     response = await axios.get('/api/users/me', {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                 } catch {
-                    if (!storedUserId) throw new Error("No user ID");
+                    if (!storedUserId) throw new Error('No user ID');
+
                     response = await axios.get(`/api/users/${storedUserId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                 }
+
                 setAdminData(response.data);
             } catch (error) {
-                console.error("Failed to fetch admin data", error);
+                console.error('Failed to fetch admin data', error);
                 setAdminData({
                     id: localStorage.getItem('userId') || 1,
-                    name: "Super Admin",
-                    email: "admin@parkify.ai",
-                    address: "123 Parkify Blvd, Colombo",
-                    phoneNumber: "+94 77 123 4567",
+                    name: 'Super Admin',
+                    email: 'admin@parkify.ai',
+                    address: '123 Parkify Blvd, Colombo',
+                    phoneNumber: '+94 77 123 4567',
                     profilePicture: null
                 });
             }
         };
+
         fetchAdminProfile();
     }, [navigate]);
 
@@ -115,15 +160,24 @@ function Dashboard() {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting) setActiveTab(entry.target.id);
+                    if (entry.isIntersecting) {
+                        setActiveTab(entry.target.id);
+                    }
                 });
             },
             { rootMargin: '-20% 0px -70% 0px' }
         );
+
         const timeoutId = setTimeout(() => {
-            document.querySelectorAll('.dashboard-section').forEach(s => observer.observe(s));
+            document
+                .querySelectorAll('.dashboard-section')
+                .forEach((section) => observer.observe(section));
         }, 300);
-        return () => { observer.disconnect(); clearTimeout(timeoutId); };
+
+        return () => {
+            observer.disconnect();
+            clearTimeout(timeoutId);
+        };
     }, [adminData]);
 
     const scrollToSection = (id) => {
@@ -131,16 +185,26 @@ function Dashboard() {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const handleLogout = () => { localStorage.clear(); navigate('/login'); };
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
+    };
 
     const getNotificationIcon = (notif) => {
         const msg = (notif.message || '').toLowerCase();
-        if (msg.includes('parking_owner') || msg.includes('parking owner')) return 'local_parking';
-        if (msg.includes('driver')) return 'directions_car';
+
+        if (msg.includes('parking_owner') || msg.includes('parking owner')) {
+            return 'local_parking';
+        }
+        if (msg.includes('driver')) {
+            return 'directions_car';
+        }
         return 'person_add';
     };
 
-    if (!adminData) return <div className="loading">Loading Dashboard...</div>;
+    if (!adminData) {
+        return <div className="loading">Loading Dashboard...</div>;
+    }
 
     return (
         <div className="db-container">
@@ -149,20 +213,33 @@ function Dashboard() {
                     <span className="material-symbols-outlined">garage</span>
                     <h1>Parkify</h1>
                 </div>
+
                 <nav className="db-nav">
-                    <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => scrollToSection('overview')}>
+                    <button
+                        className={activeTab === 'overview' ? 'active' : ''}
+                        onClick={() => scrollToSection('overview')}
+                    >
                         <span className="material-symbols-outlined">dashboard</span>
                         <span className="nav-text">Overview</span>
                     </button>
-                    <button className={activeTab === 'users' ? 'active' : ''} onClick={() => scrollToSection('users')}>
+
+                    <button
+                        className={activeTab === 'users' ? 'active' : ''}
+                        onClick={() => scrollToSection('users')}
+                    >
                         <span className="material-symbols-outlined">group</span>
                         <span className="nav-text">Users</span>
                     </button>
-                    <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => scrollToSection('profile')}>
+
+                    <button
+                        className={activeTab === 'profile' ? 'active' : ''}
+                        onClick={() => scrollToSection('profile')}
+                    >
                         <span className="material-symbols-outlined">person</span>
                         <span className="nav-text">Profile</span>
                     </button>
                 </nav>
+
                 <button className="db-logout-bottom" onClick={handleLogout}>
                     <span className="material-symbols-outlined">logout</span>
                     <span>Logout</span>
@@ -177,11 +254,14 @@ function Dashboard() {
                     </div>
 
                     <div className="db-nav-actions">
-
                         <div className="db-notification-wrapper" ref={notificationRef}>
                             <button
+                                type="button"
                                 className="db-notification-icon"
-                                onClick={() => setShowNotifications(prev => !prev)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowNotifications((prev) => !prev);
+                                }}
                                 aria-label="Notifications"
                             >
                                 <span className="material-symbols-outlined">notifications</span>
@@ -193,17 +273,29 @@ function Dashboard() {
                             </button>
 
                             {showNotifications && (
-                                <div className="db-notification-dropdown">
+                                <div
+                                    className="db-notification-dropdown"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <div className="db-notification-header">
                                         <div className="db-notif-header-left">
-                                            <span className="material-symbols-outlined db-notif-bell-icon">notifications_active</span>
+                                            <span className="material-symbols-outlined db-notif-bell-icon">
+                                                notifications_active
+                                            </span>
                                             <h4>Notifications</h4>
                                             {unreadCount > 0 && (
-                                                <span className="db-notif-count-chip">{unreadCount} new</span>
+                                                <span className="db-notif-count-chip">
+                                                    {unreadCount} new
+                                                </span>
                                             )}
                                         </div>
+
                                         {unreadCount > 0 && (
-                                            <button className="db-mark-all-btn" onClick={handleMarkAllRead}>
+                                            <button
+                                                type="button"
+                                                className="db-mark-all-btn"
+                                                onClick={handleMarkAllRead}
+                                            >
                                                 Mark all read
                                             </button>
                                         )}
@@ -212,26 +304,45 @@ function Dashboard() {
                                     <div className="db-notification-list">
                                         {notifications.length === 0 ? (
                                             <div className="db-no-notifications">
-                                                <span className="material-symbols-outlined db-no-notif-icon">notifications_off</span>
+                                                <span className="material-symbols-outlined db-no-notif-icon">
+                                                    notifications_off
+                                                </span>
                                                 <p>No notifications yet</p>
                                             </div>
                                         ) : (
-                                            notifications.map(notif => (
+                                            notifications.map((notif) => (
                                                 <div
                                                     key={notif.id}
                                                     className={`db-notification-item ${notif.read ? 'read' : 'unread'}`}
-                                                    onClick={() => !notif.read && handleNotificationClick(notif.id)}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onClick={() => handleNotificationClick(notif)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                            e.preventDefault();
+                                                            handleNotificationClick(notif);
+                                                        }
+                                                    }}
                                                 >
                                                     <div className="db-notif-icon-wrap">
-                                                        <span className="material-symbols-outlined">{getNotificationIcon(notif)}</span>
+                                                        <span className="material-symbols-outlined">
+                                                            {getNotificationIcon(notif)}
+                                                        </span>
                                                     </div>
+
                                                     <div className="db-notification-content">
                                                         <p>{notif.message}</p>
                                                         <span className="db-notification-time">
-                                                            {new Date(notif.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                                            {new Date(notif.createdAt).toLocaleString([], {
+                                                                dateStyle: 'short',
+                                                                timeStyle: 'short'
+                                                            })}
                                                         </span>
                                                     </div>
-                                                    {!notif.read && <div className="db-notification-dot"></div>}
+
+                                                    {!notif.read && (
+                                                        <div className="db-notification-dot"></div>
+                                                    )}
                                                 </div>
                                             ))
                                         )}
@@ -239,13 +350,19 @@ function Dashboard() {
                                 </div>
                             )}
                         </div>
-                        
 
-                        <div className="db-user-profile" onClick={() => scrollToSection('profile')}>
+                        <div
+                            className="db-user-profile"
+                            onClick={() => scrollToSection('profile')}
+                        >
                             <img
-                                src={adminData.profilePicture
-                                    ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}`
-                                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(adminData.name)}&background=2D4057&color=fff`}
+                                src={
+                                    adminData.profilePicture
+                                        ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}`
+                                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                              adminData.name
+                                          )}&background=2D4057&color=fff`
+                                }
                                 alt="Avatar"
                             />
                             <div className="db-user-info">
@@ -260,55 +377,147 @@ function Dashboard() {
                         <div className="welcome-section section-title">
                             <h1>Super Admin Dashboard</h1>
                         </div>
-                        <p className="section-subtitle">Manage operations, users, and oversee platform analytics.</p>
+                        <p className="section-subtitle">
+                            Manage operations, users, and oversee platform analytics.
+                        </p>
 
-                        <h2 className="section-title" style={{ fontSize: '20px', marginTop: '20px' }}>Dashboard Features</h2>
+                        <h2
+                            className="section-title"
+                            style={{ fontSize: '20px', marginTop: '20px' }}
+                        >
+                            Dashboard Features
+                        </h2>
+
                         <div className="features-grid">
-                            <div className="feature-card" onClick={() => scrollToSection('overview')}>
+                            <div
+                                className="feature-card"
+                                onClick={() => scrollToSection('overview')}
+                            >
                                 <div className="fc-icon-wrapper fc-color-blue">
-                                    <span className="material-symbols-outlined">dashboard</span>
+                                    <span className="material-symbols-outlined">
+                                        dashboard
+                                    </span>
                                 </div>
                                 <h3 className="fc-title">Overview</h3>
-                                <p className="fc-desc">View financial reports and application statistics.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">analytics</span><span>System Analytics</span></div>
+                                <p className="fc-desc">
+                                    View financial reports and application statistics.
+                                </p>
+                                <div className="fc-footer">
+                                    <span className="material-symbols-outlined">
+                                        analytics
+                                    </span>
+                                    <span>System Analytics</span>
+                                </div>
                             </div>
 
-                            <div className="feature-card" onClick={() => scrollToSection('users')}>
+                            <div
+                                className="feature-card"
+                                onClick={() => scrollToSection('users')}
+                            >
                                 <div className="fc-icon-wrapper fc-color-green">
                                     <span className="material-symbols-outlined">group</span>
                                 </div>
                                 <h3 className="fc-title">Manage Users</h3>
-                                <p className="fc-desc">View, edit, or remove all registered platform users.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">manage_accounts</span><span>User Controls</span></div>
+                                <p className="fc-desc">
+                                    View, edit, or remove all registered platform users.
+                                </p>
+                                <div className="fc-footer">
+                                    <span className="material-symbols-outlined">
+                                        manage_accounts
+                                    </span>
+                                    <span>User Controls</span>
+                                </div>
                             </div>
 
-                            <div className="feature-card" onClick={() => scrollToSection('profile')}>
+                            <div
+                                className="feature-card"
+                                onClick={() => scrollToSection('profile')}
+                            >
                                 <div className="fc-icon-wrapper fc-color-dark">
-                                    <span className="material-symbols-outlined">admin_panel_settings</span>
+                                    <span className="material-symbols-outlined">
+                                        admin_panel_settings
+                                    </span>
                                 </div>
                                 <h3 className="fc-title">Admin Profile</h3>
-                                <p className="fc-desc">Modify your Super Admin settings and avatar.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">settings</span><span>System Preferences</span></div>
+                                <p className="fc-desc">
+                                    Modify your Super Admin settings and avatar.
+                                </p>
+                                <div className="fc-footer">
+                                    <span className="material-symbols-outlined">settings</span>
+                                    <span>System Preferences</span>
+                                </div>
                             </div>
                         </div>
-
-
                     </section>
 
                     <section id="users" className="dashboard-section">
                         <h2 className="section-title">Manage Users</h2>
-                        <p className="section-subtitle">View, edit, or remove registered platform users.</p>
+                        <p className="section-subtitle">
+                            View, edit, or remove registered platform users.
+                        </p>
                         <ManageUser />
                     </section>
 
                     <section id="profile" className="dashboard-section">
                         <h2 className="section-title">Admin Profile</h2>
-                        <p className="section-subtitle">Modify your Super Admin settings and avatar.</p>
-                        <AdminProfile adminData={adminData} setAdminData={setAdminData} />
+                        <p className="section-subtitle">
+                            Modify your Super Admin settings and avatar.
+                        </p>
+                        <AdminProfile
+                            adminData={adminData}
+                            setAdminData={setAdminData}
+                        />
                     </section>
                 </div>
+
+                {showNotificationModal && selectedNotification && (
+                    <div
+                        className="db-notification-modal-overlay"
+                        onClick={() => setShowNotificationModal(false)}
+                    >
+                        <div
+                            className="db-notification-modal"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="db-notification-modal-header">
+                                <h3>Notification Details</h3>
+                                <button
+                                    type="button"
+                                    className="db-modal-close-btn"
+                                    onClick={() => setShowNotificationModal(false)}
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            <div className="db-notification-modal-body">
+                                <div className="db-notif-modal-icon">
+                                    <span className="material-symbols-outlined">
+                                        {getNotificationIcon(selectedNotification)}
+                                    </span>
+                                </div>
+
+                                <p className="db-notif-modal-message">
+                                    {selectedNotification.message}
+                                </p>
+
+                                <p className="db-notif-modal-time">
+                                    {new Date(selectedNotification.createdAt).toLocaleString([], {
+                                        dateStyle: 'full',
+                                        timeStyle: 'short'
+                                    })}
+                                </p>
+
+                                <div className="db-notif-modal-status">
+                                    Status: {selectedNotification.read ? 'Read' : 'Unread'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );
 }
+
 export default Dashboard;

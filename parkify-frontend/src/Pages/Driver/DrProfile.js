@@ -9,7 +9,6 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
     const [profileData, setProfileData] = useState(user || {});
     const [isEditMode, setIsEditMode] = useState(false);
     
-    // Vehicles States
     const [vehicles, setVehicles] = useState([]);
     const [isAddingVehicle, setIsAddingVehicle] = useState(false);
     const [editingVehicleId, setEditingVehicleId] = useState(null);
@@ -72,7 +71,6 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
             const res = await axios.put(`${API_BASE_URL}/${userId}/profile`, {
                 name: profileData.name,
                 phoneNumber: profileData.phoneNumber,
-                // no address field shown in driver requirements, but PO profile had it. We might just pass what we have
                 address: profileData.address,
                 nicNumber: profileData.nicNumber
             }, {
@@ -176,7 +174,6 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
 
     return (
         <div className="dr-profile-container">
-            {/* Header Area */}
             <div className="dr-profile-header card-glass">
                 <div className="header-left">
                     <div className="avatar-wrapper">
@@ -197,10 +194,8 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                 </button>
             </div>
 
-            {/* Grid Area */}
             <div className="dr-content-grid">
                 
-                {/* Personal Details */}
                 <div className="dr-panel card-glass">
                     <h3 className="panel-title">Personal Details</h3>
                     <div className="panel-body">
@@ -243,7 +238,6 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                     </div>
                 </div>
 
-                {/* Vehicles Panel */}
                 <div className="dr-panel card-glass vehicles-panel">
                     <div className="panel-header-row">
                         <h3 className="panel-title">My Registered Vehicles</h3>
