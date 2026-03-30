@@ -1,0 +1,105 @@
+.voice-widget-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    margin-top: 10px; 
+}
+
+.va-wave-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    height: 80px;
+    pointer-events: none;
+    z-index: 1;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%);
+    overflow: hidden;
+}
+
+.va-wave-svg {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 600px;
+    height: 60px;
+}
+
+.va-wave-line { transform-origin: center; }
+
+.va-wave-slow { animation: flowWave 3s infinite linear; }
+.va-wave-fast { animation: flowWave 2s infinite linear reverse; }
+.va-wave-med  { animation: flowWave 2.5s infinite linear; }
+
+@keyframes flowWave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-200px); }
+}
+
+.voice-centered-btn {
+    position: relative;
+    z-index: 2;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    color: #EAE3D8;
+    background: #7A8487;
+    box-shadow: 0 4px 15px rgba(122, 132, 135, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.voice-centered-btn:hover {
+    transform: scale(1.05);
+    background: #A88373;
+    box-shadow: 0 6px 20px rgba(168, 131, 115, 0.4);
+}
+
+.voice-centered-btn.listening {
+    background: #A88373;
+    box-shadow: 0 0 15px rgba(168, 131, 115, 0.5), 0 0 30px rgba(168, 131, 115, 0.3);
+    animation: pulseListen 2s infinite;
+}
+
+.voice-centered-btn .material-symbols-outlined {
+    font-size: 28px;
+}
+
+@keyframes pulseListen {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(168,131,115,0.4); }
+    50% { transform: scale(1.1); box-shadow: 0 0 25px rgba(168,131,115,0.7); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(168,131,115,0.4); }
+}
+
+.va-assistant-message {
+    position: absolute;
+    top: 100%;
+    margin-top: 20px;
+    font-size: 16px;
+    color: #7A8487;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(-10px);
+    animation: slideFadeIn 0.4s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes slideFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
