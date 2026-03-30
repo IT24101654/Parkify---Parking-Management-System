@@ -2,19 +2,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 :root {
-    --bg-primary: #e4dfd3;
-    --bg-secondary: #d1c9ba;
-  
-    --accent-blue: #798b96;
-    --accent-rose: #ae958b;
-    --accent-green: #7d8570;
-    --accent-taupe: #9b8c7b;
-  
-    --text-dark: #2c2c2c;
+  --bg-primary: #e4dfd3;
+  --bg-secondary: #d1c9ba;
+
+  --accent-blue: #798b96;
+  --accent-rose: #ae958b;
+  --accent-green: #7d8570;
+  --accent-taupe: #9b8c7b;
+
+  --text-dark: #2c2c2c;
   --text-muted: #6b6b6b;
   --white: #ffffff;
 
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.04);
   --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.08);
   --radius: 12px;
 }
@@ -35,7 +35,7 @@
 
 .db-sidebar {
   width: 250px;
-  background: #2D4057;
+  background: #2d4057;
   color: var(--white);
   display: flex;
   flex-direction: column;
@@ -58,7 +58,7 @@
 .db-logo span {
   font-size: 30px;
   font-weight: 800;
-  color: #b26969 ;
+  color: #b26969;
 }
 
 .db-logo h1 {
@@ -149,6 +149,7 @@
   flex-direction: column;
   overflow: hidden;
   background: var(--bg-primary);
+  position: relative;
 }
 
 .db-header {
@@ -430,7 +431,7 @@
 }
 
 .db-notification-icon:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .db-notification-badge {
@@ -450,19 +451,24 @@
   position: absolute;
   top: 50px;
   right: -10px;
-  width: 320px;
+  width: 360px;
+  max-height: 420px;
   background: var(--white);
   border-radius: var(--radius);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 999;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .db-notification-header {
   padding: 15px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .db-notification-header h4 {
@@ -480,9 +486,12 @@
   display: flex;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
   cursor: pointer;
   transition: background 0.3s;
+  position: relative;
+  z-index: 2;
+  outline: none;
 }
 
 .db-notification-item:hover {
@@ -497,8 +506,13 @@
   background: #e6f1f5;
 }
 
+.db-notification-item:focus {
+  background: #e6f1f5;
+}
+
 .db-notification-content {
   flex: 1;
+  pointer-events: none;
 }
 
 .db-notification-content p {
@@ -519,6 +533,7 @@
   border-radius: 50%;
   background-color: #3498db;
   margin-left: 10px;
+  pointer-events: none;
 }
 
 .db-no-notifications {
@@ -537,7 +552,6 @@
   color: #d0ccc6;
 }
 
-/* Notification header layout */
 .db-notif-header-left {
   display: flex;
   align-items: center;
@@ -571,10 +585,9 @@
 }
 
 .db-mark-all-btn:hover {
-  background: rgba(121,139,150,0.1);
+  background: rgba(121, 139, 150, 0.1);
 }
 
-/* Icon per notification type */
 .db-notif-icon-wrap {
   width: 36px;
   height: 36px;
@@ -585,13 +598,112 @@
   justify-content: center;
   margin-right: 12px;
   flex-shrink: 0;
-  color: #2D4057;
+  color: #2d4057;
+  pointer-events: none;
 }
 
 .db-notif-icon-wrap span {
   font-size: 18px !important;
 }
 
+.db-notification-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.db-notification-modal {
+  width: 420px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: popupFade 0.2s ease;
+}
+
+.db-notification-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.db-notification-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #223;
+}
+
+.db-modal-close-btn {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.db-notification-modal-body {
+  padding: 24px 20px;
+  text-align: center;
+}
+
+.db-notif-modal-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #eef3f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-notif-modal-icon .material-symbols-outlined {
+  font-size: 32px;
+  color: #2d4057;
+}
+
+.db-notif-modal-message {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.db-notif-modal-time {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 14px;
+}
+
+.db-notif-modal-status {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #f5f5f5;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #444;
+}
+
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 .loading {
   display: flex;
