@@ -38,6 +38,8 @@ public class ParkingService {
         place.setLocation(details.getLocation());
         place.setPrice(details.getPrice());
         place.setType(details.getType());
+        place.setLatitude(details.getLatitude());
+        place.setLongitude(details.getLongitude());
         return parkingRepository.save(place);
     }
 
