@@ -1,4 +1,3 @@
-/* ================== INVENTORY MAIN PAGE ================== */
 .inventory-main {
     padding: 40px;
     text-align: center;
@@ -125,7 +124,6 @@
     transform: translateX(5px);
 }
 
-/* ================== MANAGE INVENTORY PAGE ================== */
 .manage-inventory-container {
     padding: 20px;
     max-width: 1200px;
@@ -180,7 +178,6 @@
     box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
 }
 
-/* ================== ALERT MESSAGES ================== */
 .alert-success,
 .alert-error,
 .alert-warning {
@@ -240,7 +237,6 @@
     transform: scale(1.2);
 }
 
-/* ================== FORM MODAL ================== */
 .form-modal {
     position: fixed;
     top: 0;
@@ -399,7 +395,6 @@
     box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
 }
 
-/* ================== TABLE STYLES ================== */
 .loading-state {
     text-align: center;
     padding: 60px 20px;
@@ -528,7 +523,6 @@
     color: #ef4444;
 }
 
-/* ================== EMPTY STATE ================== */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -553,7 +547,6 @@
     margin: 0 0 20px 0;
 }
 
-/* ================== RESPONSIVE DESIGN ================== */
 @media (max-width: 768px) {
     .inventory-main {
         padding: 20px;
