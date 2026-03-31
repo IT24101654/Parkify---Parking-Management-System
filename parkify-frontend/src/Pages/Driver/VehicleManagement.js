@@ -26,6 +26,7 @@ function VehicleManagement() {
 
     useEffect(() => {
         fetchVehicles();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchVehicles = async () => {
