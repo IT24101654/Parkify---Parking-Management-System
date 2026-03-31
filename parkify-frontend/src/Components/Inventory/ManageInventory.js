@@ -3,11 +3,9 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 const ManageInventory = ({ selectedType }) => {
-    // Support both URL params (for standalone routing) and props-based routing
     const { type: urlType } = useParams();
     
-    // If used within InventoryDashboard, the parent will pass selectedType via props
-    // Otherwise, use URL params if available
+
     const type = selectedType || urlType || window.location.pathname.split('/').pop();
     
     const [items, setItems] = useState([]);
@@ -18,7 +16,6 @@ const ManageInventory = ({ selectedType }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [formErrors, setFormErrors] = useState({});
 
-    // Form state
     const [form, setForm] = useState({
         itemName: '',
         quantity: '',
@@ -30,7 +27,6 @@ const ManageInventory = ({ selectedType }) => {
         lastRestockDate: ''
     });
 
-    // Get JWT token from localStorage
     const getHeaders = () => {
         const token = localStorage.getItem('token');
         return {
@@ -39,7 +35,6 @@ const ManageInventory = ({ selectedType }) => {
         };
     };
 
-    // Load items from backend
     const loadItems = useCallback(async () => {
         try {
             setLoading(true);
@@ -58,14 +53,12 @@ const ManageInventory = ({ selectedType }) => {
         }
     }, [type]);
 
-    // Load items when component mounts or type changes
     useEffect(() => {
         if (type) {
             loadItems();
         }
     }, [type, loadItems]);
 
-    // Validate form
     const validateForm = () => {
         const errors = {};
 
@@ -112,7 +105,6 @@ const ManageInventory = ({ selectedType }) => {
         return Object.keys(errors).length === 0;
     };
 
-    // Handle form submission (Add or Update)
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -139,7 +131,6 @@ const ManageInventory = ({ selectedType }) => {
             }
 
             if (editingId) {
-                // Update existing item
                 await axios.put(
                     `http://localhost:8080/api/inventory/${editingId}`,
                     payload,
@@ -147,7 +138,6 @@ const ManageInventory = ({ selectedType }) => {
                 );
                 setSuccessMessage('Item updated successfully!');
             } else {
-                // Add new item
                 await axios.post(
                     'http://localhost:8080/api/inventory/add',
                     payload,
@@ -156,11 +146,9 @@ const ManageInventory = ({ selectedType }) => {
                 setSuccessMessage('Item added successfully!');
             }
 
-            // Reset form and reload items
             resetForm();
             loadItems();
 
-            // Clear success message after 3 seconds
             setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             console.error('Error saving item:', err);
@@ -168,7 +156,6 @@ const ManageInventory = ({ selectedType }) => {
         }
     };
 
-    // Handle edit
     const handleEdit = (item) => {
         setForm({
             itemName: item.itemName || '',
@@ -184,7 +171,6 @@ const ManageInventory = ({ selectedType }) => {
         setShowForm(true);
     };
 
-    // Handle delete
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
 
@@ -203,21 +189,18 @@ const ManageInventory = ({ selectedType }) => {
         }
     };
 
-    // Handle form input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
-        // Clear error for this field when user starts typing
         if (formErrors[name]) {
             setFormErrors(prev => ({ ...prev, [name]: '' }));
         }
     };
 
-    // Reset form
     const resetForm = () => {
         let initialItemName = '';
         if (type === 'FUEL') {
-            initialItemName = 'Petrol'; // Default to Petrol for FUEL
+            initialItemName = 'Petrol'; 
         }
         setForm({ 
             itemName: initialItemName, 
@@ -245,7 +228,6 @@ const ManageInventory = ({ selectedType }) => {
 
     return (
         <div className="manage-inventory-container">
-            {/* Header */}
             <div className="manage-header">
                 <h1>{getTypeName()} Inventory</h1>
                 <button className="add-item-btn" onClick={() => {
@@ -256,7 +238,6 @@ const ManageInventory = ({ selectedType }) => {
                 </button>
             </div>
 
-            {/* Success Message */}
             {successMessage && (
                 <div className="alert-success">
                     <span>✓ {successMessage}</span>
@@ -264,7 +245,6 @@ const ManageInventory = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Error Message */}
             {error && (
                 <div className="alert-error">
                     <span>✕ {error}</span>
@@ -272,14 +252,12 @@ const ManageInventory = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Low Stock Warning */}
             {items.some(i => i.quantity <= i.thresholdValue) && (
                 <div className="alert-warning">
                     <span>⚠️ Warning: Some items are in low stock!</span>
                 </div>
             )}
 
-            {/* Form Modal */}
             {showForm && (
                 <div className="form-modal">
                     <div className="form-modal-content">
@@ -439,7 +417,6 @@ const ManageInventory = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Loading State */}
             {loading && (
                 <div className="loading-state">
                     <div className="spinner"></div>
@@ -447,7 +424,6 @@ const ManageInventory = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Items Table */}
             {!loading && items.length > 0 && (
                 <div className="table-container">
                     <table className="inventory-table">
@@ -512,7 +488,6 @@ const ManageInventory = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Empty State */}
             {!loading && items.length === 0 && (
                 <div className="empty-state">
                     <div className="empty-icon">📦</div>
