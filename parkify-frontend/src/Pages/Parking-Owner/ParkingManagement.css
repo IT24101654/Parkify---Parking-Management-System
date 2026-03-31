@@ -1,7 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
-
-.pm-main-layout { min-height: 100vh; padding: 60px 0; font-family: 'Poppins', sans-serif; transition: 0.3s; }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');/* Local CSS */.pm-main-layout { min-height: 100vh; padding: 60px 0; font-family: 'Poppins', sans-serif; transition: 0.3s; }
 .pm-wrapper { max-width: 1150px; margin: 0 auto; padding: 0 20px; }
 .pm-page-title { text-align: center; font-weight: 800; font-size: 2.2rem; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 1px; }
 
