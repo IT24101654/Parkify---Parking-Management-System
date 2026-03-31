@@ -8,7 +8,7 @@ import L from 'leaflet';
 import './DriverMap.css';
 import parkingBg from '../../Assets/parking-bg.jpg';
 
-// ─── Fix Leaflet default icon ────────────────────────────────────────────────
+// ─── Fix Leaflet default icon ────── //
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-// ─── Custom SVG marker factory ────────────────────────────────────────────────
+
 const makeIcon = (color, pulse = false) =>
     L.divIcon({
         className: '',
@@ -35,7 +35,7 @@ const driverIcon = L.divIcon({
     iconAnchor: [11, 11],
 });
 
-// ─── Haversine distance ───────────────────────────────────────────────────────
+//  Haversine distance  //
 function getDistanceKm(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -48,7 +48,7 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// ─── Map re-centering helper ──────────────────────────────────────────────────
+//  Map re-centering helper //
 function MapController({ center }) {
     const map = useMap();
     useEffect(() => {
@@ -57,10 +57,10 @@ function MapController({ center }) {
     return null;
 }
 
-// ─── Default center (Colombo) ─────────────────────────────────────────────────
+//  Default center (Colombo) //
 const DEFAULT_CENTER = [6.9271, 79.8612];
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+//  Main Component //
 const DriverMap = () => {
     const [parkingPlaces, setParkingPlaces] = useState([]);
     const [favorites, setFavorites] = useState([]);
@@ -68,11 +68,9 @@ const DriverMap = () => {
     const [driverPos, setDriverPos] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [showFavorites, setShowFavorites] = useState(false); // New state for favorites filter
-    const [toast, setToast] = useState(null);
+    const [showFavorites, setShowFavorites] = useState(false);
     const watchRef = useRef(null);
 
-    // ── Load parking places + favorites ──────────────────────────────────────
     useEffect(() => {
         loadData();
         startGPS();
@@ -98,7 +96,7 @@ const DriverMap = () => {
         }
     };
 
-    // ── GPS Tracking ──────────────────────────────────────────────────────────
+    //  GPS Tracking //
     const startGPS = useCallback(() => {
         if (!navigator.geolocation) return;
         watchRef.current = navigator.geolocation.watchPosition(
@@ -113,7 +111,7 @@ const DriverMap = () => {
         );
     }, []);
 
-    // ── Filtered places (search & favorites) ──────────────────────────────────
+    //  Filtered places (search & favorites) //
     const filtered = parkingPlaces.filter(p => {
         const q = searchQuery.toLowerCase();
         const matchesSearch = !q || p.parkingName?.toLowerCase().includes(q) || p.location?.toLowerCase().includes(q);
@@ -121,7 +119,7 @@ const DriverMap = () => {
         return matchesSearch && matchesFav;
     });
 
-    // ── Nearby (<= 1 km) ──────────────────────────────────────────────────────
+    //  Nearby (<= 1 km) //
     const nearby = driverPos
         ? filtered
             .map(p => ({ ...p, distance: getDistanceKm(driverPos[0], driverPos[1], p.latitude, p.longitude) }))
@@ -130,16 +128,7 @@ const DriverMap = () => {
         : [];
 
     const nearbyIds = new Set(nearby.map(p => p.id));
-
-    // ── Determine marker color ────────────────────────────────────────────────
-    const getIcon = (place) => {
-        const isNearby = nearbyIds.has(place.id);
-        if (place.status === 'UNAVAILABLE' || place.slots === 0) return makeIcon('#e74c3c');
-        if (isNearby) return makeIcon('#f39c12', true); // orange + pulse
-        return makeIcon('#27ae60');
-    };
-
-    // ── Favorites toggle ──────────────────────────────────────────────────────
+    //  Favorites toggle //
     const toggleFavorite = async (placeId) => {
         const token = localStorage.getItem('token');
         const cfg = { headers: { Authorization: `Bearer ${token}` } };
@@ -155,7 +144,7 @@ const DriverMap = () => {
         } catch (err) { console.error('Favorite toggle error', err); }
     };
 
-    // ── Search handler ────────────────────────────────────────────────────────
+    //  Search box   //
     const handleSearch = (e) => {
         const q = e.target.value;
         setSearchQuery(q);
@@ -168,11 +157,13 @@ const DriverMap = () => {
         }
     };
 
-    // ── Toast helper ──────────────────────────────────────────────────────────
+    /*
+    // show massage //
     const showToast = (msg, type) => {
         setToast({ msg, type });
         setTimeout(() => setToast(null), 3500);
     };
+    */
 
     // ── Distance label ────────────────────────────────────────────────────────
     const getDistLabel = (place) => {
@@ -181,11 +172,17 @@ const DriverMap = () => {
         return d < 1 ? `${(d * 1000).toFixed(0)} m` : `${d.toFixed(1)} km`;
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
+    const getIcon = (place) => {
+        if (nearbyIds.has(place.id)) return makeIcon('#f39c12'); // Nearby
+        if (place.status === 'FULL') return makeIcon('#e74c3c'); // Full
+        return makeIcon('#27ae60'); // Available
+    };
+
+
     return (
         <div className="driver-map-wrapper">
 
-            {/* ── Search Bar & Toggles ─────────────────────────────────────────── */}
+            {/* Search Bar & Toggles */}
             <div className="dm-search-row">
                 <div className="dm-search-box">
                     <span className="material-symbols-outlined dm-search-icon">search</span>
@@ -249,7 +246,7 @@ const DriverMap = () => {
                 </div>
             )}
 
-            {/* ── Map ────────────────────────────────────────────────── */}
+            {/*  Map  */}
             <div className="dm-map-container">
                 <MapContainer
                     center={driverPos || DEFAULT_CENTER}
@@ -399,12 +396,7 @@ const DriverMap = () => {
                 )}
             </div>
 
-            {/* ── Toast ──────────────────────────────────────────────── */}
-            {toast && (
-                <div className={`dm-toast ${toast.type === 'success' ? 'dm-toast-success' : 'dm-toast-error'}`}>
-                    {toast.msg}
-                </div>
-            )}
+            {/* Toast  */}
         </div>
     );
 };
