@@ -54,12 +54,10 @@ const DriverInventoryList = ({ selectedType }) => {
 
     return (
         <div className="manage-inventory-container">
-            {/* Header */}
             <div className="manage-header">
                 <h1>{getTypeName()} Inventory</h1>
             </div>
 
-            {/* Error Message */}
             {error && (
                 <div className="alert-error">
                     <span>✕ {error}</span>
@@ -67,7 +65,6 @@ const DriverInventoryList = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Loading State */}
             {loading && (
                 <div className="loading-state">
                     <div className="spinner"></div>
@@ -75,7 +72,6 @@ const DriverInventoryList = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Items Table */}
             {!loading && items.length > 0 && (
                 <div className="table-container">
                     <table className="inventory-table">
@@ -121,7 +117,6 @@ const DriverInventoryList = ({ selectedType }) => {
                 </div>
             )}
 
-            {/* Empty State */}
             {!loading && items.length === 0 && (
                 <div className="empty-state">
                     <div className="empty-icon">📦</div>
