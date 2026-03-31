@@ -61,7 +61,7 @@ public class AuthController {
                         .body(Map.of("error", "Invalid role, must be DRIVER or PARKING_OWNER or SUPER_ADMIN"));
             }
         } else {
-            pending.setRole(null); // UserServiceImpl will default to DRIVER
+            pending.setRole(null); 
         }
 
         registrationService.storePendingUser(pending);
