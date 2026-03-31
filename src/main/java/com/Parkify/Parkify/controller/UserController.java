@@ -31,7 +31,6 @@ public class UserController {
     @Autowired
     private UserServiceExtra userExtraService;
 
-    // --- පවතින Methods ---
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
@@ -44,8 +43,7 @@ public class UserController {
         }
     }
 
-    // IMPORTANT: මේක තමයි ඔයාගේ ප්‍රශ්නය විසඳන Method එක!
-    // Frontend එකෙන් GET /api/users/1 එවද්දී වැඩ කරන්නේ මේක.
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
@@ -152,7 +150,6 @@ public class UserController {
         }
     }
 
-    // --- අනෙකුත් Methods ---
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         try {
