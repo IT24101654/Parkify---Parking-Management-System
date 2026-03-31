@@ -25,7 +25,6 @@ const DriverInventoryDashboard = () => {
         );
     }
 
-    // Show the inventory categories/sections for driver
     return (
         <div className="inventory-main">
             <h1 className="main-title">Inventory Options</h1>
