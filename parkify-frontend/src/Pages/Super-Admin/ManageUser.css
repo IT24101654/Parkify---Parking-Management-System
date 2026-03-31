@@ -1,0 +1,33 @@
+.user-card {
+  background: white;
+  padding: 30px;
+  border-radius: 25px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.user-table th {
+  text-align: left;
+  padding: 15px;
+  border-bottom: 2px solid #f0f0f0;
+  color: #7A868E;
+}
+
+.user-table td {
+  padding: 15px;
+  border-bottom: 1px solid #f9f9f9;
+}
+
+.badge-admin {
+  background: #E0F2FE;
+  color: #0369A1;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+}
