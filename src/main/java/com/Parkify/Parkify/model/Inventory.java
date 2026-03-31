@@ -16,15 +16,15 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String itemName;      // Item Name / Part Name / Fuel Type
-    private String inventoryType;  // FOOD, SPARE_PART, FUEL
-    private String category;      // Category / Vehicle Type
-    private Double quantity;      // Quantity / Liters
+    private String itemName;
+    private String inventoryType;
+    private String category; 
+    private Double quantity; 
     private Double unitPrice;
     private String supplier;
-    private LocalDate expiryDate;  // For Food only
+    private LocalDate expiryDate;  
     private Double thresholdValue;
-    private LocalDate lastRestockDate; // For Fuel only
+    private LocalDate lastRestockDate; 
 
     @org.hibernate.annotations.CreationTimestamp
     @Column(name = "created_at", updatable = false)
