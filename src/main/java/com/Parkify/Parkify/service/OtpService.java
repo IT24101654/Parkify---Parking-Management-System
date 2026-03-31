@@ -20,17 +20,14 @@ public class OtpService {
     public String generateOtp(String email) {
         String otp = String.valueOf(new Random().nextInt(900000) + 100000);
 
-        // Try to find existing OTP for this email
         Optional<Otp> existingOtp = otpRepository.findByEmail(email);
 
         if (existingOtp.isPresent()) {
-            // Update existing OTP
             Otp otpEntity = existingOtp.get();
             otpEntity.setOtp(otp);
             otpEntity.setExpiryTime(LocalDateTime.now().plusMinutes(5));
             otpRepository.save(otpEntity);
         } else {
-            // Create new OTP
             Otp otpEntity = new Otp();
             otpEntity.setEmail(email);
             otpEntity.setOtp(otp);
