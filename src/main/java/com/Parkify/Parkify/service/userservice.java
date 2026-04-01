@@ -6,11 +6,12 @@ import com.Parkify.Parkify.model.User;
 import java.util.List;
 
 public interface UserService {
+
     User registerUser(User user);
 
     boolean existsByEmail(String email);
 
-        User loginUser(String email, String password);
+    User loginUser(String email, String password);
 
     User getUserById(Long id);
 
@@ -26,13 +27,13 @@ public interface UserService {
 
     boolean resetPassword(String email, String otp, String newPassword);
 
-        User getUserByEmail(String email);
+    User getUserByEmail(String email);
 
-        List<User> getUsersByEmail(String email);
+    List<User> getUsersByEmail(String email);
 
-        User getUserByEmailAndRole(String email, Role role);
+    User getUserByEmailAndRole(String email, Role role);
 
-        List<String> getRolesForEmail(String email);
+    List<String> getRolesForEmail(String email);
 
     User updateProfile(Long userId, String name, String phoneNumber, String address, String nicNumber);
 
