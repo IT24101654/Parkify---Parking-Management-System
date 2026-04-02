@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Drdashboard.css';
 import VehicleManagement from './VehicleManagement';
+import DrProfile from './DrProfile';
+import VoiceWave from './VoiceWave';
+import VoiceButton from './VoiceButton';
 import DriverMap from './DriverMap';
 
 function Drdashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [userData, setUserData] = useState(null);
+    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -19,8 +23,13 @@ function Drdashboard() {
                     navigate('/login');
                     return;
                 }
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
+                    navigate('/login');
+                    return;
+                }
 
-                const response = await axios.get('/api/users/me', {
+                const response = await axios.get(`http://localhost:8080/api/users/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUserData(response.data);
@@ -37,7 +46,7 @@ function Drdashboard() {
         fetchUserProfile();
     }, [navigate]);
 
-    
+
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -47,9 +56,9 @@ function Drdashboard() {
                     }
                 });
             },
-            { rootMargin: '-20% 0px -70% 0px' } 
+            { rootMargin: '-20% 0px -70% 0px' }
         );
-        
+
         const timeoutId = setTimeout(() => {
             const sections = document.querySelectorAll('.dashboard-section');
             sections.forEach((section) => observer.observe(section));
@@ -59,7 +68,7 @@ function Drdashboard() {
             observer.disconnect();
             clearTimeout(timeoutId);
         };
-    }, [userData]); 
+    }, [userData]);
 
     const scrollToSection = (id) => {
         setActiveTab(id);
@@ -78,7 +87,6 @@ function Drdashboard() {
 
     return (
         <div className="dr-dashboard">
-            {}
             <aside className="dr-sidebar">
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
@@ -124,7 +132,6 @@ function Drdashboard() {
                 </button>
             </aside>
 
-            {}
             <main className="dr-main">
                 <header className="dr-navbar">
                     <div className="nav-search">
@@ -138,7 +145,7 @@ function Drdashboard() {
                             <p className="profile-email">{userData.email}</p>
                         </div>
                         {userData.profilePicture ? (
-                            <img src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`} alt="Avatar" className="profile-avatar" style={{objectFit: 'cover'}} />
+                            <img src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`} alt="Avatar" className="profile-avatar" style={{ objectFit: 'cover' }} />
                         ) : (
                             <div className="profile-avatar">DR</div>
                         )}
@@ -146,23 +153,24 @@ function Drdashboard() {
                 </header>
 
                 <div className="dr-scroll-container">
-                    {}
                     <section id="overview" className="dashboard-section">
-                        <h1 className="section-title">Hello, {userData.name.split(' ')[0]}!</h1>
-                        <p className="section-subtitle">Ready to find the perfect parking spot today?</p>
+                        <div className="overview-header-row" style={{ position: 'relative' }}>
+                            <div className="overview-greeting">
+                                <h1 className="section-title">Hello, {userData.name.split(' ')[0]}!</h1>
+                                <p className="section-subtitle">Ready to find the perfect parking spot today?</p>
+                            </div>
 
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <h3>Total Parkings</h3>
-                                <p className="stat-value">12</p>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Ongoing Session</h3>
-                                <p className="stat-value">None</p>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Points Earned</h3>
-                                <p className="stat-value">450</p>
+                            <div className="voice-widget-container">
+                                <VoiceWave isActive={isVoiceAssistantOpen} />
+                                <VoiceButton
+                                    isListening={isVoiceAssistantOpen}
+                                    onClick={() => setIsVoiceAssistantOpen(!isVoiceAssistantOpen)}
+                                />
+                                {isVoiceAssistantOpen && (
+                                    <div className="va-assistant-message">
+                                        Hey Driver, how can I help you?
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -233,61 +241,61 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {}
                     <section id="find-slots" className="dashboard-section">
                         <h2 className="section-title">Find Parking Slots</h2>
-                        <p className="section-subtitle" style={{marginBottom: '20px'}}>Search and book your ideal parking space visually on the map.</p>
-                        <DriverMap />
+                        <p className="section-subtitle">Search and book your ideal parking space.</p>
+                        <div className="inner-card">
+                            <h3 style={{ marginBottom: '15px' }}>Recommended for you</h3>
+                            <div className="driver-map-wrapper-override">
+                                <DriverMap />
+                            </div>
+                        </div>
                     </section>
 
-                    {}
                     <section id="my-bookings" className="dashboard-section">
                         <h2 className="section-title">Reservations</h2>
                         <p className="section-subtitle">History of your parking reservations.</p>
                         <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>No recent reservations found.</p>
+                            <p style={{ color: 'var(--text-muted)' }}>No recent reservations found.</p>
                         </div>
                     </section>
 
-                    {}
                     <section id="payments" className="dashboard-section">
                         <h2 className="section-title">Payments</h2>
                         <p className="section-subtitle">Manage your transactions and payment methods.</p>
                         <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Payment gateway overview will load here.</p>
+                            <p style={{ color: 'var(--text-muted)' }}>Payment gateway overview will load here.</p>
                         </div>
                     </section>
 
-                    {}
                     <section id="inventory" className="dashboard-section">
                         <h2 className="section-title">Inventory</h2>
                         <p className="section-subtitle">Browse and purchase vehicle accessories.</p>
                         <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Accessory store is currently empty.</p>
+                            <p style={{ color: 'var(--text-muted)' }}>Accessory store is currently empty.</p>
                         </div>
                     </section>
 
-                    {}
                     <section id="services" className="dashboard-section">
                         <h2 className="section-title">Vehicle Services</h2>
                         <p className="section-subtitle">Book and track your vehicle maintenance.</p>
                         <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Select a nearby service center to book maintenance.</p>
+                            <p style={{ color: 'var(--text-muted)' }}>Select a nearby service center to book maintenance.</p>
                         </div>
                     </section>
 
-                    {}
                     <section id="vehicles" className="dashboard-section">
                         <VehicleManagement />
                     </section>
 
-                    {}
                     <section id="profile" className="dashboard-section">
-                        <h2 className="section-title">My Profile</h2>
-                        <p className="section-subtitle">Update your personal and preference settings.</p>
-                        <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Profile settings panel.</p>
-                        </div>
+                        <DrProfile
+                            user={userData}
+                            authToken={localStorage.getItem('token')}
+                            onProfileUpdate={(updatedUser) => {
+                                setUserData(prev => ({ ...prev, ...updatedUser }));
+                            }}
+                        />
                     </section>
 
                 </div>

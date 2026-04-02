@@ -100,9 +100,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByEmailAndRole(String email, Role role) {
-        return userRepository.findByEmailIgnoreCaseAndRole(email.trim().toLowerCase(), role)
-                .orElseThrow(() -> new RuntimeException(
-                        "No account found for email " + email + " with role " + role.name()));
+        String normalizedEmail = email.trim().toLowerCase();
+        List<User> users = userRepository.findAllByEmailIgnoreCaseAndRole(normalizedEmail, role);
+        if (users.isEmpty()) {
+            throw new RuntimeException("No account found for email " + email + " with role " + role.name());
+        }
+        return users.get(0);
     }
 
     @Override
@@ -202,8 +205,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByEmail(String email) {
         String normalizedEmail = email.trim().toLowerCase();
-        return userRepository.findByEmailIgnoreCase(normalizedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        List<User> users = userRepository.findAllByEmailIgnoreCase(normalizedEmail);
+        if (users.isEmpty()) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+        return users.get(0);
     }
 
     @Override

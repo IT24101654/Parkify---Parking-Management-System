@@ -58,9 +58,11 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public Reservation cancelReservation(Long reservationId, Long driverId) {
         Optional<Reservation> opt = reservationRepository.findById(reservationId);
-        if (opt.isEmpty()) throw new RuntimeException("Reservation not found.");
+        if (opt.isEmpty())
+            throw new RuntimeException("Reservation not found.");
         Reservation r = opt.get();
-        if (!r.getDriverId().equals(driverId)) throw new RuntimeException("Unauthorized.");
+        if (!r.getDriverId().equals(driverId))
+            throw new RuntimeException("Unauthorized.");
         r.setStatus("CANCELLED");
 
         // Restore the slot

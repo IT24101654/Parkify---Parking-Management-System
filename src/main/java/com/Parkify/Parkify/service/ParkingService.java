@@ -17,6 +17,10 @@ public class ParkingService {
         return parkingRepository.findAll();
     }
 
+    public List<ParkingPlace> getParkingPlacesByOwner(Long ownerId) {
+        return parkingRepository.findByOwnerId(ownerId);
+    }
+
     public ParkingPlace saveParkingPlace(ParkingPlace place) {
         if (parkingRepository.existsByParkingNameAndLocation(place.getParkingName(), place.getLocation())) {
             throw new IllegalArgumentException("A parking place with this name already exists.");
@@ -29,14 +33,27 @@ public class ParkingService {
     }
 
     public ParkingPlace updateParkingPlace(Long id, ParkingPlace details) {
-        if (parkingRepository.existsByParkingNameAndLocationAndIdNot(details.getParkingName(), details.getLocation(), id)) {
+        if (parkingRepository.existsByParkingNameAndLocationAndIdNot(details.getParkingName(), details.getLocation(),
+                id)) {
             throw new IllegalArgumentException("A parking place with this name already exists.");
         }
         ParkingPlace place = parkingRepository.findById(id).orElseThrow();
         place.setParkingName(details.getParkingName());
         place.setSlots(details.getSlots());
+        place.setDescription(details.getDescription());
+        place.setAddress(details.getAddress());
+        place.setCity(details.getCity());
+        place.setArea(details.getArea());
+        place.setOpenHours(details.getOpenHours());
+        place.setCloseHours(details.getCloseHours());
+        place.setIs24Hours(details.getIs24Hours());
+        place.setWeekendAvailable(details.getWeekendAvailable());
+        place.setTemporaryClosed(details.getTemporaryClosed());
+        place.setStatus(details.getStatus());
         place.setLocation(details.getLocation());
         place.setPrice(details.getPrice());
+        place.setDailyPrice(details.getDailyPrice());
+        place.setWeekendPrice(details.getWeekendPrice());
         place.setType(details.getType());
         place.setLatitude(details.getLatitude());
         place.setLongitude(details.getLongitude());

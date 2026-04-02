@@ -14,7 +14,8 @@ public class FavoriteService {
     private FavoriteLocationRepository favoriteRepository;
 
     public FavoriteLocation addFavorite(Long userId, Long parkingSlotId) {
-        if (favoriteRepository.existsByUserIdAndParkingSlotId(userId, parkingSlotId)) {
+        List<FavoriteLocation> existing = favoriteRepository.findByUserIdAndParkingSlotId(userId, parkingSlotId);
+        if (!existing.isEmpty()) {
             throw new RuntimeException("Already favorited");
         }
         FavoriteLocation favorite = new FavoriteLocation();
@@ -24,9 +25,11 @@ public class FavoriteService {
     }
 
     public void removeFavorite(Long userId, Long parkingSlotId) {
-        FavoriteLocation favorite = favoriteRepository.findByUserIdAndParkingSlotId(userId, parkingSlotId)
-                .orElseThrow(() -> new RuntimeException("Favorite not found"));
-        favoriteRepository.delete(favorite);
+        List<FavoriteLocation> favorites = favoriteRepository.findByUserIdAndParkingSlotId(userId, parkingSlotId);
+        if (favorites.isEmpty()) {
+            throw new RuntimeException("Favorite not found");
+        }
+        favoriteRepository.deleteAll(favorites); // Remove all duplicates at once
     }
 
     public List<FavoriteLocation> getFavoritesByUserId(Long userId) {

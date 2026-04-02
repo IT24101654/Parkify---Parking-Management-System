@@ -357,13 +357,14 @@ function Dashboard() {
                         >
                             <img
                                 src={
-                                    adminData.profilePicture
+                                    adminData?.profilePicture
                                         ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}`
                                         : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                                              adminData.name
+                                              adminData?.name || 'Admin'
                                           )}&background=2D4057&color=fff`
                                 }
                                 alt="Avatar"
+                                style={{ objectFit: 'cover' }}
                             />
                             <div className="db-user-info">
                                 <p className="u-name">{adminData.name}</p>

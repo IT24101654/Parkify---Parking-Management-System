@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './PODashboard.css';
 import ParkingManagement from './ParkingManagement';
+import POProfile from './POProfile';
 
 function PODashboard() {
     const navigate = useNavigate();
@@ -145,7 +146,16 @@ function PODashboard() {
                             <p className="profile-name">{userData.name}</p>
                             <p className="profile-email">{userData.email}</p>
                         </div>
-                        <div className="profile-avatar">PO</div>
+                        {userData.profilePicture ? (
+                            <img
+                                src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`}
+                                alt="avatar"
+                                className="profile-avatar"
+                                style={{ objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div className="profile-avatar">PO</div>
+                        )}
                     </div>
                 </header>
 
@@ -157,20 +167,7 @@ function PODashboard() {
                             <p className="section-subtitle">Manage your parking spaces and monitor earnings in real-time.</p>
                         </div>
 
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <h3>Total Slots</h3>
-                                <p className="stat-value">24</p>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Active Bookings</h3>
-                                <p className="stat-value">08</p>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Monthly Revenue</h3>
-                                <p className="stat-value">Rs. 15,400</p>
-                            </div>
-                        </div>
+
 
                         <h2 className="section-title" style={{ fontSize: '20px', marginTop: '20px' }}>Dashboard Features</h2>
                         <div className="features-grid">
@@ -268,10 +265,12 @@ function PODashboard() {
                     {/* SECTION: PROFILE */}
                     <section id="profile" className="dashboard-section">
                         <h2 className="section-title">My Profile</h2>
-                        <p className="section-subtitle">Update your profile information.</p>
-                        <div className="inner-card">
-                            <p style={{color: 'var(--text-muted)'}}>Profile configuration and contact info settings.</p>
-                        </div>
+                        <p className="section-subtitle">Edit your details, upload a photo, and manage your parking locations.</p>
+                        <POProfile
+                            user={userData}
+                            authToken={localStorage.getItem('token')}
+                            onProfileUpdate={(updated) => setUserData(prev => ({ ...prev, ...updated }))}
+                        />
                     </section>
                 </div>
             </main>

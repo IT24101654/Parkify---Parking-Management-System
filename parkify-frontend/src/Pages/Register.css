@@ -191,3 +191,98 @@
     font-size: 1.1rem;
     margin: 0;
 }
+
+/* ── OTP Verify card (step 3) ── */
+.auth-card-plain {
+    background: white;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+    width: 100%;
+    max-width: 500px;
+}
+
+.auth-card-plain .step-title {
+    margin-bottom: 8px;
+}
+
+.auth-card-plain p {
+    color: #6b7280;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+/* ── Password strength meter ── */
+.password-field-wrapper {
+    position: relative;
+    margin-bottom: 0;
+}
+
+.password-field-wrapper .form-input-styled {
+    margin-bottom: 8px;
+}
+
+.strength-bar-track {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 6px;
+}
+
+.strength-segment {
+    flex: 1;
+    height: 5px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    transition: background 0.3s;
+}
+
+/* low = 1 segment red */
+.strength-low .strength-segment:nth-child(1) { background: #ef4444; }
+
+/* medium = 2 segments orange */
+.strength-medium .strength-segment:nth-child(1),
+.strength-medium .strength-segment:nth-child(2) { background: #f59e0b; }
+
+/* high = 3 segments green */
+.strength-high .strength-segment:nth-child(1),
+.strength-high .strength-segment:nth-child(2),
+.strength-high .strength-segment:nth-child(3) { background: #22c55e; }
+
+.strength-label {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+}
+
+.strength-label.low   { color: #ef4444; }
+.strength-label.medium { color: #f59e0b; }
+.strength-label.high   { color: #22c55e; }
+
+.pw-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+/* ── Success/Error message bar ── */
+.error-message {
+    background: #fff0f0;
+    color: #c0392b;
+    border: 1px solid #f5c6c6;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+}
+
+.success-message {
+    background: #f0fff4;
+    color: #1a7a3c;
+    border: 1px solid #b7ebc8;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+}

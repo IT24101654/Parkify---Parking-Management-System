@@ -84,15 +84,44 @@ const DriverMap = () => {
         try {
             const token = localStorage.getItem('token');
             const cfg = { headers: { Authorization: `Bearer ${token}` } };
-            const [placesRes, favRes] = await Promise.all([
-                axios.get('/api/parking', cfg),
-                axios.get('/api/favorites/my-favorites', cfg),
-            ]);
-            const valid = placesRes.data.filter(p => p.latitude && p.longitude);
+
+            // 1. Fetch Parking Places
+            let placesData = [];
+            try {
+                const placesRes = await axios.get('http://localhost:8080/api/parking', cfg);
+                placesData = placesRes.data || [];
+            } catch (err) {
+                console.warn('Failed absolute url, trying relative proxy...', err);
+                const placesResProxy = await axios.get('/api/parking', cfg);
+                placesData = placesResProxy.data || [];
+            }
+
+            // 2. Filter Valid Coordinates
+            const valid = placesData.filter(p => p && p.latitude && p.longitude);
             setParkingPlaces(valid);
-            setFavorites(favRes.data.map(f => f.parkingSlotId));
+
+            // 3. Fetch Favorites (Safe fallthrough)
+            try {
+                const favRes = await axios.get('http://localhost:8080/api/favorites/my-favorites', cfg);
+                console.log('DEBUG: Favorites API response:', favRes.data);
+                if (favRes.data && Array.isArray(favRes.data)) {
+                    const favIds = favRes.data.map(f => f.parkingSlotId);
+                    setFavorites(favIds);
+                    console.log('DEBUG: Set favorites state to:', favIds);
+                }
+            } catch (favErr) {
+                const status = favErr.response?.status;
+                const errMsg = favErr.response?.data?.error || favErr.message;
+                console.warn(`DEBUG: Could not fetch favorites API [Status ${status}]:`, errMsg);
+                // Only alert on serious errors, not 401 (handled by login)
+                if (status && status !== 401) {
+                    alert(`Sync Error: Could not load favorites. ${errMsg}`);
+                }
+                setFavorites([]);
+            }
+
         } catch (err) {
-            console.error('Error loading map data', err);
+            console.error('Critical Error loading map data', err);
         }
     };
 
@@ -115,7 +144,9 @@ const DriverMap = () => {
     const filtered = parkingPlaces.filter(p => {
         const q = searchQuery.toLowerCase();
         const matchesSearch = !q || p.parkingName?.toLowerCase().includes(q) || p.location?.toLowerCase().includes(q);
-        const matchesFav = !showFavorites || favorites.includes(p.id);
+        // Type-safe favoritism check
+        const isFavorite = favorites.some(favId => String(favId) === String(p.id));
+        const matchesFav = !showFavorites || isFavorite;
         return matchesSearch && matchesFav;
     });
 
@@ -131,17 +162,31 @@ const DriverMap = () => {
     //  Favorites toggle //
     const toggleFavorite = async (placeId) => {
         const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Please login to add favorites');
+            return;
+        }
+
         const cfg = { headers: { Authorization: `Bearer ${token}` } };
-        const isFav = favorites.includes(placeId);
+        // Type-safe check
+        const isFav = favorites.some(favId => String(favId) === String(placeId));
+        
         try {
             if (isFav) {
-                await axios.delete(`/api/favorites/remove/${placeId}`, cfg);
-                setFavorites(f => f.filter(id => id !== placeId));
+                await axios.delete(`http://localhost:8080/api/favorites/remove/${placeId}`, cfg);
+                setFavorites(f => f.filter(id => String(id) !== String(placeId)));
+                alert('Removed from favorites');
             } else {
-                await axios.post(`/api/favorites/add/${placeId}`, {}, cfg);
+                await axios.post(`http://localhost:8080/api/favorites/add/${placeId}`, {}, cfg);
                 setFavorites(f => [...f, placeId]);
+                alert('Added to favorites!');
             }
-        } catch (err) { console.error('Favorite toggle error', err); }
+        } catch (err) { 
+            const status = err.response?.status;
+            const msg = err.response?.data?.error || err.response?.data || err.message;
+            console.error(`Favorite toggle error [${status}]:`, msg);
+            alert(`Favorite error (Status ${status || 'Unknown'}): ${msg}`);
+        }
     };
 
     //  Search box   //
@@ -173,6 +218,8 @@ const DriverMap = () => {
     };
 
     const getIcon = (place) => {
+        const isFavorite = favorites.some(favId => String(favId) === String(place.id));
+        if (isFavorite) return makeIcon('#9b59b6', true); // Purple + Pulse for Favorites
         if (nearbyIds.has(place.id)) return makeIcon('#f39c12'); // Nearby
         if (place.status === 'FULL') return makeIcon('#e74c3c'); // Full
         return makeIcon('#27ae60'); // Available
@@ -282,6 +329,10 @@ const DriverMap = () => {
                         >
                             <Popup className="dm-leaflet-popup">
                                 <strong>{place.parkingName}</strong><br />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '4px' }}>
+                                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#A88373' }}>near_me</span>
+                                    <span style={{ fontWeight: '800', color: '#A88373' }}>{getDistLabel(place)}</span>
+                                </div>
                                 <small>{place.location}</small>
                             </Popup>
                         </Marker>
@@ -317,14 +368,14 @@ const DriverMap = () => {
                                 />
                                 <div className="dm-header-fade" />
                                 {/* Favorite */}
-                                <button
-                                    className={`dm-fav-btn ${favorites.includes(selectedPlace.id) ? 'active' : ''}`}
-                                    onClick={() => toggleFavorite(selectedPlace.id)}
-                                >
-                                    <span className="material-symbols-outlined">
-                                        {favorites.includes(selectedPlace.id) ? 'favorite' : 'favorite_border'}
-                                    </span>
-                                </button>
+                                    <button
+                                        className={`dm-fav-btn ${favorites.some(favId => String(favId) === String(selectedPlace.id)) ? 'active' : ''}`}
+                                        onClick={() => toggleFavorite(selectedPlace.id)}
+                                    >
+                                        <span className="material-symbols-outlined">
+                                            {favorites.some(favId => String(favId) === String(selectedPlace.id)) ? 'favorite' : 'favorite_border'}
+                                        </span>
+                                    </button>
                                 {/* Nearby badge */}
                                 {nearbyIds.has(selectedPlace.id) && (
                                     <div className="dm-nearby-badge">
@@ -343,51 +394,109 @@ const DriverMap = () => {
                                     <div className="dm-detail-item">
                                         <span className="material-symbols-outlined">location_on</span>
                                         <div>
-                                            <p className="dm-label">Address</p>
+                                            <p className="dm-label">Location ( {getDistLabel(selectedPlace)} )</p>
                                             <p className="dm-val">{selectedPlace.location}</p>
                                         </div>
                                     </div>
                                     <div className="dm-detail-item">
-                                        <span className="material-symbols-outlined">straighten</span>
+                                        <span className="material-symbols-outlined">schedule</span>
                                         <div>
-                                            <p className="dm-label">Distance</p>
-                                            <p className="dm-val">{getDistLabel(selectedPlace) || '—'}</p>
+                                            <p className="dm-label">Hours</p>
+                                            <p className="dm-val">{selectedPlace.is24Hours ? 'Open 24/7' : `${selectedPlace.openHours} - ${selectedPlace.closeHours}`}</p>
                                         </div>
                                     </div>
                                     <div className="dm-detail-item">
                                         <span className="material-symbols-outlined">payments</span>
                                         <div>
-                                            <p className="dm-label">Price</p>
-                                            <p className="dm-val">Rs. {selectedPlace.price} / Hr</p>
+                                            <p className="dm-label">Pricing (Rs.)</p>
+                                            <p className="dm-val">Hr: {selectedPlace.price} | Day: {selectedPlace.dailyPrice || '-'}</p>
                                         </div>
                                     </div>
                                     <div className="dm-detail-item">
                                         <span className="material-symbols-outlined">garage</span>
                                         <div>
-                                            <p className="dm-label">Slots Left</p>
-                                            <p className="dm-val" style={{ color: selectedPlace.slots > 0 ? '#27ae60' : '#e74c3c' }}>
-                                                {selectedPlace.slots}
-                                            </p>
+                                            <p className="dm-label">Capacity</p>
+                                            <p className="dm-val">{selectedPlace.slots} Slots</p>
                                         </div>
                                     </div>
                                 </div>
 
+                                {selectedPlace.description && (
+                                    <p className="dm-description-text" style={{ fontSize: '13px', color: '#7f8c8d', margin: '10px 0' }}>
+                                        {selectedPlace.description}
+                                    </p>
+                                )}
+
                                 {/* Status chip */}
-                                <div className={`dm-status-chip ${selectedPlace.status === 'AVAILABLE' || !selectedPlace.status ? 'dm-chip-green' : 'dm-chip-red'}`}>
-                                    <span className="material-symbols-outlined">circle</span>
-                                    {selectedPlace.status || 'AVAILABLE'}
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', margin: '15px 0' }}>
+                                    <div className={`dm-status-chip ${selectedPlace.status === 'ACTIVE' || !selectedPlace.status ? 'dm-chip-green' : 'dm-chip-red'}`}>
+                                        <span className="material-symbols-outlined">circle</span>
+                                        {selectedPlace.status || 'ACTIVE'}
+                                    </div>
+                                    {selectedPlace.weekendAvailable && (
+                                        <div className="dm-status-chip dm-chip-blue" style={{ background: '#e3f2fd', color: '#1976d2' }}>
+                                            <span className="material-symbols-outlined">calendar_today</span>
+                                            Weekend Open
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="dm-action-row" style={{ marginTop: '8px' }}>
+                                <div className="dm-action-row" style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
                                     <button
-                                        className={`dm-explicit-fav-btn ${favorites.includes(selectedPlace.id) ? 'active' : ''}`}
-                                        onClick={() => toggleFavorite(selectedPlace.id)}
+                                        className="dm-book-now-btn"
+                                        onClick={() => {
+                                            const pkg = {
+                                                id: selectedPlace.id,
+                                                name: selectedPlace.parkingName,
+                                                price: selectedPlace.price
+                                            };
+                                            localStorage.setItem('pendingReservation', JSON.stringify(pkg));
+                                            window.location.href = '/reservation';
+                                        }}
+                                        style={{
+                                            flex: 4,
+                                            background: '#D35400',
+                                            color: 'white',
+                                            border: 'none',
+                                            padding: '14px',
+                                            borderRadius: '12px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            boxShadow: '0 4px 12px rgba(211, 84, 0, 0.3)',
+                                            transition: '0.3s'
+                                        }}
                                     >
-                                        <span className="material-symbols-outlined">
-                                            {favorites.includes(selectedPlace.id) ? 'favorite' : 'favorite_border'}
+                                        <span className="material-symbols-outlined">book_online</span>
+                                        BOOK NOW
+                                    </button>
+                                    <button
+                                        className={`dm-explicit-fav-btn ${favorites.some(favId => String(favId) === String(selectedPlace.id)) ? 'active' : ''}`}
+                                        onClick={() => {
+                                            toggleFavorite(selectedPlace.id);
+                                            alert('Favorite status updated!');
+                                        }}
+                                        style={{ 
+                                            flex: 1, 
+                                            maxWidth: '60px',
+                                            background: '#fff', 
+                                            borderRadius: '12px', 
+                                            border: '1px solid #f1f0e8',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                            transition: '0.3s'
+                                        }}
+                                    >
+                                        <span className="material-symbols-outlined" style={{ color: favorites.some(favId => String(favId) === String(selectedPlace.id)) ? '#e74c3c' : '#bdc3c7', fontSize: '24px' }}>
+                                            {favorites.some(favId => String(favId) === String(selectedPlace.id)) ? 'favorite' : 'favorite_border'}
                                         </span>
-                                        {favorites.includes(selectedPlace.id) ? 'Remove from Favorites' : 'Add to Favorites'}
                                     </button>
                                 </div>
                             </div>

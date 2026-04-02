@@ -109,6 +109,23 @@ public class UserController {
         return ResponseEntity.ok(Map.of("fileName", fileName));
     }
 
+    @GetMapping("/profile-image/{fileName}")
+    public ResponseEntity<org.springframework.core.io.Resource> getProfileImage(@PathVariable("fileName") String fileName) {
+        try {
+            Path path = Paths.get("user-photos/").resolve(fileName);
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, "image/jpeg")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);

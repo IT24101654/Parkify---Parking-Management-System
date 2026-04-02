@@ -19,7 +19,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/parking")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003"})
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001", "http://localhost:3002",
+        "http://localhost:3003" })
 public class ParkingController {
 
     @Autowired
@@ -28,6 +29,11 @@ public class ParkingController {
     @GetMapping
     public List<ParkingPlace> getAll() {
         return parkingService.getAllParkingPlaces();
+    }
+
+    @GetMapping("/owner/{ownerId}")
+    public List<ParkingPlace> getByOwner(@PathVariable("ownerId") Long ownerId) {
+        return parkingService.getParkingPlacesByOwner(ownerId);
     }
 
     @PostMapping("/add")
@@ -61,7 +67,7 @@ public class ParkingController {
             if (file == null || file.isEmpty()) {
                 return ResponseEntity.badRequest().body("No file uploaded");
             }
-            if (file.getSize() > 5 * 1024 * 1024) { 
+            if (file.getSize() > 5 * 1024 * 1024) {
                 return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
                         .body("File size exceeds 5MB limit");
             }
@@ -72,7 +78,8 @@ public class ParkingController {
 
             String uploadDir = "parking-photos/";
             File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
+            if (!dir.exists())
+                dir.mkdirs();
 
             String fileName = "PARKING_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path filePath = Paths.get(uploadDir + fileName);
@@ -82,15 +89,15 @@ public class ParkingController {
 
             return ResponseEntity.ok(Map.of(
                     "message", "Parking image uploaded successfully",
-                    "fileName", fileName
-            ));
+                    "fileName", fileName));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }
     }
 
     @GetMapping("/image/{fileName}")
-    public ResponseEntity<org.springframework.core.io.Resource> getParkingImage(@PathVariable("fileName") String fileName) {
+    public ResponseEntity<org.springframework.core.io.Resource> getParkingImage(
+            @PathVariable("fileName") String fileName) {
         try {
             Path path = Paths.get("parking-photos/").resolve(fileName);
             org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
