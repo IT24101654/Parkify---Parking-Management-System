@@ -9,8 +9,14 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "parking_places")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ParkingPlace {
+
+    @Column(name = "has_inventory")
+    private Boolean hasInventory = false;
+
+    @Column(name = "has_service_center")
+    private Boolean hasServiceCenter = false;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

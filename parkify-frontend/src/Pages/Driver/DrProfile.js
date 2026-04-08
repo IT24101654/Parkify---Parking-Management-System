@@ -8,14 +8,14 @@ const VEHICLES_API_URL = 'http://localhost:8080/api/vehicles';
 const DrProfile = ({ user, authToken, onProfileUpdate }) => {
     const [profileData, setProfileData] = useState(user || {});
     const [isEditMode, setIsEditMode] = useState(false);
-    
+
     const [vehicles, setVehicles] = useState([]);
     const [isAddingVehicle, setIsAddingVehicle] = useState(false);
     const [editingVehicleId, setEditingVehicleId] = useState(null);
     const [newVehicle, setNewVehicle] = useState({ vehicleNumber: '', brand: '', model: '', type: 'Car', fuelType: 'Petrol' });
     const [vImage, setVImage] = useState(null);
     const [lImage, setLImage] = useState(null);
-    
+
     const storedTypes = JSON.parse(localStorage.getItem("selectedVehicles")) || ['Car', 'Bike', 'Van'];
 
     useEffect(() => {
@@ -112,7 +112,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         formData.append("model", newVehicle.model);
         formData.append("type", newVehicle.type);
         formData.append("fuelType", newVehicle.fuelType);
-        
+
         if (vImage) formData.append("vehicleImage", vImage);
         if (lImage) formData.append("licenseImage", lImage);
 
@@ -168,9 +168,9 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         setIsAddingVehicle(true);
     };
 
-    const profilePicUrl = profileData.profilePicture 
-            ? `http://localhost:8080/api/users/profile-image/${profileData.profilePicture}` 
-            : 'https://ui-avatars.com/api/?name=DR';
+    const profilePicUrl = profileData.profilePicture
+        ? `http://localhost:8080/api/users/profile-image/${profileData.profilePicture}`
+        : 'https://ui-avatars.com/api/?name=DR';
 
     return (
         <div className="dr-profile-container">
@@ -195,15 +195,15 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
             </div>
 
             <div className="dr-content-grid">
-                
+
                 <div className="dr-panel card-glass">
                     <h3 className="panel-title">Personal Details</h3>
                     <div className="panel-body">
                         <div className="form-group">
                             <label>Full Name</label>
-                            <input 
-                                type="text" name="name" 
-                                value={profileData.name || ''} 
+                            <input
+                                type="text" name="name"
+                                value={profileData.name || ''}
                                 onChange={handleProfileChange}
                                 disabled={!isEditMode}
                             />
@@ -214,20 +214,20 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                         </div>
                         <div className="form-group">
                             <label>Phone Number</label>
-                            <input 
-                                type="text" name="phoneNumber" 
-                                value={profileData.phoneNumber || ''} 
+                            <input
+                                type="text" name="phoneNumber"
+                                value={profileData.phoneNumber || ''}
                                 onChange={handleProfileChange}
                                 disabled={!isEditMode}
                             />
                         </div>
                         <div className="form-group">
                             <label>National ID (NIC) {profileData.nicNumber ? '' : '(If available)'}</label>
-                            <input 
-                                type="text" name="nicNumber" 
-                                value={profileData.nicNumber || ''} 
+                            <input
+                                type="text" name="nicNumber"
+                                value={profileData.nicNumber || ''}
                                 onChange={handleProfileChange}
-                                disabled={!isEditMode} 
+                                disabled={!isEditMode}
                                 placeholder="Enter NIC Number"
                             />
                         </div>
@@ -252,7 +252,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                         {isAddingVehicle && (
                             <form className="add-vehicle-form" onSubmit={handleAddOrUpdateVehicle}>
                                 <h4>{editingVehicleId ? "Edit Vehicle Details" : "Register New Vehicle"}</h4>
-                                
+
                                 <div className="form-row">
                                     <div className="form-group">
                                         <label>Vehicle Type</label>
@@ -299,7 +299,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
 
                                 <div className="form-actions">
                                     <button type="button" className="btn-cancel" onClick={resetVehicleForm}>Cancel</button>
-                                    <button type="submit" className="save-btn" style={{marginTop: 0}}>{editingVehicleId ? "Update Vehicle" : "Save Vehicle"}</button>
+                                    <button type="submit" className="save-btn" style={{ marginTop: 0 }}>{editingVehicleId ? "Update Vehicle" : "Save Vehicle"}</button>
                                 </div>
                             </form>
                         )}

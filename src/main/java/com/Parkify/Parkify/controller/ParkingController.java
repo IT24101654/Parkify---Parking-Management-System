@@ -59,6 +59,16 @@ public class ParkingController {
         parkingService.deleteParkingPlace(id);
     }
 
+    @PatchMapping("/{id}/features")
+    public ResponseEntity<?> updateFeatures(
+            @PathVariable("id") Long id,
+            @RequestBody Map<String, Boolean> features) {
+        return ResponseEntity.ok(parkingService.updateFeatureFlags(
+                id,
+                features.get("hasInventory"),
+                features.get("hasServiceCenter")));
+    }
+
     @PostMapping("/{id}/upload-image")
     public ResponseEntity<?> uploadParkingImage(
             @PathVariable("id") Long id,

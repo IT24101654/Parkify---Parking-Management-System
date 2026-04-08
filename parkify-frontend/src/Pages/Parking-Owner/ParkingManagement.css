@@ -836,3 +836,33 @@
         max-height: 95vh;
     }
 }
+
+/* Feature Checkboxes in Table */
+.pm-feature-cell {
+    text-align: center !important;
+}
+
+.pm-feature-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #A88373; /* Dusty Rose */
+    transition: transform 0.2s ease;
+}
+
+.pm-feature-checkbox:hover {
+    transform: scale(1.2);
+}
+
+.pm-table tr:hover td {
+    background: #fdfcfb;
+    transition: background 0.3s ease;
+}
+
+.pm-table tr:hover .pm-badge-type {
+    background: #5d6d7e;
+}
+
+.pm-table tr:hover .pm-price-val {
+    color: #A88373;
+}

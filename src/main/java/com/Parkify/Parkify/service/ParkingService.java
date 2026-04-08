@@ -2,6 +2,7 @@ package com.Parkify.Parkify.service;
 
 import com.Parkify.Parkify.model.ParkingPlace;
 import com.Parkify.Parkify.repository.ParkingRepository;
+import com.Parkify.Parkify.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +15,35 @@ public class ParkingService {
     private ParkingRepository parkingRepository;
 
     public List<ParkingPlace> getAllParkingPlaces() {
-        return parkingRepository.findAll();
+        List<ParkingPlace> places = parkingRepository.findAll();
+        places.forEach(this::populateFlags);
+        return places;
     }
 
     public List<ParkingPlace> getParkingPlacesByOwner(Long ownerId) {
-        return parkingRepository.findByOwnerId(ownerId);
+        List<ParkingPlace> places = parkingRepository.findByOwnerId(ownerId);
+        places.forEach(this::populateFlags);
+        return places;
+    }
+
+    private void populateFlags(ParkingPlace place) {
+        // Place-specific flags are now persistent and loaded directly from DB
+    }
+
+    public ParkingPlace updateFeatureFlags(Long id, Boolean hasInventory, Boolean hasServiceCenter) {
+        ParkingPlace place = parkingRepository.findById(id).orElseThrow();
+        if (hasInventory != null) place.setHasInventory(hasInventory);
+        if (hasServiceCenter != null) place.setHasServiceCenter(hasServiceCenter);
+        return parkingRepository.save(place);
     }
 
     public ParkingPlace saveParkingPlace(ParkingPlace place) {
         if (parkingRepository.existsByParkingNameAndLocation(place.getParkingName(), place.getLocation())) {
             throw new IllegalArgumentException("A parking place with this name already exists.");
         }
-        return parkingRepository.save(place);
+        ParkingPlace saved = parkingRepository.save(place);
+        populateFlags(saved);
+        return saved;
     }
 
     public void deleteParkingPlace(Long id) {
@@ -57,7 +75,9 @@ public class ParkingService {
         place.setType(details.getType());
         place.setLatitude(details.getLatitude());
         place.setLongitude(details.getLongitude());
-        return parkingRepository.save(place);
+        ParkingPlace updated = parkingRepository.save(place);
+        populateFlags(updated);
+        return updated;
     }
 
     public void updateParkingImage(Long id, String fileName) {

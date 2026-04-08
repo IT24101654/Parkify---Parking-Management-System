@@ -18,13 +18,13 @@ public class Inventory {
 
     private String itemName;
     private String inventoryType;
-    private String category; 
-    private Double quantity; 
+    private String category;
+    private Double quantity;
     private Double unitPrice;
     private String supplier;
-    private LocalDate expiryDate;  
+    private LocalDate expiryDate;
     private Double thresholdValue;
-    private LocalDate lastRestockDate; 
+    private LocalDate lastRestockDate;
 
     @org.hibernate.annotations.CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -38,4 +38,9 @@ public class Inventory {
     @JoinColumn(name = "user_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parking_place_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private ParkingPlace parkingPlace;
 }

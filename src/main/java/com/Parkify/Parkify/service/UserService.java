@@ -1,6 +1,5 @@
 package com.Parkify.Parkify.service;
 
-import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public interface UserService {
 
     List<User> getUsersByEmail(String email);
 
-    User getUserByEmailAndRole(String email, Role role);
+    User getUserByEmailAndRole(String email, com.Parkify.Parkify.model.Role role);
 
     List<String> getRolesForEmail(String email);
 
@@ -40,4 +39,6 @@ public interface UserService {
     void updateProfilePicture(Long userId, String fileName);
 
     void updateVerificationDetails(Long userId, String nicNumber, String nicImage);
+
+    User updateUserFeatures(Long userId, Boolean hasInventory, Boolean hasServiceCenter);
 }

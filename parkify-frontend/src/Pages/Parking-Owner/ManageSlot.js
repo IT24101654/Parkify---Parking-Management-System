@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faTimes, faCogs, faMagic, faChartPie, faPlus, faInfoCircle 
+import {
+    faTimes, faCogs, faMagic, faChartPie, faPlus, faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
 import './ManageSlot.css';
 
@@ -84,9 +84,9 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
             const match = slot.slotName.match(/^([a-zA-Z\-_]*)(\d+)$/);
             const prefix = match ? match[1] : 'Individual';
             const num = match ? parseInt(match[2], 10) : null;
-            
+
             const groupKey = `${prefix}_${slot.slotType}_${slot.floor || 'None'}_${slot.slotStatus}`;
-            
+
             if (!groups[groupKey]) {
                 groups[groupKey] = {
                     id: groupKey,
@@ -124,7 +124,7 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
                 <button className="premium-close-btn" onClick={onClose}>
                     <FontAwesomeIcon icon={faTimes} />
                 </button>
-                
+
                 <div className="modal-header-premium">
                     <h2><FontAwesomeIcon icon={faCogs} /> Manage Slots: {place.parkingName}</h2>
                     <p>Configure specific parking spots and inventory.</p>
@@ -143,26 +143,26 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
                             <div className="pm-bulk-creator">
                                 <div className="pm-field">
                                     <label>ID Prefix</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="e.g. SPOT-" 
-                                        value={bulkSlotData.prefix} 
-                                        onChange={(e) => setBulkSlotData({ ...bulkSlotData, prefix: e.target.value })} 
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. SPOT-"
+                                        value={bulkSlotData.prefix}
+                                        onChange={(e) => setBulkSlotData({ ...bulkSlotData, prefix: e.target.value })}
                                     />
                                 </div>
                                 <div className="pm-field">
                                     <label>Slot Count</label>
-                                    <input 
-                                        type="number" 
-                                        placeholder="e.g. 10" 
-                                        value={bulkSlotData.count} 
-                                        onChange={(e) => setBulkSlotData({ ...bulkSlotData, count: e.target.value })} 
+                                    <input
+                                        type="number"
+                                        placeholder="e.g. 10"
+                                        value={bulkSlotData.count}
+                                        onChange={(e) => setBulkSlotData({ ...bulkSlotData, count: e.target.value })}
                                     />
                                 </div>
                                 <div className="pm-field">
                                     <label>Vehicle Type</label>
-                                    <select 
-                                        value={bulkSlotData.type} 
+                                    <select
+                                        value={bulkSlotData.type}
                                         onChange={(e) => setBulkSlotData({ ...bulkSlotData, type: e.target.value })}
                                     >
                                         <option value="Car">Car</option>
@@ -202,8 +202,8 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
                                                 {group.slots.map(slot => (
                                                     <div key={slot.id} className="mini-slot-card">
                                                         <span>{slot.slotName}</span>
-                                                        <button 
-                                                            className="mini-del-btn" 
+                                                        <button
+                                                            className="mini-del-btn"
                                                             onClick={(e) => { e.stopPropagation(); handleDeleteSlot(slot.id); }}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />

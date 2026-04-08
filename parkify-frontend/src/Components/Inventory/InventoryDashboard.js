@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ManageInventory from './ManageInventory';
 import './Inventory.css';
 
-const InventoryDashboard = () => {
+const InventoryDashboard = ({ parkingPlaceId }) => {
     const [selectedType, setSelectedType] = useState(null);
 
     const sections = [
@@ -20,7 +20,7 @@ const InventoryDashboard = () => {
                 >
                     ← Back to Categories
                 </button>
-                <ManageInventory selectedType={selectedType} />
+                <ManageInventory selectedType={selectedType} parkingPlaceId={parkingPlaceId} />
             </div>
         );
     }

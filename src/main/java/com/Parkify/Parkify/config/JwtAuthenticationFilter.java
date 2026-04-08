@@ -1,5 +1,6 @@
 package com.Parkify.Parkify.config;
 
+
 import com.Parkify.Parkify.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -58,3 +59,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+

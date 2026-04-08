@@ -1,6 +1,5 @@
 package com.Parkify.Parkify.serviceImpl;
 
-import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.repository.UserRepository;
 import com.Parkify.Parkify.service.EmailService;
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(normalizedEmail);
 
         if (user.getRole() == null) {
-            user.setRole(Role.DRIVER);
+            user.setRole(com.Parkify.Parkify.model.Role.DRIVER);
         }
 
         
@@ -47,8 +46,8 @@ public class UserServiceImpl implements UserService {
         }
 
         
-        if (user.getRole() == Role.SUPER_ADMIN) {
-            long adminCount = userRepository.countByRole(Role.SUPER_ADMIN);
+        if (user.getRole() == com.Parkify.Parkify.model.Role.SUPER_ADMIN) {
+            long adminCount = userRepository.countByRole(com.Parkify.Parkify.model.Role.SUPER_ADMIN);
             if (adminCount >= 1) {
                 throw new RuntimeException("A SUPER_ADMIN account already exists in the system.");
             }
@@ -99,9 +98,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmailAndRole(String email, Role role) {
+    public com.Parkify.Parkify.model.User getUserByEmailAndRole(String email, com.Parkify.Parkify.model.Role role) {
         String normalizedEmail = email.trim().toLowerCase();
-        List<User> users = userRepository.findAllByEmailIgnoreCaseAndRole(normalizedEmail, role);
+        List<com.Parkify.Parkify.model.User> users = userRepository.findAllByEmailIgnoreCaseAndRole(normalizedEmail, role);
         if (users.isEmpty()) {
             throw new RuntimeException("No account found for email " + email + " with role " + role.name());
         }
@@ -235,5 +234,13 @@ public class UserServiceImpl implements UserService {
         if (nicNumber != null) user.setNicNumber(nicNumber);
         if (nicImage != null) user.setNicImage(nicImage);
         userRepository.save(user);
+    }
+
+    @Override
+    public User updateUserFeatures(Long userId, Boolean hasInventory, Boolean hasServiceCenter) {
+        User user = getUserById(userId);
+        if (hasInventory != null) user.setHasInventory(hasInventory);
+        if (hasServiceCenter != null) user.setHasServiceCenter(hasServiceCenter);
+        return userRepository.save(user);
     }
 }

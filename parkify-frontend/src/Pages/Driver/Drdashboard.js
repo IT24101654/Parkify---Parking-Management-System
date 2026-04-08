@@ -7,10 +7,30 @@ import DrProfile from './DrProfile';
 import VoiceWave from './VoiceWave';
 import VoiceButton from './VoiceButton';
 import DriverMap from './DriverMap';
+import InventoryDashboard from '../../Components/Inventory/InventoryDashboard';
+
+// Reusable card for the Overview section
+const FeatureCard = ({ icon, title, desc, footerIcon, footerText, colorClass, onClick, visible = true }) => {
+    if (!visible) return null;
+    return (
+        <div className="feature-card" onClick={onClick}>
+            <div className={`fc-icon-wrapper ${colorClass}`}>
+                <span className="material-symbols-outlined">{icon}</span>
+            </div>
+            <h3 className="fc-title">{title}</h3>
+            <p className="fc-desc">{desc}</p>
+            <div className="fc-footer">
+                <span className="material-symbols-outlined">{footerIcon}</span>
+                <span>{footerText}</span>
+            </div>
+        </div>
+    );
+};
 
 function Drdashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
+    const [selectedPlace, setSelectedPlace] = useState(null);
     const [userData, setUserData] = useState(null);
     const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
 
@@ -85,6 +105,11 @@ function Drdashboard() {
 
     if (!userData) return <div className="loading">Initializing Driver Dashboard...</div>;
 
+    const handlePlaceSelect = (place) => {
+        console.log("DEBUG: Driver Dashboard - Selected Parking Place:", place);
+        setSelectedPlace(place);
+    };
+
     return (
         <div className="dr-dashboard">
             <aside className="dr-sidebar">
@@ -109,14 +134,18 @@ function Drdashboard() {
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                         <span className="nav-text">Payments</span>
                     </button>
-                    <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => scrollToSection('inventory')}>
-                        <span className="material-symbols-outlined">inventory</span>
-                        <span className="nav-text">Inventory</span>
-                    </button>
-                    <button className={activeTab === 'services' ? 'active' : ''} onClick={() => scrollToSection('services')}>
-                        <span className="material-symbols-outlined">build</span>
-                        <span className="nav-text">Vehicle Services</span>
-                    </button>
+                    {(selectedPlace?.hasInventory === true || selectedPlace?.hasInventory === "true") && (
+                        <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => scrollToSection('inventory')}>
+                            <span className="material-symbols-outlined">inventory</span>
+                            <span className="nav-text">Inventory</span>
+                        </button>
+                    )}
+                    {(selectedPlace?.hasServiceCenter === true || selectedPlace?.hasServiceCenter === "true") && (
+                        <button className={activeTab === 'services' ? 'active' : ''} onClick={() => scrollToSection('services')}>
+                            <span className="material-symbols-outlined">build</span>
+                            <span className="nav-text">Vehicle Services</span>
+                        </button>
+                    )}
                     <button className={activeTab === 'vehicles' ? 'active' : ''} onClick={() => scrollToSection('vehicles')}>
                         <span className="material-symbols-outlined">directions_car</span>
                         <span className="nav-text">Vehicles</span>
@@ -176,68 +205,77 @@ function Drdashboard() {
 
                         <h2 className="section-title" style={{ fontSize: '20px', marginTop: '20px' }}>Dashboard Features</h2>
                         <div className="features-grid">
-                            <div className="feature-card" onClick={() => scrollToSection('find-slots')}>
-                                <div className="fc-icon-wrapper fc-color-blue">
-                                    <span className="material-symbols-outlined">explore</span>
-                                </div>
-                                <h3 className="fc-title">Parking Slots</h3>
-                                <p className="fc-desc">Search, locate, and smoothly book your ideal parking space across the city.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">today</span><span>Updated Recently</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="explore"
+                                title="Parking Slots"
+                                desc="Search, locate, and smoothly book your ideal parking space across the city."
+                                footerIcon="today"
+                                footerText="Updated Recently"
+                                colorClass="fc-color-blue"
+                                onClick={() => scrollToSection('find-slots')}
+                            />
 
-                            <div className="feature-card" onClick={() => scrollToSection('my-bookings')}>
-                                <div className="fc-icon-wrapper fc-color-green">
-                                    <span className="material-symbols-outlined">book_online</span>
-                                </div>
-                                <h3 className="fc-title">Reservations</h3>
-                                <p className="fc-desc">View your upcoming and past parking reservations with ease.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">history</span><span>Active Bookings</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="book_online"
+                                title="Reservations"
+                                desc="View your upcoming and past parking reservations with ease."
+                                footerIcon="history"
+                                footerText="Active Bookings"
+                                colorClass="fc-color-green"
+                                onClick={() => scrollToSection('my-bookings')}
+                            />
 
-                            <div className="feature-card" onClick={() => scrollToSection('payments')}>
-                                <div className="fc-icon-wrapper fc-color-taupe">
-                                    <span className="material-symbols-outlined">account_balance_wallet</span>
-                                </div>
-                                <h3 className="fc-title">Payments</h3>
-                                <p className="fc-desc">Manage transactions, receipts, and preferred payment methods.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">security</span><span>Secure Wallet</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="account_balance_wallet"
+                                title="Payments"
+                                desc="Manage transactions, receipts, and preferred payment methods."
+                                footerIcon="security"
+                                footerText="Secure Wallet"
+                                colorClass="fc-color-taupe"
+                                onClick={() => scrollToSection('payments')}
+                            />
 
-                            <div className="feature-card" onClick={() => scrollToSection('inventory')}>
-                                <div className="fc-icon-wrapper fc-color-rose">
-                                    <span className="material-symbols-outlined">inventory</span>
-                                </div>
-                                <h3 className="fc-title">Inventory</h3>
-                                <p className="fc-desc">Shop and browse available vehicle accessories from nearby centers.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">shopping_cart</span><span>Shop Now</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="inventory"
+                                title="Inventory"
+                                desc="Shop and browse available vehicle accessories from nearby centers."
+                                footerIcon="shopping_cart"
+                                footerText="Shop Now"
+                                colorClass="fc-color-rose"
+                                visible={selectedPlace?.hasInventory === true || selectedPlace?.hasInventory === "true"}
+                                onClick={() => scrollToSection('inventory')}
+                            />
 
-                            <div className="feature-card" onClick={() => scrollToSection('services')}>
-                                <div className="fc-icon-wrapper fc-color-dark">
-                                    <span className="material-symbols-outlined">build</span>
-                                </div>
-                                <h3 className="fc-title">Vehicle Services</h3>
-                                <p className="fc-desc">Book scheduled maintenance and professional vehicle care.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">handyman</span><span>Expert Care</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="build"
+                                title="Vehicle Services"
+                                desc="Book scheduled maintenance and professional vehicle care."
+                                footerIcon="handyman"
+                                footerText="Expert Care"
+                                colorClass="fc-color-dark"
+                                visible={selectedPlace?.hasServiceCenter === true || selectedPlace?.hasServiceCenter === "true"}
+                                onClick={() => scrollToSection('services')}
+                            />
 
-                            <div className="feature-card" onClick={() => scrollToSection('vehicles')}>
-                                <div className="fc-icon-wrapper fc-color-green">
-                                    <span className="material-symbols-outlined">directions_car</span>
-                                </div>
-                                <h3 className="fc-title">My Vehicles</h3>
-                                <p className="fc-desc">Manage your registered vehicles, view details, and add new ones.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">garage</span><span>Fleet Management</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="directions_car"
+                                title="My Vehicles"
+                                desc="Manage your registered vehicles, view details, and add new ones."
+                                footerIcon="garage"
+                                footerText="Fleet Management"
+                                colorClass="fc-color-green"
+                                onClick={() => scrollToSection('vehicles')}
+                            />
 
-                            <div className="feature-card" onClick={() => scrollToSection('profile')}>
-                                <div className="fc-icon-wrapper fc-color-blue">
-                                    <span className="material-symbols-outlined">person</span>
-                                </div>
-                                <h3 className="fc-title">My Profile</h3>
-                                <p className="fc-desc">Adjust your personal details, preferences, and account security.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">settings</span><span>Manage Settings</span></div>
-                            </div>
+                            <FeatureCard
+                                icon="person"
+                                title="My Profile"
+                                desc="Adjust your personal details, preferences, and account security."
+                                footerIcon="settings"
+                                footerText="Manage Settings"
+                                colorClass="fc-color-blue"
+                                onClick={() => scrollToSection('profile')}
+                            />
                         </div>
                     </section>
 
@@ -247,7 +285,12 @@ function Drdashboard() {
                         <div className="inner-card">
                             <h3 style={{ marginBottom: '15px' }}>Recommended for you</h3>
                             <div className="driver-map-wrapper-override">
-                                <DriverMap />
+                                <DriverMap
+                                    selectedPlace={selectedPlace}
+                                    setSelectedPlace={handlePlaceSelect}
+                                    onViewInventory={() => scrollToSection('inventory')}
+                                    onViewServices={() => scrollToSection('services')}
+                                />
                             </div>
                         </div>
                     </section>
@@ -268,21 +311,21 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    <section id="inventory" className="dashboard-section">
-                        <h2 className="section-title">Inventory</h2>
-                        <p className="section-subtitle">Browse and purchase vehicle accessories.</p>
-                        <div className="inner-card">
-                            <p style={{ color: 'var(--text-muted)' }}>Accessory store is currently empty.</p>
-                        </div>
-                    </section>
+                    {(selectedPlace?.hasInventory === true || selectedPlace?.hasInventory === "true") && (
+                        <section id="inventory" className="dashboard-section">
+                            <InventoryDashboard parkingPlaceId={selectedPlace?.id} />
+                        </section>
+                    )}
 
-                    <section id="services" className="dashboard-section">
-                        <h2 className="section-title">Vehicle Services</h2>
-                        <p className="section-subtitle">Book and track your vehicle maintenance.</p>
-                        <div className="inner-card">
-                            <p style={{ color: 'var(--text-muted)' }}>Select a nearby service center to book maintenance.</p>
-                        </div>
-                    </section>
+                    {(selectedPlace?.hasServiceCenter === true || selectedPlace?.hasServiceCenter === "true") && (
+                        <section id="services" className="dashboard-section">
+                            <h2 className="section-title">Vehicle Services</h2>
+                            <p className="section-subtitle">Book and track your vehicle maintenance.</p>
+                            <div className="inner-card">
+                                <p style={{ color: 'var(--text-muted)' }}>Select a nearby service center to book maintenance.</p>
+                            </div>
+                        </section>
+                    )}
 
                     <section id="vehicles" className="dashboard-section">
                         <VehicleManagement />

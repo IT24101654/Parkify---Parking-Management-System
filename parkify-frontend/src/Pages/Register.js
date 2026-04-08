@@ -11,10 +11,10 @@ function getPasswordStrength(pw) {
     if (!pw) return null;
     if (pw.length < 8) return 'too-short';
 
-    const hasUpper   = /[A-Z]/.test(pw);
+    const hasUpper = /[A-Z]/.test(pw);
     const hasSpecial = /[^a-zA-Z0-9]/.test(pw);
-    const hasDigit   = /[0-9]/.test(pw);
-    const hasLower   = /[a-z]/.test(pw);
+    const hasDigit = /[0-9]/.test(pw);
+    const hasLower = /[a-z]/.test(pw);
 
     // HIGH: uppercase + special char + digit + 8+ chars  e.g. "New@12345"
     if (hasUpper && hasSpecial && hasDigit) return 'high';
@@ -26,9 +26,9 @@ function getPasswordStrength(pw) {
 
 const strengthMeta = {
     'too-short': { label: 'Minimum 8 characters required', cls: 'too-short' },
-    'low':       { label: 'Weak password',   cls: 'low'    },
-    'medium':    { label: 'Medium password', cls: 'medium' },
-    'high':      { label: 'Strong password', cls: 'high'   },
+    'low': { label: 'Weak password', cls: 'low' },
+    'medium': { label: 'Medium password', cls: 'medium' },
+    'high': { label: 'Strong password', cls: 'high' },
 };
 
 /* ─── Password field with live strength bar ────────────────────────────── */
@@ -232,10 +232,10 @@ function Register() {
                         <form onSubmit={handleRegisterSubmit}>
                             <div className="input-row">
                                 <input name="firstName" type="text" placeholder="First Name" required onChange={handleChange} className="form-input-styled" />
-                                <input name="lastName"  type="text" placeholder="Last Name"  required onChange={handleChange} className="form-input-styled" />
+                                <input name="lastName" type="text" placeholder="Last Name" required onChange={handleChange} className="form-input-styled" />
                             </div>
-                            <input name="email"       type="email" placeholder="Email Address" required onChange={handleChange} className="form-input-styled" />
-                            <input name="phoneNumber" type="tel"   placeholder="Phone Number"  required onChange={handleChange} className="form-input-styled" />
+                            <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} className="form-input-styled" />
+                            <input name="phoneNumber" type="tel" placeholder="Phone Number" required onChange={handleChange} className="form-input-styled" />
 
                             {/* ── Password with strength meter ── */}
                             <PasswordStrengthField
@@ -309,8 +309,8 @@ function Register() {
                         <p>What is most important when finding a slot?</p>
                         <div className="pref-list">
                             {[
-                                { id: 'cheap', label: 'Cheapest Price',       icon: 'payments'        },
-                                { id: 'near',  label: 'Nearest Location',     icon: 'near_me'         },
+                                { id: 'cheap', label: 'Cheapest Price', icon: 'payments' },
+                                { id: 'near', label: 'Nearest Location', icon: 'near_me' },
                                 { id: 'avail', label: 'Maximum Availability', icon: 'event_available' }
                             ].map(p => (
                                 <div

@@ -147,5 +147,14 @@ public class UserController {
         );
         return ResponseEntity.ok(Map.of("message", "Password reset successful"));
     }
+
+    @PutMapping("/{id}/features")
+    public ResponseEntity<?> updateFeatures(@PathVariable("id") Long id,
+                                            @RequestBody Map<String, Boolean> data) {
+        Boolean hasInventory = data.get("hasInventory");
+        Boolean hasServiceCenter = data.get("hasServiceCenter");
+        User updated = userService.updateUserFeatures(id, hasInventory, hasServiceCenter);
+        return ResponseEntity.ok(updated);
+    }
 }
 

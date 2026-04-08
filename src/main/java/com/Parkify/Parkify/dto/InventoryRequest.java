@@ -14,4 +14,5 @@ public class InventoryRequest {
     private LocalDate expiryDate;
     private Double thresholdValue;
     private LocalDate lastRestockDate;
+    private Long parkingPlaceId;
 }

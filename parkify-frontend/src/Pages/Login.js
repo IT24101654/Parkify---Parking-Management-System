@@ -10,10 +10,10 @@ axios.defaults.timeout = 15000;
 function getPasswordStrength(pw) {
     if (!pw) return null;
     if (pw.length < 8) return 'too-short';
-    const hasUpper   = /[A-Z]/.test(pw);
+    const hasUpper = /[A-Z]/.test(pw);
     const hasSpecial = /[^a-zA-Z0-9]/.test(pw);
-    const hasDigit   = /[0-9]/.test(pw);
-    const hasLower   = /[a-z]/.test(pw);
+    const hasDigit = /[0-9]/.test(pw);
+    const hasLower = /[a-z]/.test(pw);
     if (hasUpper && hasSpecial && hasDigit) return 'high';
     if ((hasLower || hasUpper) && hasDigit) return 'medium';
     return 'low';
@@ -21,9 +21,9 @@ function getPasswordStrength(pw) {
 
 const strengthMeta = {
     'too-short': { label: 'Minimum 8 characters required', cls: 'too-short' },
-    'low':       { label: 'Weak password',   cls: 'low'    },
-    'medium':    { label: 'Medium password', cls: 'medium' },
-    'high':      { label: 'Strong password', cls: 'high'   },
+    'low': { label: 'Weak password', cls: 'low' },
+    'medium': { label: 'Medium password', cls: 'medium' },
+    'high': { label: 'Strong password', cls: 'high' },
 };
 
 function PasswordStrengthField({ value, onChange, placeholder = 'New Password' }) {
@@ -149,10 +149,10 @@ function Login() {
             localStorage.setItem('userId', id);
 
             switch (role.toUpperCase()) {
-                case 'SUPER_ADMIN':    navigate('/admin-dashboard'); break;
-                case 'PARKING_OWNER': navigate('/po-dashboard');    break;
-                case 'DRIVER':        navigate('/driver-dashboard'); break;
-                default:              navigate('/');
+                case 'SUPER_ADMIN': navigate('/admin-dashboard'); break;
+                case 'PARKING_OWNER': navigate('/po-dashboard'); break;
+                case 'DRIVER': navigate('/driver-dashboard'); break;
+                default: navigate('/');
             }
         } catch (error) {
             setLoginError(error.response?.data?.error || 'Invalid OTP. Please try again.');

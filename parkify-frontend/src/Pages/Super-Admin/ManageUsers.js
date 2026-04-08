@@ -50,7 +50,7 @@ function ManageUser() {
                     <h2>Registered Users</h2>
                     <p>Click on any user row to view full profile details.</p>
                 </div>
-                
+
                 <div className="table-wrapper">
                     <table className="user-table">
                         <thead>
@@ -67,9 +67,9 @@ function ManageUser() {
                                 <tr key={user.id} onClick={() => openModal(user)} className="user-row">
                                     <td>
                                         <div className="user-name-cell">
-                                            <img 
-                                                src={user.profilePicture ? `http://localhost:8080/api/users/profile-image/${user.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} 
-                                                alt="profile" 
+                                            <img
+                                                src={user.profilePicture ? `http://localhost:8080/api/users/profile-image/${user.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                                                alt="profile"
                                                 className="table-avatar"
                                             />
                                             <span>{user.name}</span>
@@ -103,12 +103,12 @@ function ManageUser() {
                 <div className="um-modal-overlay" onClick={closeModal}>
                     <div className="um-modal-content" onClick={e => e.stopPropagation()}>
                         <button className="um-close-btn" onClick={closeModal}>&times;</button>
-                        
+
                         <div className="um-modal-header">
                             <div className="um-modal-avatar-wrapper">
-                                <img 
-                                    src={selectedUser.profilePicture ? `http://localhost:8080/api/users/profile-image/${selectedUser.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.name)}&background=random`} 
-                                    alt="Profile" 
+                                <img
+                                    src={selectedUser.profilePicture ? `http://localhost:8080/api/users/profile-image/${selectedUser.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.name)}&background=random`}
+                                    alt="Profile"
                                     className="um-modal-avatar"
                                 />
                             </div>
@@ -133,7 +133,7 @@ function ManageUser() {
                                         <p>{selectedUser.phoneNumber || 'Not provided'}</p>
                                     </div>
                                 </div>
-                                
+
                                 {selectedUser.role === 'PARKING_OWNER' && (
                                     <div className="um-detail-item full-width">
                                         <span className="material-symbols-outlined">location_on</span>

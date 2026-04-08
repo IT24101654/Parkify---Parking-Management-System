@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import './Inventory.css';
 
-const ManageInventory = ({ selectedType }) => {
+const ManageInventory = ({ selectedType, parkingPlaceId }) => {
     const { type: urlType } = useParams();
-    
+
 
     const type = selectedType || urlType || window.location.pathname.split('/').pop();
-    
+
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -15,6 +16,7 @@ const ManageInventory = ({ selectedType }) => {
     const [editingId, setEditingId] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [formErrors, setFormErrors] = useState({});
+    const userRole = localStorage.getItem('userRole') || 'PARKING_OWNER';
 
     const [form, setForm] = useState({
         itemName: '',
@@ -39,19 +41,52 @@ const ManageInventory = ({ selectedType }) => {
         try {
             setLoading(true);
             setError('');
-            const response = await axios.get(
-                `http://localhost:8080/api/inventory/type/${type}`,
-                { headers: getHeaders() }
-            );
-            setItems(Array.isArray(response.data) ? response.data : []);
+            
+            let endpoint = '';
+            if (userRole === 'PARKING_OWNER') {
+                endpoint = 'http://localhost:8080/api/inventory/owner';
+                console.log("OWNER-LEVEL: Fetching shared inventory for owner.");
+            } else {
+                const safePlaceId = parkingPlaceId ? Number(parkingPlaceId) : null;
+                if (!safePlaceId || isNaN(safePlaceId)) {
+                    console.warn("DRIVER-LEVEL: Invalid or missing Place ID. Component will not fetch.");
+                    setItems([]);
+                    setLoading(false);
+                    return;
+                }
+                endpoint = `http://localhost:8080/api/inventory/by-parking-place/${safePlaceId}`;
+                console.log("DRIVER-LEVEL: Fetching inventory for parking place:", safePlaceId);
+            }
+
+            const response = await axios.get(endpoint, { headers: getHeaders() });
+            const allItems = Array.isArray(response.data) ? response.data : [];
+            
+            const filtered = allItems.filter(item => {
+                const itemType = (item.inventoryType || '').toUpperCase();
+                const requestedType = (type || '').toUpperCase();
+                
+                let match = false;
+                if (requestedType === 'FOOD') {
+                    match = itemType.includes('FOOD') || itemType.includes('BEVERAGE') || itemType.includes('RESTAURANT');
+                } else if (requestedType === 'SPARE_PART') {
+                    match = itemType.includes('SPARE') || itemType.includes('PART');
+                } else if (requestedType === 'FUEL') {
+                    match = itemType.includes('FUEL') || itemType.includes('OIL') || itemType.includes('GAS');
+                } else {
+                    match = itemType === requestedType;
+                }
+                return match;
+            });
+
+            setItems(filtered);
         } catch (err) {
-            console.error('Error loading items:', err);
-            setError('Failed to load items. Please check your connection.');
+            console.error('Inventory Fetch Error:', err);
+            setError('Failed to load items.');
             setItems([]);
         } finally {
             setLoading(false);
         }
-    }, [type]);
+    }, [type, parkingPlaceId, userRole]);
 
     useEffect(() => {
         if (type) {
@@ -200,12 +235,12 @@ const ManageInventory = ({ selectedType }) => {
     const resetForm = () => {
         let initialItemName = '';
         if (type === 'FUEL') {
-            initialItemName = 'Petrol'; 
+            initialItemName = 'Petrol';
         }
-        setForm({ 
-            itemName: initialItemName, 
-            quantity: '', 
-            thresholdValue: '', 
+        setForm({
+            itemName: initialItemName,
+            quantity: '',
+            thresholdValue: '',
             unitPrice: '',
             category: '',
             supplier: '',
@@ -228,14 +263,18 @@ const ManageInventory = ({ selectedType }) => {
 
     return (
         <div className="manage-inventory-container">
-            <div className="manage-header">
-                <h1>{getTypeName()} Inventory</h1>
-                <button className="add-item-btn" onClick={() => {
-                    resetForm();
-                    setShowForm(true);
-                }}>
-                    + Add New Item
-                </button>
+            <div className="inventory-header">
+                <div className="header-text">
+                    <h1>{getTypeName()} Inventory</h1>
+                </div>
+                <div className="header-actions">
+                    {userRole === 'PARKING_OWNER' && (
+                        <button className="add-item-btn" onClick={() => setShowForm(true)}>
+                            <span className="material-symbols-outlined">add_circle</span>
+                            Add New Item
+                        </button>
+                    )}
+                </div>
             </div>
 
             {successMessage && (
@@ -429,16 +468,13 @@ const ManageInventory = ({ selectedType }) => {
                     <table className="inventory-table">
                         <thead>
                             <tr>
-                                <th>{type === 'SPARE_PART' ? 'Part Name' : type === 'FUEL' ? 'Fuel Type' : 'Item Name'}</th>
-                                {type === 'SPARE_PART' && <th>Vehicle Type</th>}
-                                <th>{type === 'FUEL' ? 'Liters' : 'Quantity'}</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
                                 <th>Unit Price (Rs.)</th>
-                                {type === 'FOOD' && <th>Expiry Date</th>}
-                                {(type === 'SPARE_PART' || type === 'FUEL') && <th>Supplier</th>}
-                                {type === 'FUEL' && <th>Last Restock Date</th>}
-                                <th>Threshold</th>
+                                <th>Expiry Date / Info</th>
+                                {userRole !== 'DRIVER' && <th>Threshold</th>}
                                 <th>Status</th>
-                                <th>Actions</th>
+                                {userRole !== 'DRIVER' && <th style={{ textAlign: 'center' }}>Actions</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -450,36 +486,43 @@ const ManageInventory = ({ selectedType }) => {
                                         className={isLowStock ? 'low-stock-row' : ''}
                                     >
                                         <td className="item-name">{item.itemName}</td>
-                                        {type === 'SPARE_PART' && <td>{item.category}</td>}
                                         <td>{item.quantity}</td>
                                         <td>Rs. {parseFloat(item.unitPrice).toFixed(2)}</td>
-                                        {type === 'FOOD' && <td>{item.expiryDate}</td>}
-                                        {(type === 'SPARE_PART' || type === 'FUEL') && <td>{item.supplier}</td>}
-                                        {type === 'FUEL' && <td>{item.lastRestockDate}</td>}
-                                        <td>{item.thresholdValue}</td>
+                                        <td>
+                                            {type === 'FOOD' ? item.expiryDate :
+                                                type === 'SPARE_PART' ? item.category :
+                                                    item.lastRestockDate || 'N/A'}
+                                        </td>
+                                        {userRole !== 'DRIVER' && <td>{item.thresholdValue}</td>}
                                         <td>
                                             {isLowStock ? (
-                                                <span className="alert-badge">🔴 Low Stock</span>
+                                                <span className="status-badge low-stock">
+                                                    <span className="dot"></span> Low Stock
+                                                </span>
                                             ) : (
-                                                <span className="normal-badge">✓ Normal</span>
+                                                <span className="status-badge normal">
+                                                    <span className="check">✓</span> Normal
+                                                </span>
                                             )}
                                         </td>
-                                        <td className="action-buttons">
-                                            <button
-                                                className="btn-edit"
-                                                onClick={() => handleEdit(item)}
-                                                title="Edit"
-                                            >
-                                                ✎
-                                            </button>
-                                            <button
-                                                className="btn-delete"
-                                                onClick={() => handleDelete(item.id)}
-                                                title="Delete"
-                                            >
-                                                🗑️
-                                            </button>
-                                        </td>
+                                        {userRole !== 'DRIVER' && (
+                                            <td className="action-buttons">
+                                                <button
+                                                    className="btn-edit"
+                                                    onClick={() => handleEdit(item)}
+                                                    title="Edit"
+                                                >
+                                                    ✎
+                                                </button>
+                                                <button
+                                                    className="btn-delete"
+                                                    onClick={() => handleDelete(item.id)}
+                                                    title="Delete"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 );
                             })}
@@ -491,14 +534,20 @@ const ManageInventory = ({ selectedType }) => {
             {!loading && items.length === 0 && (
                 <div className="empty-state">
                     <div className="empty-icon">📦</div>
-                    <h3>No items yet</h3>
-                    <p>Start by adding your first {getTypeName().toLowerCase()} item</p>
-                    <button className="add-item-btn" onClick={() => {
-                        resetForm();
-                        setShowForm(true);
-                    }}>
-                        + Add First Item
-                    </button>
+                    <h3>{userRole === 'DRIVER' ? 'No items available' : 'No items yet'}</h3>
+                    <p>
+                        {userRole === 'DRIVER'
+                            ? 'This parking place currently has no items in this category.'
+                            : `Start by adding your first ${getTypeName().toLowerCase()} item`}
+                    </p>
+                    {userRole !== 'DRIVER' && (
+                        <button className="add-item-btn" onClick={() => {
+                            resetForm();
+                            setShowForm(true);
+                        }}>
+                            + Add First Item
+                        </button>
+                    )}
                 </div>
             )}
         </div>

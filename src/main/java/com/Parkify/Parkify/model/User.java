@@ -52,7 +52,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private com.Parkify.Parkify.model.Role role;
 
     @Column(nullable = false)
     private Boolean active = true;
@@ -76,6 +76,14 @@ public class User {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Vehicle> vehicles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Inventory> inventories;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private ServiceCenter serviceCenter;
 
     @PrePersist
     protected void onCreate() {

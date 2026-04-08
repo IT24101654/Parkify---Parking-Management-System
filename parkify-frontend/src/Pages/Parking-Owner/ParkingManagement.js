@@ -6,8 +6,8 @@ import L from 'leaflet';
 import './ParkingManagement.css';
 import parkingBg from '../../Assets/parking-bg.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faTimes, faCogs, 
+import {
+    faTimes, faCogs,
     faClock, faMapMarkerAlt, faInfoCircle,
     faCar, faMotorcycle, faTruck, faBolt
 } from '@fortawesome/free-solid-svg-icons';
@@ -43,7 +43,7 @@ const palette = {
 };
 
 
-const ParkingManagement = () => {
+const ParkingManagement = ({ onManageInventory }) => {
     const [mapCenter, setMapCenter] = useState(defaultMapCenter);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [formData, setFormData] = useState({
@@ -74,7 +74,7 @@ const ParkingManagement = () => {
     // Slot Management State
     const [showDetailedModal, setShowDetailedModal] = useState(false);
     const [selectedPlaceForDetails, setSelectedPlaceForDetails] = useState(null);
-    
+
     const [showSlotManager, setShowSlotManager] = useState(false);
     const [currentPlaceForSlots, setCurrentPlaceForSlots] = useState(null);
     const [errors, setErrors] = useState({});
@@ -240,6 +240,30 @@ const ParkingManagement = () => {
         setEditId(place.id);
         setShowAddForm(true);
     };
+    const handleToggleFeature = async (placeId, featureType, assigned) => {
+        try {
+            const token = localStorage.getItem('token');
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+
+            // Find current place to get both flags
+            const place = parkingPlaces.find(p => p.id === placeId);
+            const payload = {
+                hasInventory: featureType === 'hasInventory' ? assigned : place.hasInventory,
+                hasServiceCenter: featureType === 'hasServiceCenter' ? assigned : place.hasServiceCenter
+            };
+
+            await axios.patch(`/api/parking/${placeId}/features`, payload, config);
+
+            // Update local state
+            setParkingPlaces(parkingPlaces.map(p =>
+                p.id === placeId ? { ...p, [featureType]: assigned } : p
+            ));
+        } catch (error) {
+            console.error("Error toggling feature:", error);
+            alert("Failed to update feature assignment.");
+        }
+    };
+
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this place?")) {
             try {
@@ -258,7 +282,7 @@ const ParkingManagement = () => {
     const handleShowDetails = async (place) => {
         setSelectedPlaceForDetails({ ...place, isLoadingDetails: true });
         setShowDetailedModal(true);
-        
+
         try {
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -266,7 +290,7 @@ const ParkingManagement = () => {
             const slots = res.data;
             const available = slots.filter(s => s.slotStatus === 'Available').length;
             const types = [...new Set(slots.map(s => s.slotType))];
-            
+
             setSelectedPlaceForDetails({
                 ...place,
                 availableSlots: available,
@@ -314,6 +338,8 @@ const ParkingManagement = () => {
                                     <th>SLOTS</th>
                                     <th>LOCATION</th>
                                     <th>TYPE</th>
+                                    <th>INVENTORY</th>
+                                    <th>SERVICE</th>
                                     <th>PRICE (RS.)</th>
                                     <th>ACTION</th>
                                 </tr>
@@ -325,6 +351,24 @@ const ParkingManagement = () => {
                                         <td>{place.slots}</td>
                                         <td>{place.location}</td>
                                         <td><span className="pm-badge-type">{place.type}</span></td>
+                                        <td className="pm-feature-cell">
+                                            <input
+                                                type="checkbox"
+                                                className="pm-feature-checkbox"
+                                                checked={place.hasInventory || false}
+                                                onChange={(e) => handleToggleFeature(place.id, 'hasInventory', e.target.checked)}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        </td>
+                                        <td className="pm-feature-cell">
+                                            <input
+                                                type="checkbox"
+                                                className="pm-feature-checkbox"
+                                                checked={place.hasServiceCenter || false}
+                                                onChange={(e) => handleToggleFeature(place.id, 'hasServiceCenter', e.target.checked)}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        </td>
                                         <td className="pm-price-val">Rs. {place.price}</td>
                                         <td>
                                             <button className="pm-action-icon manage" onClick={(e) => { e.stopPropagation(); openSlotManager(place); }} style={{ marginRight: '10px', backgroundColor: '#f39c12', color: 'white' }}>
@@ -464,10 +508,10 @@ const ParkingManagement = () => {
                     </div>
                 )}
             </div>            {/* Slot Manager Modal (Extracted) */}
-            <ManageSlot 
-                place={currentPlaceForSlots} 
-                isOpen={showSlotManager} 
-                onClose={() => setShowSlotManager(false)} 
+            <ManageSlot
+                place={currentPlaceForSlots}
+                isOpen={showSlotManager}
+                onClose={() => setShowSlotManager(false)}
             />
 
             {/* Redesigned Detailed Info Modal */}
@@ -477,10 +521,10 @@ const ParkingManagement = () => {
                         <button className="premium-close-btn" onClick={() => setShowDetailedModal(false)} aria-label="Close">
                             <FontAwesomeIcon icon={faTimes} />
                         </button>
-                        
+
                         <div className="detailed-modal-body">
                             {/* Modern Hero Section */}
-                            <div className="place-preview-hero" style={{backgroundImage: `url(${selectedPlaceForDetails.placeImage ? `http://localhost:8080/api/parking/image/${selectedPlaceForDetails.placeImage}` : parkingBg})`}}>
+                            <div className="place-preview-hero" style={{ backgroundImage: `url(${selectedPlaceForDetails.placeImage ? `http://localhost:8080/api/parking/image/${selectedPlaceForDetails.placeImage}` : parkingBg})` }}>
                                 <div className="hero-overlay">
                                     <div className="hero-badge-row">
                                         <span className={`status-chip ${selectedPlaceForDetails.status.toLowerCase()}`}>{selectedPlaceForDetails.status}</span>
@@ -488,8 +532,8 @@ const ParkingManagement = () => {
                                     </div>
                                     <h1>{selectedPlaceForDetails.parkingName}</h1>
                                     <p className="hero-location">
-                                        <FontAwesomeIcon icon={faMapMarkerAlt} /> 
-                                        {selectedPlaceForDetails.address ? `${selectedPlaceForDetails.address}, ` : ''} 
+                                        <FontAwesomeIcon icon={faMapMarkerAlt} />
+                                        {selectedPlaceForDetails.address ? `${selectedPlaceForDetails.address}, ` : ''}
                                         {selectedPlaceForDetails.city || ''}
                                     </p>
                                 </div>
@@ -510,10 +554,10 @@ const ParkingManagement = () => {
                                                 selectedPlaceForDetails.slotTypes.map(type => (
                                                     <div key={type} className="v-tag">
                                                         <FontAwesomeIcon icon={
-                                                            type.toLowerCase().includes('car') ? faCar : 
-                                                            type.toLowerCase().includes('bike') ? faMotorcycle : 
-                                                            type.toLowerCase().includes('van') ? faTruck : 
-                                                            type.toLowerCase().includes('ev') ? faBolt : faCar
+                                                            type.toLowerCase().includes('car') ? faCar :
+                                                                type.toLowerCase().includes('bike') ? faMotorcycle :
+                                                                    type.toLowerCase().includes('van') ? faTruck :
+                                                                        type.toLowerCase().includes('ev') ? faBolt : faCar
                                                         } />
                                                         <span>{type}</span>
                                                     </div>
@@ -544,8 +588,8 @@ const ParkingManagement = () => {
                                             </span>
                                         </div>
                                         <div className="availability-progress">
-                                            <div 
-                                                className="progress-fill" 
+                                            <div
+                                                className="progress-fill"
                                                 style={{ width: `${(selectedPlaceForDetails.availableSlots / selectedPlaceForDetails.slots) * 100}%` }}
                                             ></div>
                                         </div>

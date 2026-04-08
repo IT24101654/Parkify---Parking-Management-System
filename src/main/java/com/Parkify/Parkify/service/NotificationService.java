@@ -1,7 +1,6 @@
 package com.Parkify.Parkify.service;
 
 import com.Parkify.Parkify.model.Notification;
-import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.repository.NotificationRepository;
 import com.Parkify.Parkify.repository.UserRepository;
@@ -25,7 +24,7 @@ public class NotificationService {
 
     public void notifyAdminsOnNewUserRegistration(User newUser) {
         // Find all Super Admins
-        List<User> admins = userRepository.findAllByRole(Role.SUPER_ADMIN);
+        List<User> admins = userRepository.findAllByRole(com.Parkify.Parkify.model.Role.SUPER_ADMIN);
         
         for (User admin : admins) {
             // Save in-app notification

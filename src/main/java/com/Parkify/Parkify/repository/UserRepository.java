@@ -1,6 +1,5 @@
 package com.Parkify.Parkify.repository;
 
-import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -17,14 +16,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmailIgnoreCase(String email);
 
 
-    List<User> findAllByRole(Role role);
+    List<User> findAllByRole(com.Parkify.Parkify.model.Role role);
     List<User> findAllByEmailIgnoreCase(String email);
-    List<User> findAllByEmailIgnoreCaseAndRole(String email, Role role);
+    List<User> findAllByEmailIgnoreCaseAndRole(String email, com.Parkify.Parkify.model.Role role);
 
-    Optional<User> findByEmailIgnoreCaseAndRole(String email, Role role);
+    Optional<User> findByEmailIgnoreCaseAndRole(String email, com.Parkify.Parkify.model.Role role);
 
 
-        boolean existsByEmailIgnoreCaseAndRole(String email, Role role);
+        boolean existsByEmailIgnoreCaseAndRole(String email, com.Parkify.Parkify.model.Role role);
 
-        long countByRole(Role role);
+        long countByRole(com.Parkify.Parkify.model.Role role);
 }

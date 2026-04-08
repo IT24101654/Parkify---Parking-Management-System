@@ -2,7 +2,6 @@ package com.Parkify.Parkify.controller;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import com.Parkify.Parkify.dto.LoginRequest;
 import com.Parkify.Parkify.dto.RegisterRequest;
 import com.Parkify.Parkify.dto.VerifyRequest;
-import com.Parkify.Parkify.model.Role;
 import com.Parkify.Parkify.model.User;
 import com.Parkify.Parkify.service.*;
 
@@ -33,14 +31,14 @@ public class AuthController {
 
         String email = registerRequest.getEmail().trim().toLowerCase();
 
-        Role role;
+        com.Parkify.Parkify.model.Role role;
         try {
-            role = Role.valueOf(registerRequest.getRole().toUpperCase());
+            role = com.Parkify.Parkify.model.Role.valueOf(registerRequest.getRole().toUpperCase());
         } catch (Exception e) {
-            role = Role.DRIVER;
+            role = com.Parkify.Parkify.model.Role.DRIVER;
         }
 
-        if (role == Role.SUPER_ADMIN) {
+        if (role == com.Parkify.Parkify.model.Role.SUPER_ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "SUPER_ADMIN cannot be registered publicly"));
         }
@@ -58,10 +56,6 @@ public class AuthController {
         pending.setPhoneNumber(registerRequest.getPhoneNumber());
         pending.setAddress(registerRequest.getAddress());
         pending.setRole(role);
-        
-        if (registerRequest.getNicNumber() != null && !registerRequest.getNicNumber().isBlank()) {
-            pending.setNicNumber(registerRequest.getNicNumber());
-        }
 
         registrationService.storePendingUser(pending);
 
@@ -81,7 +75,7 @@ public class AuthController {
                     .body(Map.of("error", "Invalid OTP"));
         }
 
-        Role role = Role.valueOf(request.getRole().toUpperCase());
+        com.Parkify.Parkify.model.Role role = com.Parkify.Parkify.model.Role.valueOf(request.getRole().toUpperCase());
 
         User pending = registrationService.getPendingUser(email, role.name());
         User created = userService.registerUser(pending);
@@ -128,7 +122,9 @@ public class AuthController {
     public ResponseEntity<?> selectRole(@RequestBody Map<String, String> body) {
 
         String email = body.get("email").trim().toLowerCase();
-        String role = body.get("role");
+        // role is passed but not used for OTP generation logic, just to trigger selection process
+        // String role = body.get("role"); 
+
 
         String otp = otpService.generateOtp(email);
         emailService.sendOtpEmail(email, otp);
@@ -146,7 +142,7 @@ public class AuthController {
                     .body(Map.of("error", "Invalid OTP"));
         }
 
-        Role role = Role.valueOf(request.getRole().toUpperCase());
+        com.Parkify.Parkify.model.Role role = com.Parkify.Parkify.model.Role.valueOf(request.getRole().toUpperCase());
         User user = userService.getUserByEmailAndRole(email, role);
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
