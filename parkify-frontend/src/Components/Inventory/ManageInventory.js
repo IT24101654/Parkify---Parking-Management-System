@@ -41,7 +41,7 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
         try {
             setLoading(true);
             setError('');
-            
+
             let endpoint = '';
             if (userRole === 'PARKING_OWNER') {
                 endpoint = 'http://localhost:8080/api/inventory/owner';
@@ -60,11 +60,11 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
 
             const response = await axios.get(endpoint, { headers: getHeaders() });
             const allItems = Array.isArray(response.data) ? response.data : [];
-            
+
             const filtered = allItems.filter(item => {
                 const itemType = (item.inventoryType || '').toUpperCase();
                 const requestedType = (type || '').toUpperCase();
-                
+
                 let match = false;
                 if (requestedType === 'FOOD') {
                     match = itemType.includes('FOOD') || itemType.includes('BEVERAGE') || itemType.includes('RESTAURANT');

@@ -306,7 +306,6 @@ const ParkingManagement = ({ onManageInventory }) => {
     return (
         <div className="pm-main-layout">
             <div className="pm-wrapper">
-                <h1 className="pm-page-title">PARKING PLACES MANAGEMENT</h1>
 
                 <div className="pm-table-card" style={{ backgroundImage: `url(${parkingBg})` }}>
                     <div className="pm-overlay"></div>

@@ -170,10 +170,6 @@ function VehicleManagement() {
     return (
         <div className="vm-container">
             <div className="vm-header">
-                <div>
-                    <h2 className="section-title">My Registered Vehicles</h2>
-                    <p className="section-subtitle">Manage your fleet for easy reservations</p>
-                </div>
                 {!isFormVisible && (
                     <button className="vm-btn-primary" onClick={() => setIsFormVisible(true)}>
                         <span className="material-symbols-outlined">add</span>

@@ -115,9 +115,7 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    
-    
-    
+
 
     @Override
     public boolean existsByEmail(String email) {

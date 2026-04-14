@@ -76,7 +76,16 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(org.springframework.security.core.Authentication authentication) {
         String email = authentication.getName();
-        return ResponseEntity.ok(userService.getUserByEmail(email));
+        String roleStr = authentication.getAuthorities().iterator().next().getAuthority();
+        if (roleStr.startsWith("ROLE_")) {
+            roleStr = roleStr.substring(5);
+        }
+        try {
+            com.Parkify.Parkify.model.Role role = com.Parkify.Parkify.model.Role.valueOf(roleStr);
+            return ResponseEntity.ok(userService.getUserByEmailAndRole(email, role));
+        } catch (Exception e) {
+            return ResponseEntity.ok(userService.getUserByEmail(email));
+        }
     }
 
     @PutMapping("/{id}/profile")

@@ -4,40 +4,35 @@ import './POProfile.css';
 import MapSelectorModal from './MapSelectorModal';
 
 const API_BASE_URL = 'http://localhost:8080/api/users';
-const LOCATIONS_API_URL = 'http://localhost:8080/api/parking-locations';
 
 const POProfile = ({ user, authToken, onProfileUpdate }) => {
     const [profileData, setProfileData] = useState(user || {});
     const [isEditMode, setIsEditMode] = useState(false);
-    
-    
-    const [locations, setLocations] = useState([]);
-    const [isAddingLocation, setIsAddingLocation] = useState(false);
-    const [newLocation, setNewLocation] = useState({ name: '', address: '', lat: null, lng: null, availableFrom: '08:00', availableTo: '22:00' });
-    
-    
+    const [parkingPlaces, setParkingPlaces] = useState([]);
     const [mapModalOpen, setMapModalOpen] = useState(false);
-    const [activeMapField, setActiveMapField] = useState(null); 
+    const [activeMapField, setActiveMapField] = useState(null);
 
-    
+    const fetchParkingPlaces = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const userId = localStorage.getItem('userId');
+            if (!userId || !token) return;
+            const res = await axios.get(`/api/parking/owner/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setParkingPlaces(res.data);
+        } catch (err) {
+            console.error('Failed to fetch parking places', err);
+        }
+    };
+
     useEffect(() => {
         if (user && user.id) {
             setProfileData(user);
-            fetchLocations(user.id);
+            fetchParkingPlaces();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
-
-    const fetchLocations = async (userId) => {
-        try {
-            const res = await axios.get(`${LOCATIONS_API_URL}/owner/${userId}`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-            });
-            setLocations(res.data);
-        } catch (err) {
-            console.error("Failed to fetch parking locations", err);
-        }
-    };
 
     
     const handleProfileChange = (e) => {
@@ -86,59 +81,14 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
     };
 
     
-    const handleAddLocationSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const payload = {
-                name: newLocation.name,
-                address: newLocation.address,
-                latitude: newLocation.lat,
-                longitude: newLocation.lng,
-                availableFrom: newLocation.availableFrom,
-                availableTo: newLocation.availableTo,
-                active: true
-            };
-            const res = await axios.post(`${LOCATIONS_API_URL}/add/${profileData.id}`, payload, {
-                headers: { Authorization: `Bearer ${authToken}` }
-            });
-            setLocations([...locations, res.data]);
-            setIsAddingLocation(false);
-            setNewLocation({ name: '', address: '', lat: null, lng: null, availableFrom: '08:00', availableTo: '22:00' });
-        } catch (err) {
-            console.error(err);
-            alert("Failed to add parking location");
-        }
-    };
-
-    const handleDeleteLocation = async (locId) => {
-        if (!window.confirm("Are you sure you want to delete this parking location?")) return;
-        try {
-            await axios.delete(`${LOCATIONS_API_URL}/${locId}`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-            });
-            setLocations(locations.filter(l => l.id !== locId));
-        } catch (err) {
-            console.error(err);
-            alert("Failed to delete location.");
-        }
-    };
-
-    
     const openMapForProfile = () => {
         setActiveMapField('profile');
-        setMapModalOpen(true);
-    };
-
-    const openMapForLocation = () => {
-        setActiveMapField('location');
         setMapModalOpen(true);
     };
 
     const handleMapLocationSelect = (locObj) => {
         if (activeMapField === 'profile') {
             setProfileData({ ...profileData, address: locObj.address });
-        } else if (activeMapField === 'location') {
-            setNewLocation({ ...newLocation, address: locObj.address, lat: locObj.lat, lng: locObj.lng });
         }
     };
 
@@ -233,69 +183,34 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
 
                 <div className="po-panel card-glass locations-panel">
                     <div className="panel-header-row">
-                        <h3 className="panel-title">My Parking Locations</h3>
-                        {!isAddingLocation && (
-                            <button className="add-loc-btn" onClick={() => setIsAddingLocation(true)}>
-                                <span className="material-symbols-outlined">add</span> Add New Location
-                            </button>
-                        )}
+                        <h3 className="panel-title">My Parking Places</h3>
                     </div>
 
                     <div className="panel-body">
-                        {isAddingLocation && (
-                            <form className="add-location-form" onSubmit={handleAddLocationSubmit}>
-                                <h4>Register New Parking Place</h4>
-                                <div className="form-group">
-                                    <label>Location Name (Identifier)</label>
-                                    <input type="text" required value={newLocation.name} onChange={e => setNewLocation({...newLocation, name: e.target.value})} placeholder="e.g. City Center Lot B" />
-                                </div>
-                                <div className="form-group address-group">
-                                    <label>Exact Location / Address</label>
-                                    <div className="address-input-wrapper">
-                                        <input type="text" required value={newLocation.address} onChange={e => setNewLocation({...newLocation, address: e.target.value})} />
-                                        <button className="map-btn" type="button" onClick={openMapForLocation}>
-                                            <span className="material-symbols-outlined">map</span> Pick
-                                        </button>
-                                    </div>
-                                    {newLocation.lat && <small className="coords-hint">Lat: {newLocation.lat.toFixed(4)}, Lng: {newLocation.lng.toFixed(4)}</small>}
-                                </div>
-                                
-                                <div className="time-row">
-                                    <div className="form-group">
-                                        <label>Available From</label>
-                                        <input type="time" required value={newLocation.availableFrom} onChange={e => setNewLocation({...newLocation, availableFrom: e.target.value})} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Available To</label>
-                                        <input type="time" required value={newLocation.availableTo} onChange={e => setNewLocation({...newLocation, availableTo: e.target.value})} />
-                                    </div>
-                                </div>
-
-                                <div className="form-actions">
-                                    <button type="button" className="btn-cancel" onClick={() => setIsAddingLocation(false)}>Cancel</button>
-                                    <button type="submit" className="save-btn">Save Location</button>
-                                </div>
-                            </form>
-                        )}
-
                         <div className="locations-list">
-                            {locations.length === 0 && !isAddingLocation && (
+                            {parkingPlaces.length === 0 && (
                                 <div className="empty-locations">
-                                    <span className="material-symbols-outlined">not_listed_location</span>
-                                    <p>You haven't listed any parking locations yet.</p>
+                                    <span className="material-symbols-outlined">local_parking</span>
+                                    <p>No parking places created yet. Go to <strong>My Slots</strong> to add one.</p>
                                 </div>
                             )}
 
-                            {locations.map(loc => (
-                                <div className="loc-card" key={loc.id}>
+                            {parkingPlaces.map(place => (
+                                <div className="loc-card" key={place.id}>
                                     <div className="loc-info">
-                                        <h4>{loc.name}</h4>
-                                        <p className="loc-address"><span className="material-symbols-outlined">location_on</span> {loc.address}</p>
-                                        <p className="loc-time"><span className="material-symbols-outlined">schedule</span> {loc.availableFrom} - {loc.availableTo}</p>
+                                        <h4>{place.parkingName}</h4>
+                                        <p className="loc-address">
+                                            <span className="material-symbols-outlined">location_on</span>
+                                            {place.location || place.address || 'No address set'}
+                                        </p>
+                                        <p className="loc-time">
+                                            <span className="material-symbols-outlined">garage</span>
+                                            {place.slots} slots &nbsp;|&nbsp;
+                                            <span className="material-symbols-outlined">schedule</span>
+                                            {place.is24Hours ? '24 Hours' : `${place.openHours} - ${place.closeHours}`}
+                                        </p>
                                     </div>
-                                    <button className="loc-delete-btn" onClick={() => handleDeleteLocation(loc.id)} title="Delete Location">
-                                        <span className="material-symbols-outlined">delete</span>
-                                    </button>
+                                    <span className={`loc-badge ${place.type?.toLowerCase()}`}>{place.type}</span>
                                 </div>
                             ))}
                         </div>

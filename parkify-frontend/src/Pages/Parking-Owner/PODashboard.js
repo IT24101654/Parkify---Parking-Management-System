@@ -1,18 +1,31 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './PODashboard.css';
 import ParkingManagement from './ParkingManagement';
 import POProfile from './POProfile';
 import InventoryDashboard from '../../Components/Inventory/InventoryDashboard';
+import InitializeServiceCenterModal from '../../Components/ServiceCenter/InitializeServiceCenterModal';
+import ServiceCenterDashboard from '../../Components/ServiceCenter/ServiceCenterDashboard';
 
 function PODashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [userData, setUserData] = useState(null);
     const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
-    const [scForm, setScForm] = useState({ name: '', description: '', contactNumber: '', workingHours: '' });
     const [currentPlaceForInventory, setCurrentPlaceForInventory] = useState(null);
+    const isProgrammaticScroll = useRef(false);
+    const scrollTaskTimeout = useRef(null);
+    const scrollContainerRef = useRef(null);
+
+    // Search state
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
+    const [allParkingPlaces, setAllParkingPlaces] = useState([]);
+    const searchRef = useRef(null);
+    const searchDebounceRef = useRef(null);
 
     const fetchUserProfile = useCallback(async () => {
         try {
@@ -53,33 +66,62 @@ function PODashboard() {
 
     // Intersection Observer for scroll synchronization
     useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveTab(entry.target.id);
-                    }
-                });
-            },
-            { rootMargin: '-20% 0px -70% 0px' }
-        );
+        if (!scrollContainerRef.current || !userData) return;
 
+        const handleIntersection = (entries) => {
+            if (isProgrammaticScroll.current) return;
+
+            // Find the section with the largest intersection ratio
+            let maxRatio = 0;
+            let activeId = activeTab;
+
+            entries.forEach((entry) => {
+                if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+                    maxRatio = entry.intersectionRatio;
+                    activeId = entry.target.id;
+                }
+            });
+
+            // If we found a dominant section that is different from current, update it
+            if (activeId !== activeTab && maxRatio > 0.1) {
+                setActiveTab(activeId);
+            }
+        };
+
+        const observer = new IntersectionObserver(handleIntersection, {
+            root: scrollContainerRef.current,
+            threshold: [0, 0.2, 0.4, 0.6, 0.8, 1.0], // Multiple thresholds for smoother detection
+            rootMargin: '-10% 0px -10% 0px'
+        });
+
+        // Small delay to ensure all components have rendered their final height
         const timeoutId = setTimeout(() => {
             const sections = document.querySelectorAll('.dashboard-section');
-            sections.forEach((section) => observer.observe(section));
-        }, 300);
+            if (sections.length > 0) {
+                sections.forEach((section) => observer.observe(section));
+            }
+        }, 1000);
 
         return () => {
             observer.disconnect();
             clearTimeout(timeoutId);
         };
-    }, [userData]);
+    }, [userData, activeTab]); // Include activeTab to stay in sync
 
     const scrollToSection = (id) => {
-        setActiveTab(id);
         const element = document.getElementById(id);
         if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
+            isProgrammaticScroll.current = true;
+            setActiveTab(id);
+
+            if (scrollTaskTimeout.current) clearTimeout(scrollTaskTimeout.current);
+
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Re-enable observer after animation finishes
+            scrollTaskTimeout.current = setTimeout(() => {
+                isProgrammaticScroll.current = false;
+            }, 1200);
         }
     };
 
@@ -101,13 +143,12 @@ function PODashboard() {
         }
     };
 
-    const handleCreateServiceCenter = async (e) => {
-        e.preventDefault();
+    const handleCreateServiceCenter = async (formData) => {
         try {
             const token = localStorage.getItem('token');
-            // 1. Create Service Center object
+            // 1. Create Service Center object with all new fields
             await axios.post('/api/service-centers/save', {
-                ...scForm,
+                ...formData,
                 user: { id: userData.id },
                 active: true
             }, {
@@ -121,9 +162,11 @@ function PODashboard() {
 
             setIsFeatureModalOpen(false);
             fetchUserProfile();
-            scrollToSection('service');
+            setTimeout(() => scrollToSection('service'), 500);
         } catch (error) {
             console.error('Failed to create service center', error);
+            const errorMsg = error.response?.data?.message || 'Failed to create Service Center. Please try again.';
+            alert(`Error: ${errorMsg}`);
         }
     };
 
@@ -150,6 +193,98 @@ function PODashboard() {
     useEffect(() => {
         fetchUserProfile();
     }, [fetchUserProfile]);
+
+    // Fetch parking places for search once userData is ready
+    const fetchParkingPlacesForSearch = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const userId = localStorage.getItem('userId');
+            if (!token || !userId) return;
+            const res = await axios.get(`/api/parking/owner/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setAllParkingPlaces(res.data || []);
+        } catch (err) {
+            console.error('Failed to load parking places for search:', err);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (userData) fetchParkingPlacesForSearch();
+    }, [userData, fetchParkingPlacesForSearch]);
+
+    // Debounced real-time search
+    const handleSearchChange = (e) => {
+        const val = e.target.value;
+        setSearchQuery(val);
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        if (!val.trim()) {
+            setSearchResults([]);
+            setIsSearchOpen(false);
+            return;
+        }
+        setIsSearchLoading(true);
+        setIsSearchOpen(true);
+        searchDebounceRef.current = setTimeout(() => {
+            const q = val.trim().toLowerCase();
+            const filtered = allParkingPlaces.filter(p =>
+                (p.parkingName || '').toLowerCase().includes(q) ||
+                (p.location || '').toLowerCase().includes(q) ||
+                (p.city || '').toLowerCase().includes(q) ||
+                (p.address || '').toLowerCase().includes(q) ||
+                (p.type || '').toLowerCase().includes(q)
+            );
+            setSearchResults(filtered);
+            setIsSearchLoading(false);
+        }, 280);
+    };
+
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Escape') {
+            setIsSearchOpen(false);
+            setSearchQuery('');
+            setSearchResults([]);
+        }
+    };
+
+    const handleSearchResultClick = () => {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+        setSearchResults([]);
+        scrollToSection('slots');
+    };
+
+    const clearSearch = () => {
+        setSearchQuery('');
+        setSearchResults([]);
+        setIsSearchOpen(false);
+    };
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (searchRef.current && !searchRef.current.contains(e.target)) {
+                setIsSearchOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const highlightMatch = useMemo(() => (text, query) => {
+        if (!query || !text) return text;
+        const idx = text.toLowerCase().indexOf(query.toLowerCase());
+        if (idx === -1) return text;
+        return (
+            <>
+                {text.slice(0, idx)}
+                <mark style={{ background: '#fef08a', borderRadius: '2px', padding: '0 1px', fontWeight: 700 }}>
+                    {text.slice(idx, idx + query.length)}
+                </mark>
+                {text.slice(idx + query.length)}
+            </>
+        );
+    }, []);
 
     if (!userData) return <div className="loading">Loading Dashboard...</div>;
 
@@ -209,9 +344,76 @@ function PODashboard() {
 
             <main className="po-main">
                 <header className="po-navbar">
-                    <div className="nav-search">
-                        <span className="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search bookings..." />
+                    <div className="nav-search-wrapper" ref={searchRef}>
+                        <div className={`nav-search${isSearchOpen ? ' nav-search--active' : ''}`}>
+                            <span className={`material-symbols-outlined${isSearchLoading ? ' search-spin' : ''}`}>search</span>
+                            <input
+                                type="text"
+                                placeholder="Search parking places..."
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                                onKeyDown={handleSearchKeyDown}
+                                onFocus={() => searchQuery && setIsSearchOpen(true)}
+                            />
+                            {searchQuery && (
+                                <button className="search-clear-btn" onClick={clearSearch} aria-label="Clear">
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
+                            )}
+                        </div>
+
+                        {isSearchOpen && (
+                            <div className="search-dropdown">
+                                {isSearchLoading ? (
+                                    <div className="search-state">
+                                        <span className="material-symbols-outlined search-spin">autorenew</span>
+                                        <span>Searching...</span>
+                                    </div>
+                                ) : searchResults.length === 0 ? (
+                                    <div className="search-state">
+                                        <span className="material-symbols-outlined">search_off</span>
+                                        <span>No results for <strong>"{searchQuery}"</strong></span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="search-dropdown-header">
+                                            {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
+                                        </div>
+                                        {searchResults.map((place) => (
+                                            <div
+                                                key={place.id}
+                                                className="search-result-item"
+                                                onClick={() => handleSearchResultClick(place)}
+                                            >
+                                                <div className="search-result-icon">
+                                                    <span className="material-symbols-outlined">local_parking</span>
+                                                </div>
+                                                <div className="search-result-info">
+                                                    <div className="search-result-name">
+                                                        {highlightMatch(place.parkingName, searchQuery)}
+                                                    </div>
+                                                    <div className="search-result-meta">
+                                                        {place.location && (
+                                                            <span>
+                                                                <span className="material-symbols-outlined" style={{ fontSize: '13px', verticalAlign: 'middle' }}>location_on</span>
+                                                                {highlightMatch(place.location, searchQuery)}
+                                                            </span>
+                                                        )}
+                                                        {place.type && (
+                                                            <span className="search-badge">{place.type}</span>
+                                                        )}
+                                                        {place.price && (
+                                                            <span className="search-badge search-badge--price">Rs. {place.price}/hr</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <span className="material-symbols-outlined search-result-arrow">chevron_right</span>
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div className="nav-profile">
                         <span className="material-symbols-outlined">notifications</span>
@@ -232,17 +434,19 @@ function PODashboard() {
                     </div>
                 </header>
 
-                <div className="po-scroll-container">
+                <div className="po-scroll-container" ref={scrollContainerRef}>
                     {/* SECTION: OVERVIEW */}
                     <section id="overview" className="dashboard-section">
-                        <div className="welcome-section">
-                            <h1 className="section-title">Welcome to your Dashboard</h1>
-                            <p className="section-subtitle">Manage your parking spaces and monitor earnings in real-time.</p>
+                        <div className="section-header-row">
+                            <h1 style={{ fontSize: '3.5rem', fontWeight: '800', color: '#6d4242d4', textAlign: 'center', margin: '0 0 10px 0', letterSpacing: '-1px', lineHeight: '1.1' }}>Welcome to your Dashboard</h1>
                         </div>
 
 
 
-                        <h2 className="section-title" style={{ fontSize: '20px', marginTop: '20px' }}>Dashboard Features</h2>
+                        <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '14px' }}>
+                            <h2 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#B08974', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Dashboard Features</h2>
+                            <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Select a category to manage your parking operations</p>
+                        </div>
                         <div className="features-grid">
                             <div className="feature-card" onClick={() => scrollToSection('slots')}>
                                 <div className="fc-icon-wrapper fc-color-blue">
@@ -250,7 +454,7 @@ function PODashboard() {
                                 </div>
                                 <h3 className="fc-title">My Slots</h3>
                                 <p className="fc-desc">Review and manage your listed parking slots availability and pricing.</p>
-                                <div className="fc-footer"><span className="material-symbols-outlined">update</span><span>Manage Listings</span></div>
+                                <div className="fc-footer"><span className="material-symbols-outlined">manage_history</span><span>Manage Listings</span></div>
                             </div>
 
                             {userData.hasInventory ? (
@@ -315,8 +519,10 @@ function PODashboard() {
 
 
                     <section id="slots" className="dashboard-section">
-                        <h2 className="section-title">My Slots</h2>
-                        <p className="section-subtitle">Manage your parking slots here.</p>
+                        <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#6F7C80', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Parking Slots Management</h1>
+                            <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Manage your parking spaces and availability</p>
+                        </div>
 
                         <div className="inner-card" style={{ padding: '0', background: 'transparent', boxShadow: 'none' }}>
                             <ParkingManagement onManageInventory={handleManageInventory} />
@@ -326,8 +532,9 @@ function PODashboard() {
                     {/* SECTION: INVENTORY */}
                     {userData.hasInventory && (
                         <section id="inventory" className="dashboard-section">
-                            <div className="section-header-row">
-                                <div /> {/* Empty div to keep the remove button on the right */}
+                            <div style={{ position: 'relative', textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                                <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7A806B', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Inventory Management</h1>
+                                <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Select a category to manage</p>
                                 <button className="remove-feature-btn" onClick={() => handleRemoveFeature('inventory')}>
                                     <span className="material-symbols-outlined">delete_forever</span>
                                     Remove Inventory
@@ -340,35 +547,64 @@ function PODashboard() {
                     {/* SECTION: SERVICE */}
                     {userData.hasServiceCenter && (
                         <section id="service" className="dashboard-section">
-                            <div className="section-header-row">
-                                <div>
-                                    <h2 className="section-title">Service Center</h2>
-                                    <p className="section-subtitle">Manage your vehicle services and repairs.</p>
-                                </div>
+                            <div style={{ position: 'relative', textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                                <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#B08974', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Service Management</h1>
+                                <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Select a category to manage your services</p>
                                 <button className="remove-feature-btn" onClick={() => handleRemoveFeature('service')}>
                                     <span className="material-symbols-outlined">delete_forever</span>
                                     Remove Service Center
                                 </button>
                             </div>
-                            <div className="inner-card">
-                                <p style={{ color: 'var(--text-muted)' }}>Service center management interface will appear here.</p>
+                            <div className="inner-card" style={{ padding: '0', background: 'transparent', boxShadow: 'none' }}>
+                                <ServiceCenterDashboard userId={userData.id} activeTab={activeTab} />
                             </div>
                         </section>
                     )}
 
                     {/* SECTION: EARNINGS */}
                     <section id="earnings" className="dashboard-section">
-                        <h2 className="section-title">Earnings</h2>
-                        <p className="section-subtitle">View your earnings and analytics.</p>
-                        <div className="inner-card">
-                            <p style={{ color: 'var(--text-muted)' }}>Reporting graphs and earning analytics will load here.</p>
+                        <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7A806B', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Earnings Overview</h1>
+                            <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Track your income and performance</p>
+                        </div>
+                        <div className="features-grid">
+                            <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
+                                <div className="fc-icon-wrapper" style={{ background: '#f5f5f0', color: 'var(--accent-green)' }}>
+                                    <span className="material-symbols-outlined">payments</span>
+                                </div>
+                                <h3 className="fc-title">Total Revenue</h3>
+                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-green)' }}>LKR 0.00</p>
+                                <div className="fc-footer"><span>Updated Just Now</span></div>
+                            </div>
+                            <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
+                                <div className="fc-icon-wrapper" style={{ background: '#f8f4f2', color: 'var(--accent-rose)' }}>
+                                    <span className="material-symbols-outlined">pending_actions</span>
+                                </div>
+                                <h3 className="fc-title">Pending Bookings</h3>
+                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-rose)' }}>0</p>
+                                <div className="fc-footer"><span>Awaiting Confirmation</span></div>
+                            </div>
+                            <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
+                                <div className="fc-icon-wrapper" style={{ background: '#f0f3f5', color: 'var(--accent-blue)' }}>
+                                    <span className="material-symbols-outlined">group</span>
+                                </div>
+                                <h3 className="fc-title">Total Customers</h3>
+                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-blue)' }}>0</p>
+                                <div className="fc-footer"><span>Total Reach</span></div>
+                            </div>
+                        </div>
+                        <div className="feature-card" style={{ marginTop: '20px', minHeight: '300px', justifyContent: 'center', alignItems: 'center' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--bg-secondary)', marginBottom: '15px' }}>bar_chart</span>
+                            <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>Analytics and reporting graphs will appear here once you have booking data.</p>
                         </div>
                     </section>
 
                     {/* SECTION: PROFILE */}
                     <section id="profile" className="dashboard-section">
-                        <h2 className="section-title">My Profile</h2>
-                        <p className="section-subtitle">Edit your details, upload a photo, and manage your parking locations.</p>
+                        <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#6F7C80', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Profile Management</h1>
+                            <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Manage your personal and account details</p>
+                        </div>
                         <POProfile
                             user={userData}
                             authToken={localStorage.getItem('token')}
@@ -379,69 +615,12 @@ function PODashboard() {
             </main>
 
             {/* FEATURE MODAL */}
-            {isFeatureModalOpen && (
-                <div className="po-modal-overlay">
-                    <div className="po-modal">
-                        <div className="po-modal-header">
-                            <div className="po-modal-title-wrapper">
-                                <span className="material-symbols-outlined po-modal-icon">{"build"}</span>
-                                <div>
-                                    <h3>Initialize Service Center</h3>
-                                    <p>Enter your service center details to continue</p>
-                                </div>
-                            </div>
-                            <button className="po-modal-close" onClick={() => setIsFeatureModalOpen(false)}>
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-                        </div>
-                        <form className="po-modal-body" onSubmit={handleCreateServiceCenter}>
-                            <div className="po-form-group">
-                                <label>Service Center Name</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="e.g. Max Auto Care"
-                                    value={scForm.name}
-                                    onChange={(e) => setScForm({ ...scForm, name: e.target.value })}
-                                />
-                            </div>
-                            <div className="po-form-group">
-                                <label>Description</label>
-                                <textarea
-                                    rows="3"
-                                    placeholder="Briefly describe your services..."
-                                    value={scForm.description}
-                                    onChange={(e) => setScForm({ ...scForm, description: e.target.value })}
-                                />
-                            </div>
-                            <div className="po-form-row">
-                                <div className="po-form-group">
-                                    <label>Contact Number</label>
-                                    <input
-                                        type="text"
-                                        placeholder="0112..."
-                                        value={scForm.contactNumber}
-                                        onChange={(e) => setScForm({ ...scForm, contactNumber: e.target.value })}
-                                    />
-                                </div>
-                                <div className="po-form-group">
-                                    <label>Working Hours</label>
-                                    <input
-                                        type="text"
-                                        placeholder="8 AM - 6 PM"
-                                        value={scForm.workingHours}
-                                        onChange={(e) => setScForm({ ...scForm, workingHours: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-                            <div className="po-modal-footer">
-                                <button type="button" className="btn-cancel" onClick={() => setIsFeatureModalOpen(false)}>Cancel</button>
-                                <button type="submit" className="btn-submit">Add Service Center</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            {/* FEATURE MODAL */}
+            <InitializeServiceCenterModal
+                isOpen={isFeatureModalOpen}
+                onClose={() => setIsFeatureModalOpen(false)}
+                onSubmit={handleCreateServiceCenter}
+            />
         </div>
     );
 }

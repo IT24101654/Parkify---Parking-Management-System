@@ -26,9 +26,6 @@ const InventoryDashboard = ({ parkingPlaceId }) => {
     }
 
     return (
-        <div className="inventory-main">
-            <h1 className="main-title">Inventory Management</h1>
-            <p className="main-subtitle">Select a category to manage</p>
             <div className="card-grid">
                 {sections.map((sec, idx) => (
                     <div
@@ -43,7 +40,6 @@ const InventoryDashboard = ({ parkingPlaceId }) => {
                     </div>
                 ))}
             </div>
-        </div>
     );
 };
 

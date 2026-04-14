@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@lombok.ToString(exclude = "user")
+@lombok.EqualsAndHashCode(exclude = "user")
 @Table(name = "service_center")
 public class ServiceCenter {
 
@@ -35,6 +37,18 @@ public class ServiceCenter {
     @Column(name = "services_offered", length = 1000)
     private String servicesOffered;
 
+    @Column(length = 255)
+    private String address;
+
+    @Column(name = "service_center_type")
+    private String type; // e.g., General, Specialized, etc.
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Column(name = "services_summary", columnDefinition = "TEXT")
+    private String servicesSummary;
+
     @Column(nullable = false)
     private Boolean active = true;
 
@@ -48,6 +62,6 @@ public class ServiceCenter {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private User user;
 }

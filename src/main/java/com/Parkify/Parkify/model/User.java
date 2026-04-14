@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@lombok.ToString(exclude = "serviceCenter")
+@lombok.EqualsAndHashCode(exclude = "serviceCenter")
 @Table(
     name = "users",
     uniqueConstraints = @jakarta.persistence.UniqueConstraint(

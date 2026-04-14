@@ -378,16 +378,16 @@ function Dashboard() {
                         <div className="welcome-section section-title">
                             <h1>Super Admin Dashboard</h1>
                         </div>
-                        <p className="section-subtitle">
-                            Manage operations, users, and oversee platform analytics.
-                        </p>
 
                         <h2
                             className="section-title"
-                            style={{ fontSize: '20px', marginTop: '20px' }}
+                            style={{ marginTop: '20px', textAlign: 'center' }}
                         >
                             Dashboard Features
                         </h2>
+                        <p className="section-subtitle" style={{ textAlign: 'center' }}>
+                            Select a category to manage your admin panel
+                        </p>
 
                         <div className="features-grid">
                             <div
@@ -452,16 +452,16 @@ function Dashboard() {
                     </section>
 
                     <section id="users" className="dashboard-section">
-                        <h2 className="section-title">Manage Users</h2>
-                        <p className="section-subtitle">
+                        <h2 className="section-title" style={{ color: '#6B818B' }}>Manage Users</h2>
+                        <p className="section-subtitle" style={{ color: '#6B818B', opacity: 0.8 }}>
                             View, edit, or remove registered platform users.
                         </p>
                         <ManageUser />
                     </section>
 
                     <section id="profile" className="dashboard-section">
-                        <h2 className="section-title">Admin Profile</h2>
-                        <p className="section-subtitle">
+                        <h2 className="section-title" style={{ color: '#5E7050' }}>Admin Profile</h2>
+                        <p className="section-subtitle" style={{ color: '#5E7050', opacity: 0.8 }}>
                             Modify your Super Admin settings and avatar.
                         </p>
                         <AdminProfile

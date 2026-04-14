@@ -9,6 +9,7 @@ C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\j
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\ParkingSlotController.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\ReservationController.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\ServiceCenterController.java
+C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\ServiceItemController.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\UserController.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\UserExtraController.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\controller\VehicleController.java
@@ -18,6 +19,8 @@ C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\j
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\dto\LoginRequest.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\dto\RegisterRequest.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\dto\ResetPasswordRequest.java
+C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\dto\ServiceItemRequest.java
+C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\dto\ServiceItemResponse.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\dto\VerifyRequest.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\ActivityLog.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\FavoriteLocation.java
@@ -30,6 +33,7 @@ C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\j
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\Reservation.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\Role.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\ServiceCenter.java
+C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\ServiceItem.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\User.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\model\Vehicle.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\ParkifyApplication.java
@@ -43,6 +47,7 @@ C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\j
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\repository\ParkingSlotRepository.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\repository\ReservationRepository.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\repository\ServiceCenterRepository.java
+C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\repository\ServiceItemRepository.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\repository\UserRepository.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\repository\VehicleRepository.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\EmailService.java
@@ -58,6 +63,7 @@ C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\j
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\RegistrationService.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\ReservationService.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\ServiceCenterService.java
+C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\ServiceItemService.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\UserService.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\UserServiceExtra.java
 C:\Users\ASUS\Desktop\Project_ITP\Parkify---Parking-Management-System\src\main\java\com\Parkify\Parkify\service\VehicleService.java

@@ -1,26 +1,32 @@
-.voice-widget-container {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    margin-top: 10px; 
-}
+/* ─────────────────────────────────────────────────────────────────────────────
+   VoiceUI.css  — Shared styles for Voice Assistant components
+   Used by: VoiceWave.js, VoiceButton.js (legacy)
+───────────────────────────────────────────────────────────────────────────── */
 
+/* ── Voice Wave (displayed relative to the navbar voice button) ── */
 .va-wave-wrapper {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 320px;
-    height: 80px;
+    width: 260px;
+    height: 60px;
     pointer-events: none;
     z-index: 1;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 25%,
+        black 75%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 25%,
+        black 75%,
+        transparent 100%
+    );
     overflow: hidden;
 }
 
@@ -33,17 +39,17 @@
     height: 60px;
 }
 
-.va-wave-line { transform-origin: center; }
-
-.va-wave-slow { animation: flowWave 3s infinite linear; }
-.va-wave-fast { animation: flowWave 2s infinite linear reverse; }
-.va-wave-med  { animation: flowWave 2.5s infinite linear; }
+.va-wave-line  { transform-origin: center; }
+.va-wave-slow  { animation: flowWave 3s   infinite linear; }
+.va-wave-fast  { animation: flowWave 2s   infinite linear reverse; }
+.va-wave-med   { animation: flowWave 2.5s infinite linear; }
 
 @keyframes flowWave {
-    0% { transform: translateX(0); }
+    0%   { transform: translateX(0); }
     100% { transform: translateX(-200px); }
 }
 
+/* ── Legacy standalone VoiceButton (VoiceButton.js) ── */
 .voice-centered-btn {
     position: relative;
     z-index: 2;
@@ -78,28 +84,12 @@
 }
 
 @keyframes pulseListen {
-    0% { transform: scale(1); box-shadow: 0 0 10px rgba(168,131,115,0.4); }
-    50% { transform: scale(1.1); box-shadow: 0 0 25px rgba(168,131,115,0.7); }
-    100% { transform: scale(1); box-shadow: 0 0 10px rgba(168,131,115,0.4); }
+    0%,100% { transform: scale(1);   box-shadow: 0 0 10px rgba(168,131,115,0.4); }
+    50%     { transform: scale(1.1); box-shadow: 0 0 25px rgba(168,131,115,0.7); }
 }
 
-.va-assistant-message {
-    position: absolute;
-    top: 100%;
-    margin-top: 20px;
-    font-size: 16px;
-    color: #7A8487;
-    font-weight: 500;
-    white-space: nowrap;
-    opacity: 0;
-    transform: translateY(-10px);
-    animation: slideFadeIn 0.4s ease forwards;
-    pointer-events: none;
-}
-
+/* ── Shared fade-in animation ── */
 @keyframes slideFadeIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
