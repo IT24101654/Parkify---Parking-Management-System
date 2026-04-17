@@ -59,7 +59,7 @@ function MapController({ center }) {
 //  Default center (Colombo) //
 const DEFAULT_CENTER = [6.9271, 79.8612];
 
-const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewServices }) => {
+const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewServices, onBookNow }) => {
     const [parkingPlaces, setParkingPlaces] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [driverPos, setDriverPos] = useState(null);
@@ -221,6 +221,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
                     getDistLabel={getDistLabel}
                     onViewInventory={onViewInventory}
                     onViewServices={onViewServices}
+                    onBookNow={onBookNow}
                 />
             </div>
         </div>

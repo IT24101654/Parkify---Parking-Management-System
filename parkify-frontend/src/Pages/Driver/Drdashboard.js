@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Drdashboard.css';
@@ -8,6 +8,7 @@ import VoiceWave from './VoiceWave';
 import DriverMap from './DriverMap';
 import InventoryDashboard from '../../Components/Inventory/InventoryDashboard';
 import ServiceAppointmentDashboard from './ServiceAppointmentDashboard';
+import ReservationManagement from '../../Components/Driver/ReservationManagement';
 
 /* ─── Reusable Feature Card (same structure as PO Dashboard) ─────────────── */
 const FeatureCard = ({ icon, title, desc, footerIcon, footerText, colorClass, onClick, visible = true }) => {
@@ -33,6 +34,9 @@ function Drdashboard() {
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [userData, setUserData] = useState(null);
     const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+    // Reservation booking state — triggered from ParkingDetailsCard "Book Now"
+    const [pendingBooking, setPendingBooking] = useState(null);
+    const [autoOpenResv, setAutoOpenResv] = useState(false);
     const isProgrammaticScroll = useRef(false);
     const scrollTaskTimeout = useRef(null);
     const scrollContainerRef = useRef(null);
@@ -118,6 +122,24 @@ function Drdashboard() {
         console.log('Driver Dashboard — selected place:', place);
         setSelectedPlace(place);
     };
+
+    /** Called when driver clicks "Book Now" from ParkingDetailsCard */
+    const handleBookNow = useCallback((place) => {
+        // 1. Store the booking data
+        setPendingBooking(place);
+        // 2. Close the parking details popup first (smooth fade-out)
+        setSelectedPlace(null);
+        // 3. After the popup closes (350ms), scroll to Reservations and open the form
+        setTimeout(() => {
+            setAutoOpenResv(true);
+            scrollToSection('my-bookings');
+        }, 350);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    /** Called by ReservationManagement once it has consumed the autoOpen signal */
+    const handleFormOpenHandled = useCallback(() => {
+        setAutoOpenResv(false);
+    }, []);
 
     if (!userData) return <div className="loading">Loading Dashboard...</div>;
 
@@ -335,8 +357,8 @@ function Drdashboard() {
                                 Search and reserve your ideal parking space near you
                             </p>
                         </div>
-                        <div className="inner-card">
-                            <h3 style={{ marginBottom: '18px', fontWeight: 600, color: 'var(--text-dark)', fontSize: '16px' }}>
+                        <div className="inner-card" style={{ background: 'transparent', padding: '0', boxShadow: 'none', maxWidth: '1200px', margin: '0 auto' }}>
+                            <h3 style={{ marginBottom: '16px', fontWeight: 700, color: '#1a202c', fontSize: '18px', paddingLeft: '4px' }}>
                                 Recommended Nearby Slots
                             </h3>
                             <div className="driver-map-wrapper-override">
@@ -345,6 +367,7 @@ function Drdashboard() {
                                     setSelectedPlace={handlePlaceSelect}
                                     onViewInventory={() => scrollToSection('inventory')}
                                     onViewServices={() => scrollToSection('services')}
+                                    onBookNow={handleBookNow}
                                 />
                             </div>
                         </div>
@@ -353,17 +376,21 @@ function Drdashboard() {
                     {/* ══════════ RESERVATIONS ══════════ */}
                     <section id="my-bookings" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
-                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#B08974', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#A17060', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
                                 My Reservations
                             </h1>
                             <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>
                                 Track your upcoming and past parking bookings
                             </p>
                         </div>
-                        <div className="inner-card">
-                            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-                                No recent reservations found. Book a parking slot to get started.
-                            </p>
+                        <div className="inner-card" style={{ minHeight: 'auto', background: 'transparent', boxShadow: 'none', padding: '0' }}>
+                            <ReservationManagement
+                                userData={userData}
+                                prefillData={pendingBooking}
+                                autoOpenForm={autoOpenResv}
+                                onFormOpenHandled={handleFormOpenHandled}
+                                onNavigateToPayment={() => scrollToSection('payments')}
+                            />
                         </div>
                     </section>
 

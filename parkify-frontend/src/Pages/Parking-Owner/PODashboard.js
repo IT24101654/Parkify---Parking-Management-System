@@ -7,6 +7,7 @@ import POProfile from './POProfile';
 import InventoryDashboard from '../../Components/Inventory/InventoryDashboard';
 import InitializeServiceCenterModal from '../../Components/ServiceCenter/InitializeServiceCenterModal';
 import ServiceCenterDashboard from '../../Components/ServiceCenter/ServiceCenterDashboard';
+import POReservationOverview from '../../Components/Parking-Owner/POReservationOverview';
 
 function PODashboard() {
     const navigate = useNavigate();
@@ -26,6 +27,16 @@ function PODashboard() {
     const [allParkingPlaces, setAllParkingPlaces] = useState([]);
     const searchRef = useRef(null);
     const searchDebounceRef = useRef(null);
+
+    // Dynamic gradient mouse tracking (optimized via vanilla JS to avoid massive React re-renders)
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     const fetchUserProfile = useCallback(async () => {
         try {
@@ -327,6 +338,10 @@ function PODashboard() {
                             <span className="nav-text">Add Service</span>
                         </button>
                     )}
+                    <button className={activeTab === 'reservations' ? 'active' : ''} onClick={() => scrollToSection('reservations')}>
+                        <span className="material-symbols-outlined">book_online</span>
+                        <span className="nav-text">Reservations</span>
+                    </button>
                     <button className={activeTab === 'earnings' ? 'active' : ''} onClick={() => scrollToSection('earnings')}>
                         <span className="material-symbols-outlined">analytics</span>
                         <span className="nav-text">Earnings</span>
@@ -453,7 +468,7 @@ function PODashboard() {
                                     <span className="material-symbols-outlined">garage</span>
                                 </div>
                                 <h3 className="fc-title">My Slots</h3>
-                                <p className="fc-desc">Review and manage your listed parking slots availability and pricing.</p>
+                                <p className="fc-desc">Manage slots & pricing.</p>
                                 <div className="fc-footer"><span className="material-symbols-outlined">manage_history</span><span>Manage Listings</span></div>
                             </div>
 
@@ -463,7 +478,7 @@ function PODashboard() {
                                         <span className="material-symbols-outlined">inventory</span>
                                     </div>
                                     <h3 className="fc-title">Inventory</h3>
-                                    <p className="fc-desc">Track and restock vehicle accessories sold at your location.</p>
+                                    <p className="fc-desc">Track & restock accessories.</p>
                                     <div className="fc-footer"><span className="material-symbols-outlined">storefront</span><span>Shop Inventory</span></div>
                                 </div>
                             ) : (
@@ -472,7 +487,7 @@ function PODashboard() {
                                         <span className="material-symbols-outlined">add</span>
                                     </div>
                                     <h3 className="fc-title">Add Inventory</h3>
-                                    <p className="fc-desc">Start selling vehicle accessories and spare parts at your parking location.</p>
+                                    <p className="fc-desc">Sell accessories & parts.</p>
                                     <div className="fc-footer"><span className="material-symbols-outlined">auto_awesome</span><span>Enable Feature</span></div>
                                 </div>
                             )}
@@ -483,7 +498,7 @@ function PODashboard() {
                                         <span className="material-symbols-outlined">build</span>
                                     </div>
                                     <h3 className="fc-title">Service Center</h3>
-                                    <p className="fc-desc">Manage repair bookings, mechanic assignments, and service history.</p>
+                                    <p className="fc-desc">Manage bookings & handymen.</p>
                                     <div className="fc-footer"><span className="material-symbols-outlined">handyman</span><span>Manage Services</span></div>
                                 </div>
                             ) : (
@@ -492,17 +507,26 @@ function PODashboard() {
                                         <span className="material-symbols-outlined">add</span>
                                     </div>
                                     <h3 className="fc-title">Add Service Center</h3>
-                                    <p className="fc-desc">Provide vehicle maintenance and repair services to your customers.</p>
+                                    <p className="fc-desc">Vehicle repairs & maintenance.</p>
                                     <div className="fc-footer"><span className="material-symbols-outlined">auto_awesome</span><span>Enable Feature</span></div>
                                 </div>
                             )}
+
+                            <div className="feature-card" onClick={() => scrollToSection('reservations')}>
+                                <div className="fc-icon-wrapper fc-color-thyme">
+                                    <span className="material-symbols-outlined">book_online</span>
+                                </div>
+                                <h3 className="fc-title">Reservations</h3>
+                                <p className="fc-desc">Bookings & confirmations.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">event_available</span><span>Review Bookings</span></div>
+                            </div>
 
                             <div className="feature-card" onClick={() => scrollToSection('earnings')}>
                                 <div className="fc-icon-wrapper fc-color-taupe">
                                     <span className="material-symbols-outlined">analytics</span>
                                 </div>
                                 <h3 className="fc-title">Earnings</h3>
-                                <p className="fc-desc">Monitor financial reports, revenue analytics, and withdraw funds.</p>
+                                <p className="fc-desc">Revenue & financial reports.</p>
                                 <div className="fc-footer"><span className="material-symbols-outlined">trending_up</span><span>Financial Insights</span></div>
                             </div>
 
@@ -511,7 +535,7 @@ function PODashboard() {
                                     <span className="material-symbols-outlined">person</span>
                                 </div>
                                 <h3 className="fc-title">My Profile</h3>
-                                <p className="fc-desc">Update your owner profile, billing details, and configurations.</p>
+                                <p className="fc-desc">Profile & account settings.</p>
                                 <div className="fc-footer"><span className="material-symbols-outlined">settings</span><span>Profile Settings</span></div>
                             </div>
                         </div>
@@ -561,6 +585,17 @@ function PODashboard() {
                         </section>
                     )}
 
+                    {/* SECTION: RESERVATIONS */}
+                    <section id="reservations" className="dashboard-section">
+                        <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7c8671', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Reservation Overview</h1>
+                            <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Monitor and manage all bookings for your parking places</p>
+                        </div>
+                        <div className="inner-card" style={{ padding: '0', background: 'transparent', boxShadow: 'none' }}>
+                            <POReservationOverview />
+                        </div>
+                    </section>
+
                     {/* SECTION: EARNINGS */}
                     <section id="earnings" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
@@ -577,7 +612,7 @@ function PODashboard() {
                                 <div className="fc-footer"><span>Updated Just Now</span></div>
                             </div>
                             <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
-                                <div className="fc-icon-wrapper" style={{ background: '#f8f4f2', color: 'var(--accent-rose)' }}>
+                                <div className="fc-icon-wrapper fc-color-thyme">
                                     <span className="material-symbols-outlined">pending_actions</span>
                                 </div>
                                 <h3 className="fc-title">Pending Bookings</h3>
