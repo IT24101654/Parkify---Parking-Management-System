@@ -1,0 +1,36 @@
+﻿interactive rebase in progress; onto 9aa9f43
+Last commands done (31 commands done):
+   pick 778dc34 # Update student name in README.md
+   pick 655dac1 # Update parkify-frontend/src/Components/Navbar.js
+  (see more in file .git/rebase-merge/done)
+Next commands to do (166 remaining commands):
+   pick 2052c36 # Update parkify-frontend/src/Pages/Dashboard.css
+   pick efc80d6 # Update parkify-frontend/src/Pages/Dashboard.js
+  (use "git rebase --edit-todo" to view and edit)
+You are currently rebasing branch 'Parking-Place-Management' on '9aa9f43'.
+  (all conflicts fixed: run "git rebase --continue")
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   parkify-frontend/src/Pages/Dashboard.css
+	new file:   parkify-frontend/src/Pages/Dashboard.js
+	modified:   src/main/java/com/Parkify/Parkify/config/JwtAuthenticationFilter.java
+	modified:   src/main/java/com/Parkify/Parkify/controller/AuthController.java
+	renamed:    src/main/java/com/Parkify/Parkify/model/user.java -> src/main/java/com/Parkify/Parkify/model/User.java
+	renamed:    src/main/java/com/Parkify/Parkify/serviceImpl/userserviceImpl.java -> src/main/java/com/Parkify/Parkify/serviceImpl/userserviceimpl.java
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   src/main/java/com/Parkify/Parkify/config/SecurityConfig.java
+	modified:   src/main/java/com/Parkify/Parkify/controller/usercontroller.java
+	modified:   src/main/java/com/Parkify/Parkify/model/User.java
+	modified:   src/main/java/com/Parkify/Parkify/repository/userrepository.java
+	modified:   src/main/java/com/Parkify/Parkify/service/userservice.java
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	conflicts.txt
+	conflicts_utf8.txt
+	status_full.txt
+
