@@ -1,0 +1,747 @@
+/* ══════════════════════════════════════════════════════════════
+   ReservationManagement.css  — Accessible Beige palette
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Fix: push the modal backdrop below the 75px navbar ── */
+.resv-container .form-modal,
+.form-modal.resv-overlay {
+    top: 75px !important;
+    padding: 10px 20px !important;
+    align-items: flex-start;
+}
+
+/* ── CRITICAL: override ServiceCenterDashboard max-width: 520px ── */
+.form-modal>.resv-modal-wide,
+.form-modal-content.resv-modal-wide {
+    max-width: 1050px !important;
+    width: min(96vw, 1050px) !important;
+    /* 75px navbar + 40px taskbar + 20px buffer = 135px */
+    max-height: calc(100vh - 135px) !important;
+    margin-top: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── Container ─────────────────────────────────────────── */
+.resv-container {
+    padding: 0;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Page Header ───────────────────────────────────────── */
+.resv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ede9e3;
+}
+
+.resv-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.resv-header-icon {
+    font-size: 1.8rem !important;
+    color: #A17060;
+    background: #f5f0eb;
+    border: 1.5px solid #ddd0c8;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.resv-header h1 {
+    font-size: 2.2rem;
+    color: #1a202c;
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.resv-header-sub {
+    color: #968478;
+    font-size: 0.88rem;
+    margin: 3px 0 0;
+    font-weight: 500;
+}
+
+.resv-add-btn {
+    background: #A17060;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 14px rgba(161, 112, 96, 0.28);
+    font-family: 'Inter', sans-serif;
+}
+
+.resv-add-btn:hover {
+    background: #8d5e4f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(161, 112, 96, 0.38);
+}
+
+/* ─── Stats strip ───────────────────────────────────────── */
+.resv-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.resv-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.resv-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.resv-stat-icon {
+    font-size: 1.9rem !important;
+    line-height: 1 !important;
+    flex-shrink: 0;
+}
+
+.resv-stat-count {
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1;
+}
+
+.resv-stat-label {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    margin: 4px 0 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ─── Table chips ───────────────────────────────────────── */
+.resv-id-chip {
+    background: #f5f2ee;
+    color: #968478;
+    border: 1px solid #ede9e3;
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.resv-slot-chip {
+    background: #ecf0f2;
+    color: #536872;
+    border: 1px solid #c0cdd3;
+    border-radius: 8px;
+    padding: 3px 9px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.resv-driver-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resv-driver-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A17060, #C5B49A);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.resv-place-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0;
+}
+
+.resv-place-loc {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    margin: 2px 0 0;
+}
+
+.btn-edit.resv-btn-view {
+    color: #536872;
+}
+
+/* ─── Status & payment badges ───────────────────────────── */
+.resv-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.resv-badge-icon {
+    font-size: 12px !important;
+    line-height: 1 !important;
+}
+
+.resv-pay-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.resv-pay-action-btn {
+    background: #fafdfa !important;
+    color: #A17060 !important;
+    border: 2px solid #A17060 !important;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(161, 112, 96, 0.15) !important;
+    padding: 6px 18px !important;
+    font-size: 12.5px !important;
+    border-radius: 24px !important;
+    font-weight: 800 !important;
+}
+
+.resv-pay-action-btn:hover {
+    background: #A17060 !important;
+    color: rgb(255, 255, 255) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(161, 112, 96, 0.28) !important;
+}
+
+/* ─── Empty state ───────────────────────────────────────── */
+.resv-empty-icon-wrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    background: #f5f0eb;
+    border: 2px solid #ddd0c8;
+}
+
+/* ─── Modal wide variant ─────────────────────────────────── */
+
+/* Override the base ServiceCenterDashboard max-width: 520px */
+.resv-modal-wide.form-modal-content {
+    max-width: 850px !important;
+    width: min(96vw, 850px) !important;
+    max-height: calc(100vh - 135px) !important;
+    border-radius: 22px !important;
+}
+
+/* Extra specificity fallback */
+.form-modal .resv-modal-wide {
+    max-width: 850px !important;
+    width: min(96vw, 850px) !important;
+    max-height: calc(100vh - 135px) !important;
+}
+
+/* Override the inherited base modal content padding for wider feel */
+.resv-modal-wide .inventory-form {
+    padding: 4px 28px 16px !important;
+}
+
+.resv-modal-wide .form-header {
+    padding: 12px 28px 4px !important;
+}
+
+.resv-modal-wide .form-header h2 {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+}
+
+.resv-modal-wide .sc-modal-stripe {
+    padding: 10px 28px !important;
+}
+
+/* ─── Form section dividers ─────────────────────────────── */
+.resv-section-divider {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #A17060;
+    margin: 10px 0 7px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid #ede9e3;
+}
+
+.resv-section-divider .material-symbols-outlined {
+    font-size: 13px !important;
+}
+
+.resv-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.resv-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* Compact form groups */
+.resv-modal-wide .form-group {
+    margin-bottom: 2px;
+}
+
+.resv-modal-wide .form-group label {
+    font-size: 0.76rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+    color: #4a5568;
+}
+
+.resv-modal-wide .form-group input,
+.resv-modal-wide .form-group select {
+    padding: 8px 11px !important;
+    font-size: 0.88rem !important;
+    border-radius: 8px !important;
+}
+
+.resv-readonly {
+    background: #faf9f7 !important;
+    color: #a0aec0 !important;
+    cursor: not-allowed !important;
+    border-color: #ede9e3 !important;
+}
+
+.resv-amount-display {
+    color: #A17060 !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+}
+
+.resv-submit-btn {
+    min-width: 160px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VEHICLE SELECTION CARDS
+═══════════════════════════════════════════════════════════ */
+.resv-vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.resv-vehicle-card {
+    border: 2px solid #ede9e3;
+    border-radius: 10px;
+    padding: 9px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: white;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.resv-vehicle-card:hover {
+    border-color: #A17060;
+    background: #fdf9f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(161, 112, 96, 0.14);
+}
+
+.resv-vehicle-card.selected {
+    border-color: #A17060;
+    background: #f5f0eb;
+    box-shadow: 0 4px 16px rgba(161, 112, 96, 0.2);
+}
+
+.resv-veh-icon {
+    font-size: 1.4rem !important;
+    flex-shrink: 0;
+}
+
+.resv-veh-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+}
+
+.resv-veh-info strong {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.resv-veh-info span {
+    font-size: 0.68rem;
+    color: #a0aec0;
+}
+
+.resv-veh-type {
+    font-size: 0.62rem !important;
+    background: #f5f2ee;
+    color: #968478;
+    border: 1px solid #ede9e3;
+    border-radius: 4px;
+    padding: 1px 5px;
+    display: inline-block;
+    width: fit-content;
+    margin-top: 1px;
+}
+
+.resv-veh-check {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 14px !important;
+    color: #A17060;
+}
+
+/* No vehicles */
+.resv-no-vehicles {
+    border: 2px dashed #ddd0c8;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    color: #968478;
+    margin-bottom: 4px;
+    background: #faf9f7;
+}
+
+.resv-no-vehicles .material-symbols-outlined {
+    font-size: 2rem !important;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.resv-no-vehicles p {
+    font-size: 0.88rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PARKING SLOT GRID
+═══════════════════════════════════════════════════════════ */
+.resv-slot-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #536872;
+    margin: 10px 0 12px;
+}
+
+.resv-slot-header .material-symbols-outlined {
+    font-size: 15px !important;
+}
+
+.resv-slot-availability {
+    margin-left: auto;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.resv-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 7px;
+    margin-bottom: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 2px;
+}
+
+.resv-slot-tile {
+    border-radius: 9px;
+    padding: 6px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    position: relative;
+    user-select: none;
+    min-height: 52px;
+    justify-content: center;
+}
+
+.resv-slot-tile:not(.disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.resv-slot-tile.selected {
+    box-shadow: 0 4px 14px rgba(161, 112, 96, 0.25) !important;
+}
+
+.resv-slot-tile.disabled {
+    opacity: 0.65;
+}
+
+.resv-slot-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: block;
+    flex-shrink: 0;
+}
+
+.resv-slot-name {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.resv-slot-type {
+    font-size: 0.62rem;
+    color: #a0aec0;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.resv-slot-lock {
+    font-size: 13px !important;
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+}
+
+.resv-slot-check {
+    font-size: 14px !important;
+    color: #A17060;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+/* Legend */
+.resv-slot-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
+
+.resv-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #a0aec0;
+}
+
+.resv-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* No slots */
+.resv-no-slots {
+    border: 2px dashed #ddd0c8;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: #968478;
+    background: #faf9f7;
+    margin-bottom: 8px;
+}
+
+.resv-no-slots .material-symbols-outlined {
+    font-size: 1.6rem !important;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.resv-no-slots p {
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* ─── Select ────────────────────────────────────────────── */
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: #374151;
+    background: white;
+    box-sizing: border-box;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    transition: border-color .3s, box-shadow .3s;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #A17060 !important;
+    box-shadow: 0 0 0 3px rgba(161, 112, 96, 0.12) !important;
+}
+
+/* ─── View grid ─────────────────────────────────────────── */
+.resv-view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 32px;
+    margin-bottom: 20px;
+}
+
+.resv-view-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resv-view-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #a0aec0;
+    letter-spacing: 0.07em;
+}
+
+.resv-view-val {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+/* ─── Responsive ────────────────────────────────────────── */
+@media (max-width: 960px) {
+    .resv-stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .resv-row {
+        grid-template-columns: 1fr;
+    }
+
+    .resv-view-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .resv-modal-wide {
+        max-width: 96vw !important;
+        width: 96vw !important;
+    }
+
+    .resv-modal-wide .inventory-form {
+        padding: 8px 18px 24px !important;
+    }
+
+    .resv-modal-wide .form-header {
+        padding: 16px 18px 6px !important;
+    }
+
+    .resv-modal-wide .sc-modal-stripe {
+        padding: 14px 18px !important;
+    }
+
+    .resv-vehicle-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .resv-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .resv-stats-strip {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .resv-add-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .resv-slot-grid {
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    }
+
+    .resv-vehicle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .resv-modal-wide {
+        max-width: 100vw !important;
+        width: 100vw !important;
+        border-radius: 0 !important;
+    }
+}

@@ -1,0 +1,97 @@
+.service-center-section-wrapper {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f1f0e8;
+}
+
+.service-center-card {
+    background: #fdfaf5;
+    border: 1px solid #f1f0e8;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sc-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.sc-status {
+    font-size: 11px;
+    color: #27ae60;
+    font-weight: 600;
+    background: #e8f5e9;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sc-status .dot {
+    width: 6px;
+    height: 6px;
+    background: #27ae60;
+    border-radius: 50%;
+}
+
+.sc-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sc-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sc-detail-row .material-symbols-outlined {
+    font-size: 18px;
+    color: #7f8c8d;
+}
+
+.sc-detail-row p {
+    font-size: 13px;
+    color: #555;
+    margin: 0;
+}
+
+.book-service-btn {
+    width: 100%;
+    background: #A88373;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 5px;
+}
+
+.book-service-btn:hover {
+    background: #8e6d5e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(168, 131, 115, 0.2);
+}
+
+.sc-loading {
+    font-size: 12px;
+    color: #7f8c8d;
+    text-align: center;
+    margin-top: 10px;
+}

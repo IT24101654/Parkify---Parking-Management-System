@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ParkifyApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ParkifyApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(ParkifyApplication.class, args);
+    }
 }

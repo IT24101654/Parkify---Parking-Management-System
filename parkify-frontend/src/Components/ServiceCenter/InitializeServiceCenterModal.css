@@ -1,0 +1,219 @@
+.sc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(44, 44, 44, 0.5);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: scFadeIn 0.3s ease;
+}
+
+.sc-modal {
+    background: #ffffff;
+    width: 90%;
+    max-width: 600px;
+    height: auto;
+    max-height: 90vh;
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: scSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sc-modal-header {
+    padding: 24px 32px;
+    border-bottom: 2px solid #f8f8f8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sc-header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.sc-icon-box {
+    width: 48px;
+    height: 48px;
+    background: #e4dfd3;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7d8570;
+}
+
+.sc-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #2c2c2c;
+}
+
+.sc-modal-header p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #6b6b6b;
+}
+
+.close-btn {
+    background: #f5f5f5;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    color: #6b6b6b;
+}
+
+.close-btn:hover {
+    background: #ffecec;
+    color: #b26969;
+}
+
+.sc-modal-body {
+    padding: 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #9b8c7b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #4a4a4a;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 12px 16px;
+    border: 1.5px solid #ececec;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: 0.3s;
+    background: #fcfcfc;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #798b96;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(121, 139, 150, 0.08);
+    outline: none;
+}
+
+.form-group input.error {
+    border-color: #b26969;
+    background: #fffdfd;
+}
+
+.error-msg {
+    color: #b26969;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: -4px;
+}
+
+.sc-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    padding: 24px 32px;
+    border-top: 2.5px solid #f8f8f8;
+    background: #fff;
+}
+
+.btn-cancel {
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #6b6b6b;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #f5f5f5;
+    color: #2c2c2c;
+}
+
+.btn-save {
+    padding: 12px 28px;
+    background: #7d8570;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 8px 20px rgba(125, 133, 112, 0.25);
+}
+
+.btn-save:hover {
+    background: #6a715f;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(125, 133, 112, 0.35);
+}
+
+.btn-save span {
+    font-size: 20px;
+}
+
+@keyframes scFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scSlideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

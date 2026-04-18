@@ -1,0 +1,335 @@
+/* ══════════════════════════════════════════════════════════════
+   ParkingDetailsCard.css — Full-screen modal popup
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Backdrop Overlay ── */
+.pdc-overlay {
+    position: fixed;
+    inset: 0;
+    top: 75px; /* below the navbar */
+    background: rgba(15, 12, 10, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    animation: none;
+}
+
+.pdc-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ── Side Panel Container (now a centered modal) ── */
+.pdc-card-side-panel {
+    background: #EAE3D8;
+    z-index: 9600;
+    border-radius: 28px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22), 0 8px 32px rgba(0, 0, 0, 0.12);
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: min(94vw, 960px);
+    max-height: calc(100vh - 75px - 40px); /* navbar + taskbar */
+    border: 1px solid rgba(168, 131, 115, 0.15);
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    /* Two-column layout */
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    grid-template-rows: auto;
+}
+
+.pdc-card-side-panel.active {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Custom Scrollbar */
+.pdc-card-side-panel::-webkit-scrollbar { width: 6px; }
+.pdc-card-side-panel::-webkit-scrollbar-thumb { background: #A88373; border-radius: 10px; }
+.pdc-card-side-panel::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Close Button ── */
+.pdc-close-card {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    color: #9C8B7A;
+}
+
+.pdc-close-card:hover {
+    background: #A88373;
+    color: #fff;
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* ── Left Column: Image ── */
+.pdc-card-header {
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    min-height: 340px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px 0 0 28px;
+}
+
+.pdc-card-header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.pdc-card-side-panel:hover .pdc-card-header img {
+    transform: scale(1.05);
+}
+
+.pdc-header-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to top, rgba(30,30,30,0.55), transparent);
+}
+
+/* ── Badges & Top Fav Button ── */
+.pdc-fav-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #bdc3c7;
+}
+
+.pdc-fav-btn:hover { transform: scale(1.1); }
+.pdc-fav-btn.active span { color: #e74c3c; font-variation-settings: 'FILL' 1; }
+
+.pdc-nearby-badge {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: #7D846C;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 16px rgba(125, 132, 108, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ── Right Column: Content ── */
+.pdc-card-content {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 28px 32px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    position: relative;
+}
+
+.title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+    padding-right: 44px; /* space for close btn */
+}
+
+.title-row h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #1e272e;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.pdc-status-chip {
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border: 1px solid rgba(125, 132, 108, 0.2);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pdc-status-chip.pdc-chip-green { background: #f0f2ea; color: #7D846C; }
+.pdc-status-chip.pdc-chip-red   { background: #fdf2f2; color: #e74c3c; border-color: rgba(231,76,60,0.15); }
+
+.pdc-subtitle {
+    font-size: 13px;
+    color: #7A8487;
+    margin: 0 0 20px 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ── Details Grid ── */
+.pdc-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.pdc-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid rgba(156, 139, 122, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+    transition: all 0.25s ease;
+}
+
+.pdc-detail-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.pdc-detail-item span { font-size: 20px; color: #A88373; }
+.pdc-label { font-size: 10px; color: #9C8B7A; margin: 0 0 3px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+.pdc-val   { font-size: 14px; color: #1e272e; font-weight: 800; margin: 0; }
+
+/* ── Description Card ── */
+.pdc-description-card {
+    background: #FFFFFF;
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(156, 139, 122, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.pdc-description-card span { color: #A88373; font-size: 20px; flex-shrink: 0; }
+.pdc-description-card p { margin: 0; font-size: 13.5px; color: #5d6d7e; line-height: 1.6; font-weight: 500; }
+
+/* ── Feature Actions ── */
+.pdc-feature-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.pdc-secondary-action-btn {
+    flex: 1;
+    background: #FFFFFF;
+    border: 1px solid rgba(168, 131, 115, 0.2);
+    padding: 14px;
+    border-radius: 14px;
+    color: #A88373;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pdc-secondary-action-btn:hover {
+    background: #A88373;
+    color: white;
+    border-color: #A88373;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168, 131, 115, 0.25);
+}
+
+/* ── Book Now Button ── */
+.pdc-action-row { margin-top: auto; padding-top: 8px; }
+
+.pdc-book-now-btn {
+    width: 100%;
+    background: #7D846C;
+    color: white;
+    border: none;
+    padding: 17px;
+    border-radius: 16px;
+    font-weight: 900;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(125, 132, 108, 0.3);
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.pdc-book-now-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(125, 132, 108, 0.45);
+    background: #717861;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .pdc-card-side-panel {
+        grid-template-columns: 1fr;
+        grid-template-rows: 220px auto;
+        width: min(96vw, 540px);
+    }
+    .pdc-card-header { border-radius: 28px 28px 0 0; min-height: 220px; height: 220px; grid-column: 1; grid-row: 1; }
+    .pdc-card-content { grid-column: 1; grid-row: 2; }
+}
+
+@media (max-width: 600px) {
+    .pdc-overlay { padding: 0; align-items: flex-end; }
+    .pdc-card-side-panel { width: 100vw; border-radius: 28px 28px 0 0; max-height: 90vh; }
+    .pdc-card-header { border-radius: 28px 28px 0 0; }
+    .pdc-details-grid { grid-template-columns: 1fr; }
+    .pdc-feature-actions { flex-direction: column; }
+}
