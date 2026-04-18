@@ -1,0 +1,358 @@
+/* ManageSlot.css - Dedicated styles for Parking Slot Management */
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.premium-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #A88373 !important;
+    border: none;
+    color: white !important;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.premium-close-btn:hover {
+    transform: rotate(90deg) scale(1.1);
+}
+
+.modal-header-premium {
+    background: #A88373 !important;
+    padding: 20px 40px !important;
+    margin-bottom: 0;
+    border-bottom: none;
+    text-align: left !important;
+    border-radius: 30px 30px 0 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header-premium h2 {
+    color: white !important;
+    font-weight: 700;
+    font-size: 1.5rem !important;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-header-premium p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem !important;
+    margin-top: 2px;
+}
+
+/* Status Banners */
+.status-banner {
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin: 20px 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    animation: fadeInUp 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-banner.success {
+    background: #eafaf1;
+    color: #27ae60;
+    border: 1px solid #d4efdf;
+}
+
+.status-banner.error {
+    background: #fdf2f2;
+    color: #e74c3c;
+    border: 1px solid #fadbd8;
+}
+
+.slot-manager-modal {
+    max-width: 950px !important;
+    width: 90% !important;
+    max-height: 85vh !important;
+    padding: 0 !important;
+    border-radius: 32px !important;
+    background: #EAE3D8 !important;
+    overflow-y: auto !important;
+    border: none;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2) !important;
+}
+
+.pm-slot-manager-container {
+    padding: 15px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pm-slot-creators-row {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    align-items: stretch;
+}
+
+.pm-bulk-creator-section {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pm-bulk-creator-section h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #A88373;
+    margin: 0 0 10px 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pm-bulk-creator {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pm-slot-manager-container .pm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left !important;
+}
+
+.pm-slot-manager-container label {
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    color: #9C8B7A !important;
+    margin-left: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pm-slot-manager-container input,
+.pm-slot-manager-container select {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 0 15px !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(168, 131, 115, 0.2) !important;
+    border-radius: 12px !important;
+    font-size: 0.9rem !important;
+    color: #2C3E50 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pm-slot-manager-container input:focus,
+.pm-slot-manager-container select:focus {
+    background: white !important;
+    border-color: #A88373 !important;
+    box-shadow: 0 0 0 4px rgba(168, 131, 115, 0.1) !important;
+    outline: none;
+}
+
+.pm-primary-btn {
+    width: 100%;
+    height: 45px;
+    margin-top: 5px;
+    background: #A88373 !important;
+    color: white !important;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 8px 15px rgba(168, 131, 115, 0.2);
+}
+
+.pm-primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(168, 131, 115, 0.3);
+    filter: brightness(1.1);
+}
+
+.pm-slots-list-section {
+    padding-top: 10px;
+}
+
+.pm-slots-list-section h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #A88373;
+    margin: 0 0 15px 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pm-summary-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pm-slot-group-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    border: 1px solid #F1F0E8;
+}
+
+.group-header {
+    padding: 18px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #ffffff;
+}
+
+.group-main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.group-name {
+    font-weight: 800;
+    color: #34495E;
+    font-size: 1.1rem;
+}
+
+.group-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.meta-tag {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.meta-tag.type {
+    background: #EAE3D8;
+    color: #9C8B7A;
+}
+
+.meta-tag.floor {
+    background: #E9ECEF;
+    color: #34495E;
+}
+
+.meta-tag.count {
+    background: #A88373;
+    color: white;
+}
+
+.group-right-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.expand-icon {
+    color: #A88373;
+    transition: 0.3s;
+}
+
+.pm-slot-group-card.expanded .expand-icon {
+    transform: rotate(45deg);
+}
+
+.group-details {
+    padding: 20px 25px;
+    background: #FAFAFA;
+    border-top: 1px solid #F1F0E8;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+}
+
+.mini-slot-card {
+    background: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #34495E;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    border: 1px solid #eee;
+}
+
+.mini-del-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.mini-del-btn:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.no-slots-placeholder {
+    padding: 50px;
+    text-align: center;
+    color: #abb2b9;
+}
+
+.status-pill {
+    padding: 6px 12px !important;
+    border-radius: 10px !important;
+    font-weight: 800 !important;
+    font-size: 0.7rem;
+    color: white;
+    text-transform: uppercase;
+}
+
+.status-pill.available {
+    background: #27ae60;
+}
+
+.status-pill.full {
+    background: #e74c3c;
+}
+
+.info-card {
+    background: white;
+    padding: 22px !important;
+    border-radius: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(156, 139, 122, 0.1);
+}
