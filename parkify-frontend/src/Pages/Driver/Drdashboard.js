@@ -37,6 +37,8 @@ function Drdashboard() {
     const [activeContextPlace, setActiveContextPlace] = useState(null);
     const [userData, setUserData] = useState(null);
     const [isVoiceOpen, setIsVoiceOpen] = useState(false);
+    const [isAiThinking, setIsAiThinking] = useState(false);
+    const [voiceTranscript, setVoiceTranscript] = useState('');
     // Reservation booking state — triggered from ParkingDetailsCard "Book Now"
     const [pendingBooking, setPendingBooking] = useState(null);
     const [autoOpenResv, setAutoOpenResv] = useState(false);
@@ -47,6 +49,8 @@ function Drdashboard() {
     const isProgrammaticScroll = useRef(false);
     const scrollTaskTimeout = useRef(null);
     const scrollContainerRef = useRef(null);
+    const voiceTimeoutRef = useRef(null);
+    const recognitionRef = useRef(null);
 
     /* ── Fetch user profile ───────────────────────────────────────────────── */
     useEffect(() => {
@@ -102,12 +106,140 @@ function Drdashboard() {
         return () => { observer.disconnect(); clearTimeout(timeoutId); };
     }, [userData, activeTab]);
 
-    /* ── Auto-close voice after 6 s ──────────────────────────────────────── */
-    useEffect(() => {
-        if (!isVoiceOpen) return;
-        const t = setTimeout(() => setIsVoiceOpen(false), 6000);
-        return () => clearTimeout(t);
-    }, [isVoiceOpen]);
+    /* ── Auto-close voice helper removed to allow Speech API to manage it ── */
+
+    const stopAndProcessVoice = async (finalTranscript) => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+            recognitionRef.current = null;
+        }
+        
+        if (!finalTranscript || finalTranscript.trim() === '') {
+            setIsVoiceOpen(false);
+            return;
+        }
+
+        let defaultPref = localStorage.getItem('driverPreferences'); // 'cheap', 'near', 'avail'
+        let pref = 'BALANCED';
+        if (defaultPref === 'cheap') pref = 'CHEAPEST';
+        else if (defaultPref === 'near') pref = 'NEAREST';
+        else if (defaultPref === 'avail') pref = 'MOST_AVAILABLE';
+
+        if (finalTranscript.includes('cheap') || finalTranscript.includes('price')) pref = 'CHEAPEST';
+        else if (finalTranscript.includes('near') || finalTranscript.includes('close') || finalTranscript.includes('around')) pref = 'NEAREST';
+        else if (finalTranscript.includes('available') || finalTranscript.includes('empty') || finalTranscript.includes('space')) pref = 'MOST_AVAILABLE';
+        
+        // Parse Target Entity (Parking, Inventory, Service)
+        let targetEntity = 'PARKING';
+        if (finalTranscript.includes('inventory') || finalTranscript.includes('shop') || finalTranscript.includes('item') || finalTranscript.includes('buy') || finalTranscript.includes('accessories')) {
+            targetEntity = 'INVENTORY';
+        } else if (finalTranscript.includes('service') || finalTranscript.includes('repair') || finalTranscript.includes('maintenance') || finalTranscript.includes('wash')) {
+            targetEntity = 'SERVICE';
+        }
+
+        setIsVoiceOpen(false);
+        try {
+            setIsAiThinking(true);
+            const token = localStorage.getItem('token');
+            
+            // Get coords instantly from Map's watched position
+            let lat = parseFloat(localStorage.getItem('driverLat')) || 6.9271;
+            let lng = parseFloat(localStorage.getItem('driverLng')) || 79.8612;
+            
+            const reqPayload = { preferenceType: pref, latitude: lat, longitude: lng, targetEntity: targetEntity };
+            
+            const res = await axios.post(`http://localhost:8080/api/ai-assistant/recommend`, reqPayload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            if (res.data && res.data.data && res.data.data.recommendedPlace) {
+                const bestPlace = res.data.data.recommendedPlace;
+                setActiveContextPlace(bestPlace);
+                
+                if (targetEntity === 'INVENTORY') {
+                    scrollToSection('inventory');
+                } else if (targetEntity === 'SERVICE') {
+                    scrollToSection('services');
+                } else {
+                    scrollToSection('find-slots');
+                    setMapPopupPlace(bestPlace);
+                }
+            }
+        } catch (err) {
+            console.error("AI Assistant Error:", err);
+            alert("AI couldn't find a parking place right now.");
+        } finally {
+            setIsAiThinking(false);
+        }
+    };
+
+    const startVoiceAssistant = () => {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert('Your browser does not support Voice Recognition.');
+            return;
+        }
+        
+        // If already listening, user clicked to stop it early
+        if (isVoiceOpen && recognitionRef.current) {
+            if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
+            stopAndProcessVoice(voiceTranscript);
+            return;
+        }
+
+        setIsVoiceOpen(true);
+        setVoiceTranscript('');
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognitionRef.current = recognition;
+        recognition.lang = 'en-US';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event) => {
+            let fullTranscript = '';
+            for (let i = 0; i < event.results.length; i++) {
+                fullTranscript += event.results[i][0].transcript;
+            }
+            const cleanTranscript = fullTranscript.toLowerCase().trim();
+            setVoiceTranscript(cleanTranscript);
+
+            // Reset the silence timer
+            if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
+            voiceTimeoutRef.current = setTimeout(() => {
+                stopAndProcessVoice(cleanTranscript);
+            }, 2500); // Wait 2.5 seconds of silence before finishing
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech error:", event.error);
+            if (event.error === 'not-allowed') {
+                alert("Microphone Access Blocked! Please click the Site Settings icon next to localhost:3000 in your browser URL bar, and allow Microphone access.");
+            } else if (event.error === 'no-speech') {
+                alert("No speech detected. Please check if your microphone is working properly.");
+            } else {
+                alert("Speech error: " + event.error);
+            }
+            setIsVoiceOpen(false);
+            setVoiceTranscript('');
+            if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
+        };
+
+        recognition.onend = () => {
+            // Only force close if it naturally ended without our logic processing it
+            if (isVoiceOpen && !isAiThinking && !voiceTimeoutRef.current) {
+                setIsVoiceOpen(false);
+            }
+        };
+
+        recognition.start();
+        
+        // Just in case they click mic and say nothing at all
+        voiceTimeoutRef.current = setTimeout(() => {
+            stopAndProcessVoice('');
+        }, 8000);
+    };
 
     /* ── Scroll helper (same as PO Dashboard) ────────────────────────────── */
     const scrollToSection = (id) => {
@@ -257,22 +389,35 @@ function Drdashboard() {
                         {/* ── Voice Assistant — centered below hero heading ── */}
                         <div className="va-overview-widget">
                             <div className="va-overview-inner">
-                                {isVoiceOpen && <VoiceWave isActive={true} />}
+                                {(isVoiceOpen || isAiThinking) && <VoiceWave isActive={true} />}
                                 <button
                                     id="dr-voice-btn"
-                                    className={`va-overview-btn ${isVoiceOpen ? 'listening' : ''}`}
-                                    onClick={() => setIsVoiceOpen(p => !p)}
-                                    title={isVoiceOpen ? 'Stop Voice Assistant' : 'Voice Assistant'}
+                                    className={`va-overview-btn ${(isVoiceOpen || isAiThinking) ? 'listening' : ''}`}
+                                    onClick={startVoiceAssistant}
+                                    title={isVoiceOpen ? 'Listening...' : 'Voice Assistant'}
                                 >
                                     <span className="material-symbols-outlined">
                                         {isVoiceOpen ? 'mic_off' : 'mic'}
                                     </span>
                                 </button>
                                 <p className="va-overview-label">
-                                    {isVoiceOpen
-                                        ? `Hey ${firstName}, how can I help you?`
-                                        : 'Voice Assistant — Click to speak'}
+                                    {isAiThinking
+                                        ? `Selecting best option...`
+                                        : isVoiceOpen 
+                                            ? (voiceTranscript ? `"${voiceTranscript}"` : `Listening...`) 
+                                            : 'Voice Assistant — Click to speak'}
                                 </p>
+                                {/* Quick Tips for First-Time Users */}
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '14px', fontSize: '0.85rem', maxWidth: '600px', margin: '14px auto 0' }}>
+                                    <span style={{ color: '#9C8C79', display: 'flex', alignItems: 'center', fontWeight: '500' }}>
+                                        <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px', color: '#B08974' }}>lightbulb</span>
+                                        Try saying:
+                                    </span>
+                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#B08974', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(176, 137, 116, 0.2)' }}>"Nearest parking"</span>
+                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#B08974', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(176, 137, 116, 0.2)' }}>"Cheap parking"</span>
+                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#7A806B', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(122, 128, 107, 0.2)' }}>"Near service center"</span>
+                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#7A806B', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(122, 128, 107, 0.2)' }}>"Find inventory"</span>
+                                </div>
                             </div>
                         </div>
 

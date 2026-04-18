@@ -167,6 +167,9 @@ function Register() {
         setLoading(true);
         try {
             localStorage.setItem('selectedVehicles', JSON.stringify(selectedVehicles));
+            if (driverPreferences) {
+                localStorage.setItem('driverPreferences', driverPreferences);
+            }
             alert('Setup Complete! Welcome to Parkify.');
             navigate('/driver-dashboard');
         } catch (error) {

@@ -92,6 +92,8 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
                 const loc = [pos.coords.latitude, pos.coords.longitude];
                 setDriverPos(loc);
                 setMapCenter(prev => prev ?? loc);
+                localStorage.setItem('driverLat', pos.coords.latitude);
+                localStorage.setItem('driverLng', pos.coords.longitude);
             },
             (err) => console.warn('GPS error', err),
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
