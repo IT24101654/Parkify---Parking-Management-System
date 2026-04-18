@@ -102,6 +102,13 @@ const ParkingDetailsCard = ({
                                 <p className="pdc-val">{selectedPlace.slots} Slots</p>
                             </div>
                         </div>
+                        <div className="pdc-detail-item" style={{ gridColumn: '1 / -1', padding: '6px 10px' }}>
+                            <span className="material-symbols-outlined">mail</span>
+                            <div>
+                                <p className="pdc-label">Owner Email</p>
+                                <p className="pdc-val" style={{ textTransform: 'none', fontSize: '0.75rem' }}>{selectedPlace.ownerEmail || 'owner@parkify.lk'}</p>
+                            </div>
+                        </div>
                     </div>
 
                     {selectedPlace.description && (

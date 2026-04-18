@@ -148,8 +148,19 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--bg-primary);
+  background-color: var(--bg-primary, #EAE3D8);
+  background-image:
+      radial-gradient(900px circle at var(--mouse-x, 50vw) var(--mouse-y, 50vh),
+          rgba(242, 198, 175, 0.838) -20%,
+          rgba(189, 173, 156, 0.697) 20%,
+          rgba(187, 196, 160, 0.505) 50%,
+          transparent 150%),
+      radial-gradient(1200px circle at calc(100vw - var(--mouse-x, 50vw)) calc(100vh - var(--mouse-y, 50vh)),
+          rgba(153, 211, 228, 0.81) -10%,
+          transparent 80%);
+  background-attachment: fixed;
   position: relative;
+  z-index: 0;
 }
 
 .db-header {

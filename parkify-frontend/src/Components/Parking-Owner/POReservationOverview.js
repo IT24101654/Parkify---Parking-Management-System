@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './POReservationOverview.css';
 
-const POReservationOverview = () => {
+const POReservationOverview = ({ onStatsUpdate }) => {
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedReservation, setSelectedReservation] = useState(null);
@@ -32,6 +32,9 @@ const POReservationOverview = () => {
                 confirmed: data.filter(r => r.status === 'CONFIRMED').length,
                 cancelled: data.filter(r => r.status === 'CANCELLED').length
             });
+            if (onStatsUpdate) {
+                onStatsUpdate(data);
+            }
         } catch (err) {
             console.error('Failed to load reservations', err);
         } finally {
@@ -124,7 +127,6 @@ const POReservationOverview = () => {
                                 <th style={{ textAlign: 'center' }}>Slot</th>
                                 <th>Vehicle No</th>
                                 <th>Schedule</th>
-                                <th>Status</th>
                                 <th>Payment</th>
                                 <th style={{ textAlign: 'center' }}>Actions</th>
                             </tr>
@@ -132,7 +134,7 @@ const POReservationOverview = () => {
                         <tbody>
                             {reservations.length === 0 ? (
                                 <tr>
-                                    <td colSpan="9" style={{ textAlign: 'center', padding: '40px' }}>
+                                    <td colSpan="8" style={{ textAlign: 'center', padding: '40px' }}>
                                         <div className="empty-state">
                                             <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#ccc' }}>event_busy</span>
                                             <p>No reservations found yet.</p>
@@ -157,11 +159,6 @@ const POReservationOverview = () => {
                                                 <span>{res.reservationDate}</span>
                                                 <span className="time-range">{res.startTime} - {res.endTime}</span>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <span className={`status-pill pill-${res.status?.toLowerCase()}`}>
-                                                {res.status}
-                                            </span>
                                         </td>
                                         <td>
                                             <span className={`payment-pill pill-${res.paymentStatus?.toLowerCase()}`}>

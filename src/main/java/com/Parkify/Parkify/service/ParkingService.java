@@ -2,6 +2,7 @@ package com.Parkify.Parkify.service;
 
 import com.Parkify.Parkify.model.ParkingPlace;
 import com.Parkify.Parkify.repository.ParkingRepository;
+import com.Parkify.Parkify.repository.UserRepository;
 import com.Parkify.Parkify.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ public class ParkingService {
 
     @Autowired
     private ParkingRepository parkingRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public List<ParkingPlace> getAllParkingPlaces() {
         List<ParkingPlace> places = parkingRepository.findAll();
@@ -27,7 +31,9 @@ public class ParkingService {
     }
 
     private void populateFlags(ParkingPlace place) {
-        // Place-specific flags are now persistent and loaded directly from DB
+        if (place.getOwnerId() != null) {
+            userRepository.findById(place.getOwnerId()).ifPresent(u -> place.setOwnerEmail(u.getEmail()));
+        }
     }
 
     public ParkingPlace updateFeatureFlags(Long id, Boolean hasInventory, Boolean hasServiceCenter) {

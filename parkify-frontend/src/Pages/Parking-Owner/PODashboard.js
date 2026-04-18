@@ -8,6 +8,8 @@ import InventoryDashboard from '../../Components/Inventory/InventoryDashboard';
 import InitializeServiceCenterModal from '../../Components/ServiceCenter/InitializeServiceCenterModal';
 import ServiceCenterDashboard from '../../Components/ServiceCenter/ServiceCenterDashboard';
 import POReservationOverview from '../../Components/Parking-Owner/POReservationOverview';
+import RefundManagement from '../../Components/Parking-Owner/RefundManagement';
+import POTransactionHistory from '../../Components/Parking-Owner/POTransactionHistory';
 
 function PODashboard() {
     const navigate = useNavigate();
@@ -27,6 +29,21 @@ function PODashboard() {
     const [allParkingPlaces, setAllParkingPlaces] = useState([]);
     const searchRef = useRef(null);
     const searchDebounceRef = useRef(null);
+
+    // Earning stats state
+    const [earningStats, setEarningStats] = useState({ revenue: 0, pendingBookings: 0, customers: 0 });
+
+    const handleUpdatePaymentStats = useCallback((payments) => {
+        // Calculate total revenue from all successfully processed payments (and pending refunds before approval)
+        const rev = payments.filter(p => ['PAID', 'REFUND_REQUESTED'].includes(p.status)).reduce((acc, p) => acc + (p.amount || 0), 0);
+        setEarningStats(prev => ({ ...prev, revenue: rev }));
+    }, []);
+
+    const handleUpdateReservationStats = useCallback((reservations) => {
+        const pending = reservations.filter(r => r.status === 'PENDING').length;
+        const uniqueDrivers = new Set(reservations.map(r => r.driverName)).size;
+        setEarningStats(prev => ({ ...prev, pendingBookings: pending, customers: uniqueDrivers }));
+    }, []);
 
     // Dynamic gradient mouse tracking (optimized via vanilla JS to avoid massive React re-renders)
     useEffect(() => {
@@ -342,6 +359,10 @@ function PODashboard() {
                         <span className="material-symbols-outlined">book_online</span>
                         <span className="nav-text">Reservations</span>
                     </button>
+                    <button className={activeTab === 'refunds' ? 'active' : ''} onClick={() => scrollToSection('refunds')}>
+                        <span className="material-symbols-outlined">currency_exchange</span>
+                        <span className="nav-text">Refunds</span>
+                    </button>
                     <button className={activeTab === 'earnings' ? 'active' : ''} onClick={() => scrollToSection('earnings')}>
                         <span className="material-symbols-outlined">analytics</span>
                         <span className="nav-text">Earnings</span>
@@ -462,7 +483,7 @@ function PODashboard() {
                             <h2 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#B08974', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Dashboard Features</h2>
                             <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Select a category to manage your parking operations</p>
                         </div>
-                        <div className="features-grid">
+                        <div className="features-grid features-grid-7">
                             <div className="feature-card" onClick={() => scrollToSection('slots')}>
                                 <div className="fc-icon-wrapper fc-color-blue">
                                     <span className="material-symbols-outlined">garage</span>
@@ -519,6 +540,15 @@ function PODashboard() {
                                 <h3 className="fc-title">Reservations</h3>
                                 <p className="fc-desc">Bookings & confirmations.</p>
                                 <div className="fc-footer"><span className="material-symbols-outlined">event_available</span><span>Review Bookings</span></div>
+                            </div>
+
+                            <div className="feature-card" onClick={() => scrollToSection('refunds')}>
+                                <div className="fc-icon-wrapper fc-color-rose">
+                                    <span className="material-symbols-outlined">currency_exchange</span>
+                                </div>
+                                <h3 className="fc-title">Refunds</h3>
+                                <p className="fc-desc">Approve or reject refunds.</p>
+                                <div className="fc-footer"><span className="material-symbols-outlined">check_circle</span><span>Action Required</span></div>
                             </div>
 
                             <div className="feature-card" onClick={() => scrollToSection('earnings')}>
@@ -592,7 +622,18 @@ function PODashboard() {
                             <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Monitor and manage all bookings for your parking places</p>
                         </div>
                         <div className="inner-card" style={{ padding: '0', background: 'transparent', boxShadow: 'none' }}>
-                            <POReservationOverview />
+                            <POReservationOverview onStatsUpdate={handleUpdateReservationStats} />
+                        </div>
+                    </section>
+
+                    {/* SECTION: REFUNDS */}
+                    <section id="refunds" className="dashboard-section">
+                        <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
+                            <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#b26969d4', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Refund Management</h1>
+                            <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Review and securely process payment refunds</p>
+                        </div>
+                        <div className="inner-card" style={{ padding: '0', background: 'transparent', boxShadow: 'none' }}>
+                            <RefundManagement />
                         </div>
                     </section>
 
@@ -602,35 +643,34 @@ function PODashboard() {
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7A806B', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Earnings Overview</h1>
                             <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Track your income and performance</p>
                         </div>
-                        <div className="features-grid">
-                            <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
+                        <div className="features-grid" style={{ display: 'grid' }}>
+                            <div className="feature-card" style={{ cursor: 'default', height: 'auto', padding: '20px' }}>
                                 <div className="fc-icon-wrapper" style={{ background: '#f5f5f0', color: 'var(--accent-green)' }}>
                                     <span className="material-symbols-outlined">payments</span>
                                 </div>
                                 <h3 className="fc-title">Total Revenue</h3>
-                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-green)' }}>LKR 0.00</p>
+                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-green)' }}>LKR {earningStats.revenue.toFixed(2)}</p>
                                 <div className="fc-footer"><span>Updated Just Now</span></div>
                             </div>
-                            <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
+                            <div className="feature-card" style={{ cursor: 'default', height: 'auto', padding: '20px' }}>
                                 <div className="fc-icon-wrapper fc-color-thyme">
                                     <span className="material-symbols-outlined">pending_actions</span>
                                 </div>
                                 <h3 className="fc-title">Pending Bookings</h3>
-                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-rose)' }}>0</p>
+                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-rose)' }}>{earningStats.pendingBookings}</p>
                                 <div className="fc-footer"><span>Awaiting Confirmation</span></div>
                             </div>
-                            <div className="feature-card" style={{ cursor: 'default', minHeight: 'auto' }}>
+                            <div className="feature-card" style={{ cursor: 'default', height: 'auto', padding: '20px' }}>
                                 <div className="fc-icon-wrapper" style={{ background: '#f0f3f5', color: 'var(--accent-blue)' }}>
                                     <span className="material-symbols-outlined">group</span>
                                 </div>
                                 <h3 className="fc-title">Total Customers</h3>
-                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-blue)' }}>0</p>
+                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-blue)' }}>{earningStats.customers}</p>
                                 <div className="fc-footer"><span>Total Reach</span></div>
                             </div>
                         </div>
-                        <div className="feature-card" style={{ marginTop: '20px', minHeight: '300px', justifyContent: 'center', alignItems: 'center' }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--bg-secondary)', marginBottom: '15px' }}>bar_chart</span>
-                            <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>Analytics and reporting graphs will appear here once you have booking data.</p>
+                        <div className="inner-card" style={{ marginTop: '20px', padding: '0', background: 'var(--bg-light)', boxShadow: '0 8px 16px rgba(0,0,0,0.04)' }}>
+                            <POTransactionHistory onDataLoaded={handleUpdatePaymentStats} />
                         </div>
                     </section>
 

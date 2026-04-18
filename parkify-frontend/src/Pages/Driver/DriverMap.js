@@ -192,7 +192,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
                 </div>
             )}
 
-            <div className="dm-map-container" style={{ position: 'relative', height: '600px', borderRadius: '18px', overflow: 'hidden' }}>
+            <div className="dm-map-container" style={{ position: 'relative', height: '380px', borderRadius: '18px', overflow: 'hidden' }}>
                 <MapContainer center={driverPos || DEFAULT_CENTER} zoom={13} style={{ width: '100%', height: '100%' }}>
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" />
                     {mapCenter && <MapController center={mapCenter} />}

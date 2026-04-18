@@ -9,6 +9,8 @@ import DriverMap from './DriverMap';
 import InventoryDashboard from '../../Components/Inventory/InventoryDashboard';
 import ServiceAppointmentDashboard from './ServiceAppointmentDashboard';
 import ReservationManagement from '../../Components/Driver/ReservationManagement';
+import CheckoutPayment from '../../Components/Driver/CheckoutPayment';
+import TransactionHistory from '../../Components/Driver/TransactionHistory';
 
 /* ─── Reusable Feature Card (same structure as PO Dashboard) ─────────────── */
 const FeatureCard = ({ icon, title, desc, footerIcon, footerText, colorClass, onClick, visible = true }) => {
@@ -31,12 +33,17 @@ const FeatureCard = ({ icon, title, desc, footerIcon, footerText, colorClass, on
 function Drdashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
-    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [mapPopupPlace, setMapPopupPlace] = useState(null);
+    const [activeContextPlace, setActiveContextPlace] = useState(null);
     const [userData, setUserData] = useState(null);
     const [isVoiceOpen, setIsVoiceOpen] = useState(false);
     // Reservation booking state — triggered from ParkingDetailsCard "Book Now"
     const [pendingBooking, setPendingBooking] = useState(null);
     const [autoOpenResv, setAutoOpenResv] = useState(false);
+    
+    // Checkout state
+    const [checkoutReservationId, setCheckoutReservationId] = useState(null);
+    
     const isProgrammaticScroll = useRef(false);
     const scrollTaskTimeout = useRef(null);
     const scrollContainerRef = useRef(null);
@@ -120,7 +127,8 @@ function Drdashboard() {
 
     const handlePlaceSelect = (place) => {
         console.log('Driver Dashboard — selected place:', place);
-        setSelectedPlace(place);
+        setMapPopupPlace(place);
+        if (place) setActiveContextPlace(place);
     };
 
     /** Called when driver clicks "Book Now" from ParkingDetailsCard */
@@ -128,7 +136,8 @@ function Drdashboard() {
         // 1. Store the booking data
         setPendingBooking(place);
         // 2. Close the parking details popup first (smooth fade-out)
-        setSelectedPlace(null);
+        setMapPopupPlace(null);
+        if (place) setActiveContextPlace(place);
         // 3. After the popup closes (350ms), scroll to Reservations and open the form
         setTimeout(() => {
             setAutoOpenResv(true);
@@ -144,8 +153,8 @@ function Drdashboard() {
     if (!userData) return <div className="loading">Loading Dashboard...</div>;
 
     const firstName = (userData.name || 'Driver').split(' ')[0];
-    const hasInventory = selectedPlace?.hasInventory === true || selectedPlace?.hasInventory === 'true';
-    const hasService = selectedPlace?.hasServiceCenter === true || selectedPlace?.hasServiceCenter === 'true';
+    const hasInventory = activeContextPlace?.hasInventory === true || activeContextPlace?.hasInventory === 'true';
+    const hasService = activeContextPlace?.hasServiceCenter === true || activeContextPlace?.hasServiceCenter === 'true';
 
     return (
         <div className="dr-dashboard">
@@ -363,10 +372,16 @@ function Drdashboard() {
                             </h3>
                             <div className="driver-map-wrapper-override">
                                 <DriverMap
-                                    selectedPlace={selectedPlace}
+                                    selectedPlace={mapPopupPlace}
                                     setSelectedPlace={handlePlaceSelect}
-                                    onViewInventory={() => scrollToSection('inventory')}
-                                    onViewServices={() => scrollToSection('services')}
+                                    onViewInventory={() => {
+                                        setMapPopupPlace(null);
+                                        setTimeout(() => scrollToSection('inventory'), 300);
+                                    }}
+                                    onViewServices={() => {
+                                        setMapPopupPlace(null);
+                                        setTimeout(() => scrollToSection('services'), 300);
+                                    }}
                                     onBookNow={handleBookNow}
                                 />
                             </div>
@@ -389,7 +404,10 @@ function Drdashboard() {
                                 prefillData={pendingBooking}
                                 autoOpenForm={autoOpenResv}
                                 onFormOpenHandled={handleFormOpenHandled}
-                                onNavigateToPayment={() => scrollToSection('payments')}
+                                onNavigateToPayment={(resId) => {
+                                    setCheckoutReservationId(resId);
+                                    scrollToSection('payments');
+                                }}
                             />
                         </div>
                     </section>
@@ -404,10 +422,15 @@ function Drdashboard() {
                                 View transactions, receipts, and manage your payment methods
                             </p>
                         </div>
-                        <div className="inner-card">
-                            <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-                                Payment gateway overview will load here.
-                            </p>
+                        <div className="inner-card" style={{ minHeight: 'auto', background: 'transparent', boxShadow: 'none', padding: '0' }}>
+                            {checkoutReservationId ? (
+                                <CheckoutPayment 
+                                    reservationId={checkoutReservationId} 
+                                    onCancel={() => setCheckoutReservationId(null)} 
+                                />
+                            ) : (
+                                <TransactionHistory />
+                            )}
                         </div>
                     </section>
 
@@ -422,7 +445,7 @@ function Drdashboard() {
                                     Browse vehicle accessories from nearby service centers
                                 </p>
                             </div>
-                            <InventoryDashboard parkingPlaceId={selectedPlace?.id} />
+                            <InventoryDashboard parkingPlaceId={activeContextPlace?.id} />
                         </section>
                     )}
 
@@ -438,7 +461,7 @@ function Drdashboard() {
                                 </p>
                             </div>
                             <ServiceAppointmentDashboard
-                                selectedPlace={selectedPlace}
+                                selectedPlace={activeContextPlace}
                                 userData={userData}
                             />
                         </section>

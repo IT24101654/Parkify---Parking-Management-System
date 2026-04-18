@@ -64,16 +64,7 @@ function calcDuration(start, end) {
 // ─────────────────────────────────────────────────────────
 //  Sub-components
 // ─────────────────────────────────────────────────────────
-const StatusBadge = ({ status }) => {
-    const cfg = STATUS_CFG[status] || STATUS_CFG.PENDING;
-    return (
-        <span className="resv-status-badge"
-            style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.bdr}` }}>
-            <span className="material-symbols-outlined resv-badge-icon">{cfg.icon}</span>
-            {status}
-        </span>
-    );
-};
+
 
 const PayBadge = ({ status }) => {
     const cfg = PAY_CFG[status] || PAY_CFG.PENDING;
@@ -386,7 +377,6 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
                                 <th>Date</th>
                                 <th>Start</th>
                                 <th>End</th>
-                                <th>Status</th>
                                 <th>Payment</th>
                                 <th style={{ textAlign: 'center' }}>Actions</th>
                             </tr>
@@ -411,12 +401,11 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
                                     <td>{r.reservationDate || '—'}</td>
                                     <td>{r.startTime  || '—'}</td>
                                     <td>{r.endTime    || '—'}</td>
-                                    <td><StatusBadge status={r.status        || 'PENDING'} /></td>
                                     <td>
                                         {(r.paymentStatus === 'PENDING' || !r.paymentStatus) ? (
                                             <button 
                                                 className="resv-pay-badge resv-pay-action-btn"
-                                                onClick={() => onNavigateToPayment && onNavigateToPayment()}
+                                                onClick={() => onNavigateToPayment && onNavigateToPayment(r.id)}
                                                 title="Click to Pay Now"
                                             >
                                                 <span className="material-symbols-outlined" style={{ fontSize: '14px', marginRight: '4px' }}>account_balance_wallet</span>

@@ -23,6 +23,15 @@ public class ReservationController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.Parkify.Parkify.service.PaymentGatewayService paymentGatewayService;
+
+    @Autowired
+    private com.Parkify.Parkify.service.SmsNotificationService smsNotificationService;
+
+    @Autowired
+    private com.Parkify.Parkify.repository.PaymentRepository paymentRepository;
+
     private Long getAuthenticatedUserId(Authentication authentication) {
         String email = authentication.getName();
         User user = userService.getUserByEmail(email);
@@ -67,6 +76,55 @@ public class ReservationController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Server error"));
+        }
+    }
+
+    /** POST /api/reservations/{id}/pay */
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<?> initiatePayment(@PathVariable("id") Long id,
+                                              @RequestBody Map<String, String> payload,
+                                              Authentication authentication) {
+        try {
+            Long driverId = getAuthenticatedUserId(authentication);
+            Reservation reservation = reservationService.getReservationById(id, driverId);
+            
+            String method = payload.getOrDefault("paymentMethod", "STRIPE");
+            
+            if ("CASH".equalsIgnoreCase(method)) {
+                // Set status on Reservation
+                reservation.setPaymentStatus("CASH_PENDING");
+                reservationService.updateReservation(reservation.getId(), driverId, Map.of("paymentStatus", "CASH_PENDING"));
+
+                // Create Pending Payment Record
+                com.Parkify.Parkify.model.Payment payment = new com.Parkify.Parkify.model.Payment();
+                payment.setReservation(reservation);
+                payment.setAmount(reservation.getTotalAmount());
+                payment.setPaymentMethod("CASH");
+                payment.setStatus("PENDING");
+                paymentRepository.save(payment);
+
+                // Fire SMS
+                smsNotificationService.sendCashPaymentPending(
+                        String.valueOf(reservation.getId()), 
+                        String.valueOf(reservation.getTotalAmount()), 
+                        reservation.getDriverName(), 
+                        null
+                );
+
+                return ResponseEntity.ok(Map.of("message", "Cash payment selected and SMS queued"));
+            } else {
+                Double total = reservation.getTotalAmount();
+                if (total == null || total <= 0) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Invalid reservation amount"));
+                }
+                
+                String checkoutUrl = paymentGatewayService.createStripeSession(reservation, "lkr");
+                
+                return ResponseEntity.ok(Map.of("checkoutUrl", checkoutUrl));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Payment initiation failed"));
         }
     }
 

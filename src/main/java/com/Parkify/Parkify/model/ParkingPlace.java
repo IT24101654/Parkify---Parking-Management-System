@@ -25,6 +25,9 @@ public class ParkingPlace {
     @Column(name = "owner_id")
     private Long ownerId;
 
+    @Transient
+    private String ownerEmail;
+
     @Column(name = "parking_name")
     private String parkingName;
 
