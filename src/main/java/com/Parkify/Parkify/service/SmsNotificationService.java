@@ -49,6 +49,10 @@ public class SmsNotificationService {
             logger.warn("No phone number available. SMS skipped.");
             return;
         }
+        if (fromNumber == null || fromNumber.isBlank()) {
+            logger.warn("Twilio sender number not configured. SMS skipped (to {}).", toPhone);
+            return;
+        }
         try {
             Message.creator(
                 new PhoneNumber(toPhone),

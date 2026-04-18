@@ -433,3 +433,12 @@
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
 }
+
+/* Update Modal */
+.sa-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.sa-modal-content { background: var(--bg-primary); padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.sa-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.sa-modal-header h3 { margin: 0; color: var(--text-dark); }
+.sa-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+.sa-update-action-btn { background: var(--accent-blue); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
+.sa-update-action-btn:hover { background: #0284c7; }

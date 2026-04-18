@@ -22,7 +22,7 @@ public class ServiceAppointmentController {
 
     // ── CREATE ────────────────────────────────────────────────────
     @PostMapping
-    public ResponseEntity<ServiceApiResponse<ServiceAppointmentResponse>> create(
+    public synchronized ResponseEntity<ServiceApiResponse<ServiceAppointmentResponse>> create(
             @Valid @RequestBody ServiceAppointmentRequest req) {
         ServiceAppointmentResponse created = service.createAppointment(req);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -57,7 +57,7 @@ public class ServiceAppointmentController {
 
     // ── UPDATE ────────────────────────────────────────────────────
     @PutMapping("/{bookingId}")
-    public ResponseEntity<ServiceApiResponse<ServiceAppointmentResponse>> update(
+    public synchronized ResponseEntity<ServiceApiResponse<ServiceAppointmentResponse>> update(
             @PathVariable String bookingId,
             @Valid @RequestBody ServiceAppointmentUpdateRequest req) {
         return ResponseEntity.ok(

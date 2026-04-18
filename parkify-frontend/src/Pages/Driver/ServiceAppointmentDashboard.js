@@ -37,6 +37,14 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
     const [appointments, setAppointments] = useState([]);
     const [apptLoading, setApptLoading] = useState(false);
 
+    // ── Update Modal ─────────────────────────────────────────────
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [currentUpdateAppt, setCurrentUpdateAppt] = useState(null);
+    const [updateForm, setUpdateForm] = useState({ serviceType: '', serviceDate: '', timeSlot: '', notes: '' });
+    const [updateSlots, setUpdateSlots] = useState([]);
+    const [updateSlotsLoading, setUpdateSlotsLoading] = useState(false);
+    const [updateLoading, setUpdateLoading] = useState(false);
+
     // ── Toast ────────────────────────────────────────────────────
     const [toast, setToast] = useState(null);
 
@@ -168,6 +176,29 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
         loadSlots();
     }, [form.serviceCenter, form.serviceDate, token]);
 
+    // ── Load time slots for Update Modal ─────────────────────────
+    useEffect(() => {
+        if (!currentUpdateAppt || !updateForm.serviceDate) {
+            setUpdateSlots([]);
+            return;
+        }
+        const loadUpdateSlots = async () => {
+            setUpdateSlotsLoading(true);
+            try {
+                const res = await axios.get(`${API}/api/service-slots`, {
+                    params: { center: currentUpdateAppt.serviceCenter, date: updateForm.serviceDate },
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUpdateSlots(res.data?.data || []);
+            } catch {
+                setUpdateSlots(SLOTS.map(s => ({ slot: s, available: true })));
+            } finally {
+                setUpdateSlotsLoading(false);
+            }
+        };
+        loadUpdateSlots();
+    }, [updateForm.serviceDate, currentUpdateAppt, token]);
+
     // ── Fetch my appointments ────────────────────────────────────
     const fetchAppointments = useCallback(async () => {
         setApptLoading(true);
@@ -257,6 +288,45 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
             fetchAppointments();
         } catch (err) {
             showToast(err.response?.data?.message || 'Cancel failed.', 'error');
+        }
+    };
+
+    // ── Update handlers ──────────────────────────────────────────
+    const openUpdateModal = (appt) => {
+        setCurrentUpdateAppt(appt);
+        setUpdateForm({
+            serviceType: appt.serviceType || 'Full Service',
+            serviceDate: appt.serviceDate,
+            timeSlot: appt.timeSlot,
+            notes: appt.notes || ''
+        });
+        setUpdateModalOpen(true);
+    };
+
+    const submitUpdate = async (e) => {
+        e.preventDefault();
+        if (!updateForm.timeSlot) {
+            showToast('Please select a time slot.', 'error');
+            return;
+        }
+        setUpdateLoading(true);
+        try {
+            const payload = {
+                serviceType: updateForm.serviceType,
+                serviceDate: updateForm.serviceDate,
+                timeSlot: updateForm.timeSlot,
+                notes: updateForm.notes || null,
+            };
+            await axios.put(`${API}/api/service-appointments/${currentUpdateAppt.bookingId}`, payload, {
+                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            showToast(`Appointment ${currentUpdateAppt.bookingId} updated successfully.`, 'success');
+            setUpdateModalOpen(false);
+            fetchAppointments();
+        } catch (err) {
+            showToast(err.response?.data?.message || 'Update failed.', 'error');
+        } finally {
+            setUpdateLoading(false);
         }
     };
 
@@ -559,7 +629,14 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
                                         )}
                                     </div>
                                     {a.status === 'BOOKED' && (
-                                        <div className="sa-appt-actions">
+                                        <div className="sa-appt-actions" style={{ display: 'flex', gap: '10px' }}>
+                                            <button
+                                                className="sa-update-action-btn"
+                                                onClick={() => openUpdateModal(a)}
+                                            >
+                                                <span className="material-symbols-outlined">edit</span>
+                                                Update
+                                            </button>
                                             <button
                                                 className="sa-cancel-btn"
                                                 onClick={() => handleCancel(a.bookingId)}
@@ -573,6 +650,88 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Update Modal */}
+            {updateModalOpen && currentUpdateAppt && (
+                <div className="sa-modal-overlay">
+                    <div className="sa-modal-content">
+                        <div className="sa-modal-header">
+                            <h3>Update Appointment #{currentUpdateAppt.bookingId}</h3>
+                            <button className="sa-close-btn" onClick={() => setUpdateModalOpen(false)}>×</button>
+                        </div>
+                        <form className="sa-form" onSubmit={submitUpdate}>
+                            <div className="sa-form-group">
+                                <label>Service Type</label>
+                                {serviceItems.length > 0 ? (
+                                    <select name="serviceType" value={updateForm.serviceType} onChange={(e) => setUpdateForm({...updateForm, serviceType: e.target.value})} required>
+                                        {serviceItems.map(item => (
+                                            <option key={item.id} value={item.name}>{item.name}</option>
+                                        ))}
+                                        <option value="Other">Other</option>
+                                    </select>
+                                ) : (
+                                    <select name="serviceType" value={updateForm.serviceType} onChange={(e) => setUpdateForm({...updateForm, serviceType: e.target.value})} required>
+                                        <option value="Full Service">Full Service</option>
+                                        <option value="Oil Change">Oil Change</option>
+                                        <option value="Tire">Tire Service</option>
+                                        <option value="Battery">Battery</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                )}
+                            </div>
+                            <div className="sa-form-group">
+                                <label>Service Date</label>
+                                <input
+                                    type="date"
+                                    name="serviceDate"
+                                    value={updateForm.serviceDate}
+                                    onChange={(e) => setUpdateForm({...updateForm, serviceDate: e.target.value})}
+                                    min={todayStr}
+                                    required
+                                />
+                            </div>
+                            <div className="sa-form-group sa-slot-section">
+                                <label>Available Time Slots</label>
+                                {!updateForm.serviceDate ? (
+                                    <p className="sa-slot-hint">Select a date to see available slots</p>
+                                ) : updateSlotsLoading ? (
+                                    <p className="sa-slot-hint">⏳ Loading slots…</p>
+                                ) : (
+                                    <div className="sa-slot-grid">
+                                        {(updateSlots.length > 0 ? updateSlots : SLOTS.map(s => ({ slot: s, available: true }))).map(s => {
+                                            const isAvailable = s.available || (s.slot === currentUpdateAppt.timeSlot && updateForm.serviceDate === currentUpdateAppt.serviceDate);
+                                            return (
+                                                <button
+                                                    key={s.slot}
+                                                    type="button"
+                                                    className={`sa-slot-btn ${updateForm.timeSlot === s.slot ? 'selected' : ''} ${!isAvailable ? 'booked' : ''}`}
+                                                    disabled={!isAvailable}
+                                                    onClick={() => isAvailable && setUpdateForm(prev => ({...prev, timeSlot: s.slot}))}
+                                                >
+                                                    {s.slot}
+                                                    {!isAvailable && <span className="sa-lock">🔒</span>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="sa-form-group">
+                                <label>Notes</label>
+                                <textarea
+                                    name="notes"
+                                    value={updateForm.notes}
+                                    onChange={(e) => setUpdateForm({...updateForm, notes: e.target.value})}
+                                    rows={2}
+                                />
+                            </div>
+                            <button type="submit" className="sa-submit-btn" disabled={updateLoading || !updateForm.timeSlot}>
+                                {updateLoading ? 'Updating…' : 'Save Changes'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

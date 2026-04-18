@@ -39,7 +39,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Reservation bookParking(Long driverId, Map<String, Object> bookingData) {
+    public synchronized Reservation bookParking(Long driverId, Map<String, Object> bookingData) {
         Long parkingPlaceId = Long.valueOf(bookingData.get("parkingPlaceId").toString());
 
         ParkingPlace place = parkingRepository.findById(parkingPlaceId)
@@ -61,6 +61,23 @@ public class ReservationServiceImpl implements ReservationService {
         }
         double totalAmount  = Math.round(duration * pricePerHour * 100.0) / 100.0;
 
+        String dateStr = bookingData.getOrDefault("reservationDate", "").toString();
+        LocalDate reservationDate = null;
+        if (!dateStr.isEmpty()) {
+            try { reservationDate = LocalDate.parse(dateStr); } catch (Exception ignored) {}
+        }
+        String slotNumber = bookingData.getOrDefault("slotNumber", "").toString();
+
+        if (reservationDate != null && !startTime.isEmpty() && !endTime.isEmpty() && !slotNumber.isEmpty()) {
+            long overlaps = reservationRepository.countOverlappingReservations(
+                    parkingPlaceId, slotNumber, reservationDate, startTime, endTime);
+            if (overlaps > 0) {
+                throw new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.CONFLICT,
+                        "The selected slot is already booked for this time period.");
+            }
+        }
+
         Reservation reservation = new Reservation();
         reservation.setDriverId(driverId);
         reservation.setDriverName(bookingData.getOrDefault("driverName", "").toString());
@@ -79,9 +96,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setPricePerHour(pricePerHour);
 
         // Parse reservation date
-        String dateStr = bookingData.getOrDefault("reservationDate", "").toString();
-        if (!dateStr.isEmpty()) {
-            try { reservation.setReservationDate(LocalDate.parse(dateStr)); } catch (Exception ignored) {}
+        if (reservationDate != null) {
+            reservation.setReservationDate(reservationDate);
         }
 
         // Optional slotId

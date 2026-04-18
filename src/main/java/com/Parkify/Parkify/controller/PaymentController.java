@@ -24,6 +24,9 @@ public class PaymentController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private com.Parkify.Parkify.service.SmsNotificationService smsNotificationService;
+
     private Long getAuthenticatedUserId(Authentication authentication) {
         String email = authentication.getName();
         User user = userService.getUserByEmail(email);
@@ -146,8 +149,18 @@ public class PaymentController {
                 // If the webhook hasn't hit yet (e.g. local testing), we verify it manually
                 payment.setStatus("PAID");
                 payment.getReservation().setPaymentStatus("PAID");
+                payment.getReservation().setStatus("CONFIRMED"); // Ensure it's confirmed
                 paymentRepository.save(payment);
                 System.out.println("Payment fallback verified successfully for session: " + sessionId);
+                
+                // Fallback SMS sending since webhooks don't reach localhost
+                smsNotificationService.sendPaymentConfirmation(
+                        String.valueOf(payment.getReservation().getId()), 
+                        String.valueOf(payment.getAmount()), 
+                        payment.getPaymentMethod(), 
+                        payment.getReservation().getDriverName(), 
+                        null // Fallback handled inside SmsService
+                );
             }
             return ResponseEntity.ok(Map.of("status", "verified"));
         } catch (Exception e) {

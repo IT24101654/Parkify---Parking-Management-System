@@ -643,30 +643,36 @@ function PODashboard() {
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7A806B', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Earnings Overview</h1>
                             <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Track your income and performance</p>
                         </div>
-                        <div className="features-grid" style={{ display: 'grid' }}>
-                            <div className="feature-card" style={{ cursor: 'default', height: 'auto', padding: '20px' }}>
-                                <div className="fc-icon-wrapper" style={{ background: '#f5f5f0', color: 'var(--accent-green)' }}>
+                        <div className="features-grid" style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
+                            <div className="feature-card" style={{ cursor: 'default', width: '250px', height: '180px', padding: '20px 15px' }}>
+                                <div className="fc-icon-wrapper" style={{ background: '#f5f5f0', color: 'var(--accent-green)', margin: '0 auto 12px auto' }}>
                                     <span className="material-symbols-outlined">payments</span>
                                 </div>
-                                <h3 className="fc-title">Total Revenue</h3>
-                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-green)' }}>LKR {earningStats.revenue.toFixed(2)}</p>
-                                <div className="fc-footer"><span>Updated Just Now</span></div>
+                                <h3 className="fc-title" style={{ textAlign: 'center', margin: '0 0 6px 0', fontSize: '1.2rem' }}>Total Revenue</h3>
+                                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-green)', margin: '0', textAlign: 'center' }}>LKR {earningStats.revenue.toFixed(2)}</p>
+                                </div>
+                                <div className="fc-footer" style={{ textAlign: 'center', marginBottom: '0' }}><span>Updated Just Now</span></div>
                             </div>
-                            <div className="feature-card" style={{ cursor: 'default', height: 'auto', padding: '20px' }}>
-                                <div className="fc-icon-wrapper fc-color-thyme">
+                            <div className="feature-card" style={{ cursor: 'default', width: '250px', height: '180px', padding: '20px 15px' }}>
+                                <div className="fc-icon-wrapper fc-color-thyme" style={{ margin: '0 auto 12px auto' }}>
                                     <span className="material-symbols-outlined">pending_actions</span>
                                 </div>
-                                <h3 className="fc-title">Pending Bookings</h3>
-                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-rose)' }}>{earningStats.pendingBookings}</p>
-                                <div className="fc-footer"><span>Awaiting Confirmation</span></div>
+                                <h3 className="fc-title" style={{ textAlign: 'center', margin: '0 0 6px 0', fontSize: '1.2rem' }}>Pending Bookings</h3>
+                                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-rose)', margin: '0', textAlign: 'center' }}>{earningStats.pendingBookings}</p>
+                                </div>
+                                <div className="fc-footer" style={{ textAlign: 'center', marginBottom: '0' }}><span>Awaiting Confirmation</span></div>
                             </div>
-                            <div className="feature-card" style={{ cursor: 'default', height: 'auto', padding: '20px' }}>
-                                <div className="fc-icon-wrapper" style={{ background: '#f0f3f5', color: 'var(--accent-blue)' }}>
+                            <div className="feature-card" style={{ cursor: 'default', width: '250px', height: '180px', padding: '20px 15px' }}>
+                                <div className="fc-icon-wrapper" style={{ background: '#f0f3f5', color: 'var(--accent-blue)', margin: '0 auto 12px auto' }}>
                                     <span className="material-symbols-outlined">group</span>
                                 </div>
-                                <h3 className="fc-title">Total Customers</h3>
-                                <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-blue)' }}>{earningStats.customers}</p>
-                                <div className="fc-footer"><span>Total Reach</span></div>
+                                <h3 className="fc-title" style={{ textAlign: 'center', margin: '0 0 6px 0', fontSize: '1.2rem' }}>Total Customers</h3>
+                                <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <p className="fc-desc" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--accent-blue)', margin: '0', textAlign: 'center' }}>{earningStats.customers}</p>
+                                </div>
+                                <div className="fc-footer" style={{ textAlign: 'center', marginBottom: '0' }}><span>Total Reach</span></div>
                             </div>
                         </div>
                         <div className="inner-card" style={{ marginTop: '20px', padding: '0', background: 'var(--bg-light)', boxShadow: '0 8px 16px rgba(0,0,0,0.04)' }}>
