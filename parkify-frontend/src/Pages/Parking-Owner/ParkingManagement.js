@@ -391,7 +391,7 @@ const ParkingManagement = ({ onManageInventory }) => {
                     <div className="pm-form-reveal">
                         <div className="pm-form-card" style={{ maxWidth: '900px' }}>
                             <div className="pm-form-header" style={{ backgroundColor: palette.darkBlue }}>
-                                <h2>{isEditMode ? 'UPDATE PARKING PLACE' : 'ADD NEW PARKING PLACE'}</h2>
+                                <h2>{isEditMode ? 'UPDATE PARKING PLACE' : 'ADD NEW PARKING '}</h2>
                                 <button className="pm-close-form" onClick={() => setShowAddForm(false)}>×</button>
                             </div>
 

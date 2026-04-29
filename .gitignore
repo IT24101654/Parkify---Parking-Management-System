@@ -85,3 +85,7 @@ manifest.yml
 overridedb.*
 secrets.yml
 .git-hooks/
+/parking-photos/
+/user-photos/
+/user-verification/
+/vehicle-docs/

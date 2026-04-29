@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './ReservationManagement.css'; // Use the same CSS for consistent UI styling
+import './ReservationManagement.css'; 
 
-// Theme color extracted from Dashboard
 const P = {
-    primary:    '#7A806B', // Dried Thyme variant for the Payments topic
+    primary:    '#7A806B', 
     primaryBg:  '#f5f6f4',
     primaryBdr: '#c2c5bc',
 };
@@ -23,7 +22,6 @@ const CheckoutPayment = ({ reservationId, onCancel }) => {
             const token = localStorage.getItem('token');
             const headers = { Authorization: `Bearer ${token}` };
 
-            // Real endpoint will be implemented on backend in next phase
             const { data } = await axios.post(`http://localhost:8080/api/reservations/${reservationId}/pay`, 
                 { paymentMethod: selectedMethod },
                 { headers }
