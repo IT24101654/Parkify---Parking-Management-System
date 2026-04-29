@@ -65,7 +65,6 @@ public class ServiceAppointmentController {
                         service.updateAppointment(bookingId, req)));
     }
 
-    // ── CANCEL ────────────────────────────────────────────────────
     @PatchMapping("/{bookingId}/cancel")
     public ResponseEntity<ServiceApiResponse<ServiceAppointmentResponse>> cancel(
             @PathVariable String bookingId) {

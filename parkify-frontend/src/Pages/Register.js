@@ -6,7 +6,6 @@ import './Register.css';
 
 axios.defaults.timeout = 15000;
 
-/* ─── Password Strength Logic ──────────────────────────────────────────── */
 function getPasswordStrength(pw) {
     if (!pw) return null;
     if (pw.length < 8) return 'too-short';
@@ -16,11 +15,8 @@ function getPasswordStrength(pw) {
     const hasDigit = /[0-9]/.test(pw);
     const hasLower = /[a-z]/.test(pw);
 
-    // HIGH: uppercase + special char + digit + 8+ chars  e.g. "New@12345"
     if (hasUpper && hasSpecial && hasDigit) return 'high';
-    // MEDIUM: letters + digit, no uppercase or special   e.g. "new12345"
     if ((hasLower || hasUpper) && hasDigit) return 'medium';
-    // LOW: 8+ chars but no mix                           e.g. "12345678"
     return 'low';
 }
 
@@ -31,7 +27,6 @@ const strengthMeta = {
     'high': { label: 'Strong password', cls: 'high' },
 };
 
-/* ─── Password field with live strength bar ────────────────────────────── */
 function PasswordStrengthField({ value, onChange, placeholder = 'Create Password' }) {
     const strength = getPasswordStrength(value);
     const isTooShort = strength === 'too-short';
@@ -66,7 +61,6 @@ function PasswordStrengthField({ value, onChange, placeholder = 'Create Password
     );
 }
 
-/* ─── Main Register Component ───────────────────────────────────────────── */
 function Register() {
     const [step, setStep] = useState(1);
     const [role, setRole] = useState('');
@@ -182,7 +176,6 @@ function Register() {
             <Navbar variant="register" />
             <div className="auth-container">
 
-                {/* ── Step 1: Role Selection ── */}
                 {step === 1 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">Join Parkify as a...</h2>
@@ -201,7 +194,6 @@ function Register() {
                     </div>
                 )}
 
-                {/* ── Step 1.5: Parking Owner Questions ── */}
                 {step === 1.5 && (
                     <div className="role-selection-card">
                         <h2 className="step-title">Tell us about your place</h2>
@@ -225,7 +217,6 @@ function Register() {
                     </div>
                 )}
 
-                {/* ── Step 2: Account Details ── */}
                 {step === 2 && (
                     <div className="auth-card scrollable-form">
                         <h2 className="step-title">Create Account</h2>
@@ -240,7 +231,6 @@ function Register() {
                             <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} className="form-input-styled" />
                             <input name="phoneNumber" type="tel" placeholder="Phone Number" required onChange={handleChange} className="form-input-styled" />
 
-                            {/* ── Password with strength meter ── */}
                             <PasswordStrengthField
                                 value={formData.password}
                                 onChange={handleChange}
@@ -257,7 +247,6 @@ function Register() {
                     </div>
                 )}
 
-                {/* ── Step 3: OTP Verification ── */}
                 {step === 3 && (
                     <div className="auth-card-plain text-center">
                         <h2 className="step-title">Verify Your Email</h2>

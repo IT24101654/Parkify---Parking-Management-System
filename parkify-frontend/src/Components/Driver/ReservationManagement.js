@@ -104,7 +104,6 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
     const showError   = msg => { setError(msg);      setTimeout(() => setError(''),      5000); };
     const showSuccess = msg => { setSuccessMsg(msg);  setTimeout(() => setSuccessMsg(''), 3500); };
 
-    // Build a fresh form, optionally pre-filled from a parking place click
     const buildForm = useCallback((prefill = null) => {
         const userId = localStorage.getItem('userId') || '';
         return {
@@ -118,7 +117,6 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
         };
     }, [userData]);
 
-    // ── Load the driver's vehicles ────────────────────────
     const loadMyVehicles = useCallback(async () => {
         const userId = userData?.id || localStorage.getItem('userId');
         if (!userId) return;
@@ -133,7 +131,6 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
 
     useEffect(() => { loadMyVehicles(); }, [loadMyVehicles]);
 
-    // ── Load slots when parkingPlaceId changes ────────────
     useEffect(() => {
         const id = form.parkingPlaceId;
         if (!id) { setParkingSlots([]); return; }

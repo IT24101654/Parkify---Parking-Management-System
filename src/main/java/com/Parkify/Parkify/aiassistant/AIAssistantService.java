@@ -19,7 +19,6 @@ public class AIAssistantService {
 
     public AIParkingResponseDTO recommend(AIParkingRequestDTO request) {
         List<ParkingPlace> places = parkingRepository.findAll();
-        // Filter out inactive ones
         places.removeIf(p -> !"ACTIVE".equalsIgnoreCase(p.getStatus()));
 
         if ("INVENTORY".equalsIgnoreCase(request.getTargetEntity())) {
@@ -34,7 +33,6 @@ public class AIAssistantService {
             throw new RuntimeException("No active parking places available.");
         }
 
-        // 1. Find min and max for normalization
         double minPrice = Double.MAX_VALUE;
         double maxPrice = Double.MIN_VALUE;
         
@@ -44,7 +42,6 @@ public class AIAssistantService {
         int minSlots = Integer.MAX_VALUE;
         int maxSlots = Integer.MIN_VALUE;
 
-        // Coordinates
         double userLat = (request.getLatitude() != null) ? request.getLatitude() : 6.9271;
         double userLng = (request.getLongitude() != null) ? request.getLongitude() : 79.8612;
 
@@ -62,12 +59,10 @@ public class AIAssistantService {
             if (slots > maxSlots) maxSlots = slots;
         }
 
-        // Avoid division by zero
         if (maxPrice == minPrice) maxPrice = minPrice + 1;
         if (maxDistance == minDistance) maxDistance = minDistance + 1;
         if (maxSlots == minSlots) maxSlots = minSlots + 1;
 
-        // 2. Determine weights based on preference
         String pref = (request.getPreferenceType() != null) ? request.getPreferenceType().toUpperCase() : "BALANCED";
         double wp = 0.33, wd = 0.33, wa = 0.33; // Default BALANCED
         String reasonTemplate = "Best overall balance for your trip.";
@@ -87,7 +82,6 @@ public class AIAssistantService {
                 break;
         }
 
-        // 3. Calculate scores
         ParkingPlace bestPlace = null;
         double bestScore = Double.MAX_VALUE;
 
@@ -100,7 +94,6 @@ public class AIAssistantService {
             double normDist = (dist - minDistance) / (maxDistance - minDistance);
             double normAvail = (double)(slots - minSlots) / (maxSlots - minSlots);
 
-            // Calculation: lower price and lower distance is better, higher availability is better (so subtract it)
             double score = (wp * normPrice) + (wd * normDist) - (wa * normAvail);
 
             if (score < bestScore) {
@@ -129,7 +122,7 @@ public class AIAssistantService {
     }
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Earth Radius in km
+        final int R = 6371;
         double latDistance = Math.toRadians(lat2 - lat1);
         double lonDistance = Math.toRadians(lon2 - lon1);
         double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
