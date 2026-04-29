@@ -12,7 +12,6 @@ import ReservationManagement from '../../Components/Driver/ReservationManagement
 import CheckoutPayment from '../../Components/Driver/CheckoutPayment';
 import TransactionHistory from '../../Components/Driver/TransactionHistory';
 
-/* ─── Reusable Feature Card (same structure as PO Dashboard) ─────────────── */
 const FeatureCard = ({ icon, title, desc, footerIcon, footerText, colorClass, onClick, visible = true }) => {
     if (!visible) return null;
     return (
@@ -39,11 +38,9 @@ function Drdashboard() {
     const [isVoiceOpen, setIsVoiceOpen] = useState(false);
     const [isAiThinking, setIsAiThinking] = useState(false);
     const [voiceTranscript, setVoiceTranscript] = useState('');
-    // Reservation booking state — triggered from ParkingDetailsCard "Book Now"
     const [pendingBooking, setPendingBooking] = useState(null);
     const [autoOpenResv, setAutoOpenResv] = useState(false);
     
-    // Checkout state
     const [checkoutReservationId, setCheckoutReservationId] = useState(null);
     
     const isProgrammaticScroll = useRef(false);
@@ -52,7 +49,6 @@ function Drdashboard() {
     const voiceTimeoutRef = useRef(null);
     const recognitionRef = useRef(null);
 
-    /* ── Fetch user profile ───────────────────────────────────────────────── */
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -75,7 +71,6 @@ function Drdashboard() {
         fetchUser();
     }, [navigate]);
 
-    /* ── IntersectionObserver — same as PO Dashboard ─────────────────────── */
     useEffect(() => {
         if (!scrollContainerRef.current || !userData) return;
 
@@ -106,7 +101,6 @@ function Drdashboard() {
         return () => { observer.disconnect(); clearTimeout(timeoutId); };
     }, [userData, activeTab]);
 
-    /* ── Auto-close voice helper removed to allow Speech API to manage it ── */
 
     const stopAndProcessVoice = async (finalTranscript) => {
         if (recognitionRef.current) {
@@ -119,7 +113,7 @@ function Drdashboard() {
             return;
         }
 
-        let defaultPref = localStorage.getItem('driverPreferences'); // 'cheap', 'near', 'avail'
+        let defaultPref = localStorage.getItem('driverPreferences'); 
         let pref = 'BALANCED';
         if (defaultPref === 'cheap') pref = 'CHEAPEST';
         else if (defaultPref === 'near') pref = 'NEAREST';
@@ -129,7 +123,6 @@ function Drdashboard() {
         else if (finalTranscript.includes('near') || finalTranscript.includes('close') || finalTranscript.includes('around')) pref = 'NEAREST';
         else if (finalTranscript.includes('available') || finalTranscript.includes('empty') || finalTranscript.includes('space')) pref = 'MOST_AVAILABLE';
         
-        // Parse Target Entity (Parking, Inventory, Service)
         let targetEntity = 'PARKING';
         if (finalTranscript.includes('inventory') || finalTranscript.includes('shop') || finalTranscript.includes('item') || finalTranscript.includes('buy') || finalTranscript.includes('accessories')) {
             targetEntity = 'INVENTORY';
@@ -142,7 +135,6 @@ function Drdashboard() {
             setIsAiThinking(true);
             const token = localStorage.getItem('token');
             
-            // Get coords instantly from Map's watched position
             let lat = parseFloat(localStorage.getItem('driverLat')) || 6.9271;
             let lng = parseFloat(localStorage.getItem('driverLng')) || 79.8612;
             
@@ -179,7 +171,6 @@ function Drdashboard() {
             return;
         }
         
-        // If already listening, user clicked to stop it early
         if (isVoiceOpen && recognitionRef.current) {
             if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
             stopAndProcessVoice(voiceTranscript);
@@ -205,11 +196,10 @@ function Drdashboard() {
             const cleanTranscript = fullTranscript.toLowerCase().trim();
             setVoiceTranscript(cleanTranscript);
 
-            // Reset the silence timer
             if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
             voiceTimeoutRef.current = setTimeout(() => {
                 stopAndProcessVoice(cleanTranscript);
-            }, 2500); // Wait 2.5 seconds of silence before finishing
+            }, 2500); 
         };
 
         recognition.onerror = (event) => {
@@ -227,7 +217,6 @@ function Drdashboard() {
         };
 
         recognition.onend = () => {
-            // Only force close if it naturally ended without our logic processing it
             if (isVoiceOpen && !isAiThinking && !voiceTimeoutRef.current) {
                 setIsVoiceOpen(false);
             }
@@ -235,13 +224,11 @@ function Drdashboard() {
 
         recognition.start();
         
-        // Just in case they click mic and say nothing at all
         voiceTimeoutRef.current = setTimeout(() => {
             stopAndProcessVoice('');
         }, 8000);
     };
 
-    /* ── Scroll helper (same as PO Dashboard) ────────────────────────────── */
     const scrollToSection = (id) => {
         const element = document.getElementById(id);
         if (element) {
@@ -263,21 +250,16 @@ function Drdashboard() {
         if (place) setActiveContextPlace(place);
     };
 
-    /** Called when driver clicks "Book Now" from ParkingDetailsCard */
     const handleBookNow = useCallback((place) => {
-        // 1. Store the booking data
         setPendingBooking(place);
-        // 2. Close the parking details popup first (smooth fade-out)
         setMapPopupPlace(null);
         if (place) setActiveContextPlace(place);
-        // 3. After the popup closes (350ms), scroll to Reservations and open the form
         setTimeout(() => {
             setAutoOpenResv(true);
             scrollToSection('my-bookings');
         }, 350);
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    /** Called by ReservationManagement once it has consumed the autoOpen signal */
     const handleFormOpenHandled = useCallback(() => {
         setAutoOpenResv(false);
     }, []);
@@ -291,7 +273,6 @@ function Drdashboard() {
     return (
         <div className="dr-dashboard">
 
-            {/* ════════════ SIDEBAR (mirrors PO Dashboard structure exactly) ════════════ */}
             <aside className="dr-sidebar">
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
@@ -341,12 +322,9 @@ function Drdashboard() {
                 </button>
             </aside>
 
-            {/* ════════════ MAIN ════════════ */}
             <main className="dr-main">
 
-                {/* ── Navbar — same flex structure as PO Dashboard ── */}
                 <header className="dr-navbar">
-                    {/* Search — same position as PO (left, width 350px) */}
                     <div className="nav-search-wrapper">
                         <div className="nav-search">
                             <span className="material-symbols-outlined">location_on</span>
@@ -354,7 +332,6 @@ function Drdashboard() {
                         </div>
                     </div>
 
-                    {/* Right side — notifications + profile (matches PO Dashboard exactly) */}
                     <div className="nav-profile">
                         <span className="material-symbols-outlined nav-notification-icon">notifications</span>
                         <div className="profile-info">
@@ -374,19 +351,15 @@ function Drdashboard() {
                     </div>
                 </header>
 
-                {/* ── Scroll container — same class pattern as PO Dashboard ── */}
                 <div className="dr-scroll-container" ref={scrollContainerRef}>
 
-                    {/* ══════════ OVERVIEW — same structure as PO Dashboard ══════════ */}
                     <section id="overview" className="dashboard-section">
-                        {/* Hero heading */}
                         <div className="section-header-row">
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#b26969d4', textAlign: 'center', margin: '0 0 4px 0', letterSpacing: '-0.5px', lineHeight: '1.1' }}>
                                 Welcome to your Dashboard
                             </h1>
                         </div>
 
-                        {/* ── Voice Assistant — centered below hero heading ── */}
                         <div className="va-overview-widget">
                             <div className="va-overview-inner">
                                 {(isVoiceOpen || isAiThinking) && <VoiceWave isActive={true} />}
@@ -407,7 +380,6 @@ function Drdashboard() {
                                             ? (voiceTranscript ? `"${voiceTranscript}"` : `Listening...`) 
                                             : 'Voice Assistant — Click to speak'}
                                 </p>
-                                {/* Quick Tips for First-Time Users */}
                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '14px', fontSize: '0.85rem', maxWidth: '600px', margin: '14px auto 0' }}>
                                     <span style={{ color: '#9C8C79', display: 'flex', alignItems: 'center', fontWeight: '500' }}>
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px', color: '#B08974' }}>lightbulb</span>
@@ -421,7 +393,6 @@ function Drdashboard() {
                             </div>
                         </div>
 
-                        {/* Dashboard Features heading */}
                         <div style={{ textAlign: 'center', marginTop: '4px', marginBottom: '8px' }}>
                             <h2 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#B08974', margin: '0 0 4px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
                                 Dashboard Features
@@ -431,7 +402,6 @@ function Drdashboard() {
                             </p>
                         </div>
 
-                        {/* Feature cards — same grid + card structure as PO Dashboard */}
                         <div className="features-grid">
                             <FeatureCard
                                 icon="explore"
@@ -501,7 +471,6 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* ══════════ FIND PARKING SLOTS ══════════ */}
                     <section id="find-slots" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#6F7C80', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
@@ -533,7 +502,6 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* ══════════ RESERVATIONS ══════════ */}
                     <section id="my-bookings" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#A17060', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
@@ -557,7 +525,6 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* ══════════ PAYMENTS ══════════ */}
                     <section id="payments" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7A806B', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
@@ -579,7 +546,6 @@ function Drdashboard() {
                         </div>
                     </section>
 
-                    {/* ══════════ INVENTORY (conditional) ══════════ */}
                     {hasInventory && (
                         <section id="inventory" className="dashboard-section">
                             <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
@@ -594,7 +560,6 @@ function Drdashboard() {
                         </section>
                     )}
 
-                    {/* ══════════ VEHICLE SERVICES (conditional) ══════════ */}
                     {hasService && (
                         <section id="services" className="dashboard-section">
                             <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
@@ -612,7 +577,6 @@ function Drdashboard() {
                         </section>
                     )}
 
-                    {/* ══════════ MY VEHICLES ══════════ */}
                     <section id="vehicles" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#6F7C80', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
@@ -625,7 +589,6 @@ function Drdashboard() {
                         <VehicleManagement />
                     </section>
 
-                    {/* ══════════ MY PROFILE ══════════ */}
                     <section id="profile" className="dashboard-section">
                         <div style={{ textAlign: 'center', marginBottom: '14px', paddingTop: '4px' }}>
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#6F7C80', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>
