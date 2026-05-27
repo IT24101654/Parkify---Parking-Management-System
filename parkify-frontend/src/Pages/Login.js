@@ -364,6 +364,7 @@ function Login() {
                     {showRoleSelect && (
                         <div className="auth-card">
                             <h2>Select Your Role</h2>
+                            {loginError && <p className="error-message">{loginError}</p>}
                             <p style={{ color: '#6b7280', marginBottom: 16, fontSize: '0.9rem' }}>
                                 You have multiple roles on this account. Choose which one to log in as:
                             </p>
@@ -374,8 +375,16 @@ function Login() {
                                         className="btn-auth-secondary"
                                         onClick={() => handleRoleSelection(role)}
                                         disabled={loading}
+                                        style={loading && selectedRole === role ? { opacity: 0.7 } : {}}
                                     >
-                                        {role.replace('_', ' ')}
+                                        {loading && selectedRole === role ? (
+                                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                                <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>autorenew</span>
+                                                Sending OTP...
+                                            </span>
+                                        ) : (
+                                            role.replace('_', ' ')
+                                        )}
                                     </button>
                                 ))}
                             </div>
