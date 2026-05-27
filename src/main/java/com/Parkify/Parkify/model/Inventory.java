@@ -1,19 +1,21 @@
 package com.Parkify.Parkify.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 
-@Entity
+@Document
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "inventory")
+
 public class Inventory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     private Long id;
 
     private String itemName;
@@ -26,21 +28,18 @@ public class Inventory {
     private Double thresholdValue;
     private LocalDate lastRestockDate;
 
-    @org.hibernate.annotations.CreationTimestamp
-    @Column(name = "created_at", updatable = false)
     private java.time.LocalDateTime createdAt;
-
-    @org.hibernate.annotations.UpdateTimestamp
-    @Column(name = "updated_at")
     private java.time.LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @DBRef(lazy = true)
+    
     @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parking_place_id")
+    @DBRef(lazy = true)
+    
     @com.fasterxml.jackson.annotation.JsonIgnore
     private ParkingPlace parkingPlace;
 }
+
+

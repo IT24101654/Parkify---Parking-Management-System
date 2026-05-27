@@ -1,30 +1,32 @@
 package com.Parkify.Parkify.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import lombok.Data;
 
-@Entity
+@Document
 @Data
-@Table(name = "parking_slots")
+
 public class ParkingSlot {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parking_place_id", nullable = false)
+    @DBRef(lazy = true)
+    
     @JsonIgnore
     private ParkingPlace parkingPlace;
 
-    @Column(name = "slot_name")
+    
     private String slotName;
 
-    @Column(name = "slot_type")
+    
     private String slotType; // Car, Bike, Van, EV
 
-    @Column(name = "slot_status")
+    
     private String slotStatus; // Available, Unavailable, Under Maintenance
 
     private String floor;
@@ -35,3 +37,5 @@ public class ParkingSlot {
 
     private String notes;
 }
+
+

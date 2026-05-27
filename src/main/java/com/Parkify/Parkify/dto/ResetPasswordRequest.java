@@ -12,3 +12,5 @@ public class ResetPasswordRequest {
     private String otp;
     private String newPassword;
 }
+
+

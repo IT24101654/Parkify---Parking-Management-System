@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users/extras")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class UserExtraController {
     @Autowired
     private UserServiceExtra service;
@@ -35,3 +35,6 @@ public class UserExtraController {
         return ResponseEntity.ok(service.getFavorites(userId));
     }
 }
+
+
+

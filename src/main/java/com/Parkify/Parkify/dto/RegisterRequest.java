@@ -20,3 +20,5 @@ public class RegisterRequest {
     private String nicNumber;
 
 }
+
+

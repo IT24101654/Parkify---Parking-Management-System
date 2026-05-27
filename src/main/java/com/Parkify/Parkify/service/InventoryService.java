@@ -24,3 +24,5 @@ public interface InventoryService {
     List<Inventory> getItemsByParkingPlace(Long parkingPlaceId);
     List<Inventory> getItemsByParkingPlaceAndType(Long parkingPlaceId, String type);
 }
+
+

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/service-items")
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ServiceItemController {
 
     @Autowired
@@ -71,3 +71,6 @@ public class ServiceItemController {
         }
     }
 }
+
+
+

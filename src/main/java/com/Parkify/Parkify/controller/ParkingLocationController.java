@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/parking-locations")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ParkingLocationController {
 
     @Autowired
@@ -51,3 +51,6 @@ public class ParkingLocationController {
         return ResponseEntity.ok("Parking Location deleted successfully");
     }
 }
+
+
+

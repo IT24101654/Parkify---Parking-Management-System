@@ -110,7 +110,12 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
 
     const filtered = parkingPlaces.filter(p => {
         const q = searchQuery.toLowerCase();
-        const matchesSearch = !q || p.parkingName?.toLowerCase().includes(q) || p.location?.toLowerCase().includes(q);
+        const matchesSearch = !q || 
+            p.parkingName?.toLowerCase().includes(q) || 
+            p.location?.toLowerCase().includes(q) ||
+            p.city?.toLowerCase().includes(q) ||
+            p.area?.toLowerCase().includes(q) ||
+            p.address?.toLowerCase().includes(q);
         const isFavorite = favorites.some(favId => String(favId) === String(p.id));
         return matchesSearch && (!showFavorites || isFavorite);
     });
@@ -143,8 +148,15 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
         const q = e.target.value;
         setSearchQuery(q);
         if (q) {
-            const match = parkingPlaces.find(p => p.parkingName?.toLowerCase().includes(q.toLowerCase()));
-            if (match) setMapCenter([match.latitude, match.longitude]);
+            const lowerQ = q.toLowerCase();
+            const match = parkingPlaces.find(p => 
+                p.parkingName?.toLowerCase().includes(lowerQ) ||
+                p.city?.toLowerCase().includes(lowerQ) ||
+                p.area?.toLowerCase().includes(lowerQ) ||
+                p.address?.toLowerCase().includes(lowerQ) ||
+                p.location?.toLowerCase().includes(lowerQ)
+            );
+            if (match && match.latitude && match.longitude) setMapCenter([match.latitude, match.longitude]);
         }
     };
 

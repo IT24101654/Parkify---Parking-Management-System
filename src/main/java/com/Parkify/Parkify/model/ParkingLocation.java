@@ -1,35 +1,37 @@
 package com.Parkify.Parkify.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Entity
-@Table(name = "parking_locations")
+@Document
+
 public class ParkingLocation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @DBRef(lazy = true)
+    
     @JsonIgnore
     private User owner;
 
-    @Column(nullable = false)
+    
     private String name;
 
-    @Column(nullable = false)
+    
     private String address;
 
     private Double latitude;
 
     private Double longitude;
 
-    @Column(name = "available_from")
+    
     private String availableFrom; 
 
-    @Column(name = "available_to")
+    
     private String availableTo; 
 
     private Boolean active = true;
@@ -66,3 +68,5 @@ public class ParkingLocation {
     public Boolean getActive() { return active; }
     public void setActive(Boolean active) { this.active = active; }
 }
+
+

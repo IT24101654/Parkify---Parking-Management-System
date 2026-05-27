@@ -10,3 +10,4 @@ public interface VehicleService {
     void deleteVehicle(Long vehicleId);
     Vehicle getVehicleById(Long vehicleId);
 }
+

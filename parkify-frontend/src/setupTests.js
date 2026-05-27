@@ -1,5 +1,16 @@
 import '@testing-library/jest-dom';
 
+// Silence React Router Future Flag Warnings
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (
+    typeof args[0] === 'string' && 
+    (args[0].includes('React Router Future Flag Warning') || args[0].includes('Relative route resolution'))
+  ) {
+    return;
+  }
+  originalWarn(...args);
+};
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({

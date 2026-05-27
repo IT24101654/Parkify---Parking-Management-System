@@ -16,7 +16,7 @@ import com.Parkify.Parkify.service.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AuthController {
 
     @Autowired private OtpService otpService;
@@ -154,3 +154,6 @@ public class AuthController {
         ));
     }
 }
+
+
+

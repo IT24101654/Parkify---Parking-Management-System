@@ -19,8 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/parking")
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001", "http://localhost:3002",
-        "http://localhost:3003" })
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ParkingController {
 
     @Autowired
@@ -123,3 +122,6 @@ public class ParkingController {
         }
     }
 }
+
+
+

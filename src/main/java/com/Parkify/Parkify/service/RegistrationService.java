@@ -10,3 +10,5 @@ public interface RegistrationService {
 
         void removePendingUser(String email, String role);
 }
+
+

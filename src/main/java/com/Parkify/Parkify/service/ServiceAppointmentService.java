@@ -155,8 +155,8 @@ public class ServiceAppointmentService {
     }
 
     private synchronized String generateBookingId() {
-        Long maxId = repository.findMaxId();
-        long next = (maxId == null ? 0L : maxId) + 1;
+        Long maxId = repository.findTopByOrderByIdDesc().map(ServiceAppointment::getId).orElse(0L);
+        long next = maxId + 1;
         return String.format("SCB-%04d", next);
     }
 
@@ -189,3 +189,5 @@ public class ServiceAppointmentService {
 
     public record SlotInfo(String slot, boolean available) {}
 }
+
+

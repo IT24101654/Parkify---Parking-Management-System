@@ -10,3 +10,5 @@ import lombok.NoArgsConstructor;
 public class ForgotPasswordRequest {
     private String email;
 }
+
+

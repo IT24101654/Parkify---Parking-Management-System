@@ -11,3 +11,5 @@ public interface UserServiceExtra {
     FavoriteLocation addFavorite(Long userId, Long slotId);
     List<FavoriteLocation> getFavorites(Long userId);
 }
+
+

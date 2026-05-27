@@ -11,3 +11,5 @@ public class AIParkingResponseDTO {
     private String reason;
     private Double score;
 }
+
+

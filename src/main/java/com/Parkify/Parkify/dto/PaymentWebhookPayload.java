@@ -7,3 +7,5 @@ public class PaymentWebhookPayload {
     private String gatewayTransactionId;
     private String status;
 }
+
+
