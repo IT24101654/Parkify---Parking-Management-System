@@ -1,42 +1,74 @@
 package com.Parkify.Parkify.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
+
+    @Value("${brevo.sender.email}")
+    private String senderEmail;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
+
+    private void sendEmailViaBrevo(String to, String subject, String textContent) {
+        new Thread(() -> {
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("accept", "application/json");
+                headers.set("api-key", brevoApiKey);
+                headers.set("content-type", "application/json");
+
+                Map<String, Object> sender = new HashMap<>();
+                sender.put("name", "Parkify");
+                sender.put("email", senderEmail);
+
+                Map<String, Object> toRecipient = new HashMap<>();
+                toRecipient.put("email", to);
+
+                Map<String, Object> body = new HashMap<>();
+                body.put("sender", sender);
+                body.put("to", List.of(toRecipient));
+                body.put("subject", subject);
+                body.put("textContent", textContent);
+
+                HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+                
+                ResponseEntity<String> response = restTemplate.exchange(BREVO_API_URL, HttpMethod.POST, request, String.class);
+                
+                System.out.println("✅ Email sent via Brevo to " + to + ". Status: " + response.getStatusCode());
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send email via Brevo to " + to + ". Reason: " + e.getMessage());
+            }
+        }).start();
+    }
 
     public void sendOtpEmail(String to, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Parkify - Your OTP Verification Code");
-        message.setText("Welcome to Parkify!\n\nYour OTP for login is: " + otp +
-                "\n\nThis code is valid for 5 minutes. Please do not share this with anyone.");
+        String subject = "Parkify - Your OTP Verification Code";
+        String text = "Welcome to Parkify!\n\nYour OTP for login is: " + otp +
+                "\n\nThis code is valid for 5 minutes. Please do not share this with anyone.";
 
-        // Print OTP to console (useful since Render Free Tier blocks outbound SMTP)
         System.out.println("==========================================================");
         System.out.println("🚀 [DEBUG] OTP for " + to + " is: " + otp);
         System.out.println("==========================================================");
 
-        // Run email sending in a background thread to prevent blocking the API request
-        new Thread(() -> {
-            try {
-                mailSender.send(message);
-            } catch (Exception e) {
-                System.err.println("❌ Failed to send email to " + to + ". Reason: " + e.getMessage());
-            }
-        }).start();
+        sendEmailViaBrevo(to, subject, text);
     }
+
     public void sendNewUserNotificationEmail(String toAdminEmail, com.Parkify.Parkify.model.User newUser) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toAdminEmail);
-        message.setSubject("Parkify - New User Registration: " + newUser.getRole().name());
-        
+        String subject = "Parkify - New User Registration: " + newUser.getRole().name();
         String text = String.format(
             "Hello Super Admin,\n\n" +
             "A new user has registered in the Parkify system.\n\n" +
@@ -53,15 +85,7 @@ public class EmailService {
             newUser.getRole().name()
         );
 
-        message.setText(text);
-        
-        new Thread(() -> {
-            try {
-                mailSender.send(message);
-            } catch (Exception e) {
-                System.err.println("❌ Failed to send new user notification email. Reason: " + e.getMessage());
-            }
-        }).start();
+        sendEmailViaBrevo(toAdminEmail, subject, text);
     }
 }
 
