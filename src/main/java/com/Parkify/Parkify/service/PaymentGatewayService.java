@@ -38,14 +38,20 @@ public class PaymentGatewayService {
     @Autowired
     private SmsNotificationService smsNotificationService;
 
+    private boolean isRealStripeKey() {
+        return stripeApiKey != null 
+            && !stripeApiKey.contains("replace") 
+            && !stripeApiKey.contains("placeholder")
+            && stripeApiKey.startsWith("sk_");
+    }
+
     @PostConstruct
     public void init() {
-        // Only initialize if it's a real key, otherwise we just mock it for now if needed.
-        if (stripeApiKey != null && !stripeApiKey.contains("replace")) {
+        if (isRealStripeKey()) {
             Stripe.apiKey = stripeApiKey;
             logger.info("Stripe SDK Initialized with base URL: {}", clientBaseUrl);
         } else {
-            logger.warn("Stripe API key is a placeholder. Payments will be mocked.");
+            logger.warn("Stripe API key is not configured. Payments will be mocked.");
         }
     }
 
@@ -55,9 +61,9 @@ public class PaymentGatewayService {
         String checkoutUrl;
         String sessionId;
 
-        if (stripeApiKey == null || stripeApiKey.contains("replace")) {
-            sessionId = "cs_test_mock_" + System.currentTimeMillis();
-            checkoutUrl = "https://checkout.stripe.com/pay/cs_test_mock_" + referenceId;
+        if (!isRealStripeKey()) {
+            logger.error("Stripe API key not configured. Cannot process payment.");
+            throw new RuntimeException("Stripe Service Unavailable: Invalid API Key provided: " + (stripeApiKey != null ? stripeApiKey.substring(0, Math.min(stripeApiKey.length(), 12)) + "..." : "null"));
         } else {
             try {
                 Long calculatedAmount = amount.multiply(new BigDecimal(100)).longValue();
