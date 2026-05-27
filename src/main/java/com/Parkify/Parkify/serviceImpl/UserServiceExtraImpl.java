@@ -42,3 +42,5 @@ public class UserServiceExtraImpl implements UserServiceExtra {
         return favRepo.findByUserId(userId);
     }
 }
+
+

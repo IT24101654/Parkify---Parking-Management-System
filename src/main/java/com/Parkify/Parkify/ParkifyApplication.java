@@ -10,3 +10,4 @@ public class ParkifyApplication {
         SpringApplication.run(ParkifyApplication.class, args);
     }
 }
+

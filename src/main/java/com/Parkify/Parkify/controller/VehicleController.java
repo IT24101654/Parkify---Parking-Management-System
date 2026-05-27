@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/vehicles")
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class VehicleController {
 
     @Autowired
@@ -141,3 +141,6 @@ public class VehicleController {
         }
     }
 }
+
+
+

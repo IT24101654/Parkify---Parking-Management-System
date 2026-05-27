@@ -13,8 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/service-slots")
 @RequiredArgsConstructor
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001",
-        "http://localhost:3002", "http://localhost:3003" })
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ServiceSlotController {
 
     private final ServiceAppointmentService service;
@@ -26,3 +25,6 @@ public class ServiceSlotController {
         return ResponseEntity.ok(ServiceApiResponse.success(service.getAvailableSlots(center, date)));
     }
 }
+
+
+

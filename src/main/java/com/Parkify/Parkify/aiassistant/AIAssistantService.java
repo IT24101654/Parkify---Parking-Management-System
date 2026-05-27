@@ -132,3 +132,5 @@ public class AIAssistantService {
         return R * c; 
     }
 }
+
+

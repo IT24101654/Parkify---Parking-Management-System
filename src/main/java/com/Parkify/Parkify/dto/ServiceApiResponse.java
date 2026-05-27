@@ -24,3 +24,5 @@ public class ServiceApiResponse<T> {
         return new ServiceApiResponse<>(false, message, null);
     }
 }
+
+

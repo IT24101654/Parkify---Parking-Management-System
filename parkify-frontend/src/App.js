@@ -1,23 +1,40 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'font-awesome/css/font-awesome.min.css';
 import './App.css';
-import LandingPage from './Pages/LandingPage';
-import Login from './Pages/Login';
-import Register from "./Pages/Register";
-
-import Dashboard from './Pages/Super-Admin/Dashboard';
-import PODashboard from './Pages/Parking-Owner/PODashboard';
-import Drdashboard from './Pages/Driver/Drdashboard';
-import DrProfile from './Pages/Driver/DrProfile';
-import POProfile from './Pages/Parking-Owner/POProfile';
-import AdminProfile from './Pages/Super-Admin/AdminProfile';
-
 import ProtectedRoute from './Components/ProtectedRoute';
+
+// Code splitting - lazy load all pages for better Lighthouse performance
+const LandingPage = lazy(() => import('./Pages/LandingPage'));
+const Login = lazy(() => import('./Pages/Login'));
+const Register = lazy(() => import('./Pages/Register'));
+const Dashboard = lazy(() => import('./Pages/Super-Admin/Dashboard'));
+const PODashboard = lazy(() => import('./Pages/Parking-Owner/PODashboard'));
+const Drdashboard = lazy(() => import('./Pages/Driver/Drdashboard'));
+const DrProfile = lazy(() => import('./Pages/Driver/DrProfile'));
+const POProfile = lazy(() => import('./Pages/Parking-Owner/POProfile'));
+const AdminProfile = lazy(() => import('./Pages/Super-Admin/AdminProfile'));
+
+
+const LoadingFallback = () => (
+    <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: '#f0f4f8',
+        fontFamily: 'sans-serif',
+        color: '#2D4057',
+        fontSize: '1.2rem'
+    }}>
+        Loading Parkify...
+    </div>
+);
 
 function App() {
     return (
         <Router>
+            <Suspense fallback={<LoadingFallback />}>
             <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
@@ -77,6 +94,7 @@ function App() {
                     }
                 />
             </Routes>
+            </Suspense>
         </Router>
     );
 }

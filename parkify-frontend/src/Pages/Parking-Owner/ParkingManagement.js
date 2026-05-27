@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import './ParkingManagement.css';
@@ -34,6 +34,14 @@ const LocationMarker = ({ selectedLocation, setSelectedLocation }) => {
     );
 };
 
+function MapController({ center }) {
+    const map = useMap();
+    useEffect(() => {
+        if (center) map.setView(center, map.getZoom(), { animate: true });
+    }, [center, map]);
+    return null;
+}
+
 const palette = {
     darkBlue: '#34495E',
     dustyRose: '#A88373',
@@ -46,6 +54,8 @@ const palette = {
 const ParkingManagement = ({ onManageInventory }) => {
     const [mapCenter, setMapCenter] = useState(defaultMapCenter);
     const [selectedLocation, setSelectedLocation] = useState(null);
+    const [mapSearchQuery, setMapSearchQuery] = useState('');
+    const [isSearchingMap, setIsSearchingMap] = useState(false);
     const [formData, setFormData] = useState({
         parkingName: '',
         description: '',
@@ -83,6 +93,28 @@ const ParkingManagement = ({ onManageInventory }) => {
     useEffect(() => {
         loadParkingPlaces();
     }, []);
+
+    const handleMapSearch = async (e) => {
+        e.preventDefault();
+        if (!mapSearchQuery) return;
+        setIsSearchingMap(true);
+        try {
+            const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}`);
+            if (response.data && response.data.length > 0) {
+                const { lat, lon } = response.data[0];
+                const newLocation = { lat: parseFloat(lat), lng: parseFloat(lon) };
+                setMapCenter([newLocation.lat, newLocation.lng]);
+                setSelectedLocation(newLocation);
+            } else {
+                alert('Location not found');
+            }
+        } catch (err) {
+            console.error('Map search failed', err);
+            alert('Failed to search location');
+        } finally {
+            setIsSearchingMap(false);
+        }
+    };
 
     const loadParkingPlaces = async () => {
         try {
@@ -204,7 +236,7 @@ const ParkingManagement = ({ onManageInventory }) => {
             setMapCenter(defaultMapCenter);
         } catch (error) {
             console.error("Action error:", error);
-            alert("Action failed. Please check your data.");
+            alert("Action failed: " + (error.response?.data?.error || error.response?.data?.message || typeof error.response?.data === 'string' ? error.response.data : error.message));
         }
     };
 
@@ -493,9 +525,26 @@ const ParkingManagement = ({ onManageInventory }) => {
 
                                 <div className="pm-field" style={{ marginBottom: '25px' }}>
                                     <label><i className="fa fa-map"></i> Pin Exact Location on Map</label>
+                                    <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                        <input 
+                                            type="text" 
+                                            placeholder="Search city or place to set pin..." 
+                                            value={mapSearchQuery} 
+                                            onChange={(e) => setMapSearchQuery(e.target.value)}
+                                            style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                        />
+                                        <button 
+                                            onClick={handleMapSearch} 
+                                            disabled={isSearchingMap}
+                                            style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: palette.darkBlue, color: 'white', cursor: 'pointer' }}
+                                        >
+                                            {isSearchingMap ? 'Searching...' : 'Search'}
+                                        </button>
+                                    </div>
                                     <MapContainer center={mapCenter} zoom={13} style={{ width: '100%', height: '200px', borderRadius: '10px' }}>
                                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                         <LocationMarker selectedLocation={selectedLocation} setSelectedLocation={setSelectedLocation} />
+                                        <MapController center={mapCenter} />
                                     </MapContainer>
                                 </div>
 

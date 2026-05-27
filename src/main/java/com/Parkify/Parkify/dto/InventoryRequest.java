@@ -16,3 +16,5 @@ public class InventoryRequest {
     private LocalDate lastRestockDate;
     private Long parkingPlaceId;
 }
+
+

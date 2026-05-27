@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/service-centers")
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001", "http://localhost:3002",
-        "http://localhost:3003" })
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ServiceCenterController {
 
     @Autowired
@@ -27,3 +26,6 @@ public class ServiceCenterController {
         return ResponseEntity.ok(serviceCenterService.saveServiceCenter(serviceCenter));
     }
 }
+
+
+

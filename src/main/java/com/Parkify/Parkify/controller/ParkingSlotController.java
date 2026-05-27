@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/slots")
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003" })
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ParkingSlotController {
 
     @Autowired
@@ -47,3 +47,6 @@ public class ParkingSlotController {
         return ResponseEntity.ok(slotService.bulkCreate(placeId, prefix, count, type));
     }
 }
+
+
+

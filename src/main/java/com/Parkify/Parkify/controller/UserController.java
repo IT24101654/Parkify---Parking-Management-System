@@ -21,7 +21,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class UserController {
 
     @Autowired private UserService userService;
@@ -166,4 +166,7 @@ public class UserController {
         return ResponseEntity.ok(updated);
     }
 }
+
+
+
 

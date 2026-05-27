@@ -15,3 +15,5 @@ public interface ReservationService {
     Reservation confirmReservation(Long reservationId, Long ownerId);
     Reservation cancelReservationByOwner(Long reservationId, Long ownerId);
 }
+
+

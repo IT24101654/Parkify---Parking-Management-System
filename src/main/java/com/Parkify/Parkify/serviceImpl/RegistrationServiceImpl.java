@@ -32,3 +32,5 @@ public class RegistrationServiceImpl implements RegistrationService {
         pendingUsers.remove(key(email, role));
     }
 }
+
+

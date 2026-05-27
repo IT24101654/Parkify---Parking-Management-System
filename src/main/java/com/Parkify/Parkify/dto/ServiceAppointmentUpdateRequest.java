@@ -24,3 +24,5 @@ public class ServiceAppointmentUpdateRequest {
 
     private String notes;
 }
+
+

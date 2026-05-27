@@ -1,41 +1,45 @@
 package com.Parkify.Parkify.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
+
 
 import java.time.LocalDateTime;
 
-@Entity
+@Document
 @Data
-@Table(name = "payments")
+
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", nullable = false)
+    @DBRef(lazy = true)
+    
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Reservation reservation;
 
-    @Column(nullable = false)
+    
     private Double amount;
 
-    @Column(nullable = false)
+    
     private String paymentMethod; // STRIPE, CASH
 
-    @Column(unique = true)
+    
     private String gatewayTransactionId; // The Checkout Session ID
 
-    @Column(nullable = false)
+    
     private String status; // PENDING, PAID, FAILED, REFUND_REQUESTED, REFUNDED
 
-    @Column(name = "refund_reason", length = 500)
+    
     private String refundReason;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+    /* @CreatedDate */
+    
     private LocalDateTime createdAt;
 }
+
+

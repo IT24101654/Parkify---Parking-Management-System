@@ -57,3 +57,5 @@ public class ParkingLocationServiceImpl implements ParkingLocationService {
         parkingLocationRepository.deleteById(locationId);
     }
 }
+
+

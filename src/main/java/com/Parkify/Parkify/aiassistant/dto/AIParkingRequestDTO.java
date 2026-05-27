@@ -11,3 +11,5 @@ public class AIParkingRequestDTO {
 
     private String targetEntity;
 }
+
+

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/ai-assistant")
 @RequiredArgsConstructor
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003" })
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AIAssistantController {
 
     private final AIAssistantService aiAssistantService;
@@ -26,3 +26,5 @@ public class AIAssistantController {
         );
     }
 }
+
+

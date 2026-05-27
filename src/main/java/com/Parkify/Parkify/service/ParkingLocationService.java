@@ -10,3 +10,5 @@ public interface ParkingLocationService {
     ParkingLocation updateLocation(Long locationId, ParkingLocation updatedLocation);
     void deleteLocation(Long locationId);
 }
+
+

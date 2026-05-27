@@ -36,3 +36,5 @@ public class FavoriteService {
         return favoriteRepository.findByUserId(userId);
     }
 }
+
+

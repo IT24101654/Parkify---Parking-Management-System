@@ -32,7 +32,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public List<Vehicle> getVehiclesByUserId(Long userId) {
-        return vehicleRepository.findByOwnerId(userId);
+        return vehicleRepository.findByOwner_Id(userId);
     }
 
     @Override
@@ -67,3 +67,4 @@ public class VehicleServiceImpl implements VehicleService {
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
     }
 }
+

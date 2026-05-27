@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/favorites")
-@CrossOrigin(origins = "*")
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class FavoriteController {
 
     @Autowired
@@ -74,3 +74,6 @@ public class FavoriteController {
         }
     }
 }
+
+
+

@@ -1,22 +1,24 @@
 package com.Parkify.Parkify.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Document
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "vehicles")
+
 public class Vehicle {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    
     private String vehicleNumber;
 
     private String brand;
@@ -27,8 +29,9 @@ public class Vehicle {
     private String vehicleImage;
     private String revenueLicenseImage;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @DBRef(lazy = true)
+    
     @JsonIgnore
     private User owner;
 }
+

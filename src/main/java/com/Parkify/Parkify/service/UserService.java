@@ -42,3 +42,4 @@ public interface UserService {
 
     User updateUserFeatures(Long userId, Boolean hasInventory, Boolean hasServiceCenter);
 }
+

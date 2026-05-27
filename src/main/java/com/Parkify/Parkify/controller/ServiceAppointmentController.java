@@ -14,8 +14,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/service-appointments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001",
-        "http://localhost:3002", "http://localhost:3003" })
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class ServiceAppointmentController {
 
     private final ServiceAppointmentService service;
@@ -82,3 +81,6 @@ public class ServiceAppointmentController {
                         service.completeAppointment(bookingId)));
     }
 }
+
+
+

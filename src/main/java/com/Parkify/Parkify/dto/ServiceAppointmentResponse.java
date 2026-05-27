@@ -30,3 +30,5 @@ public class ServiceAppointmentResponse {
     private LocalDateTime cancelledAt;
     private LocalDateTime completedAt;
 }
+
+

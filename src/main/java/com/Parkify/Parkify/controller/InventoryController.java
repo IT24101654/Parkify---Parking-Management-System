@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/inventory")
-@CrossOrigin(origins = "*") // Allow for easier testing
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class InventoryController {
 
     @Autowired
@@ -72,3 +72,6 @@ public class InventoryController {
         return results;
     }
 }
+
+
+
