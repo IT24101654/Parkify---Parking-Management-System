@@ -98,7 +98,24 @@ public class AuthController {
 
         String email = request.getEmail().trim().toLowerCase();
 
-        userService.loginUser(email, request.getPassword());
+        try {
+            userService.loginUser(email, request.getPassword());
+        } catch (RuntimeException e) {
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("not found") || msg.contains("user not found")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "No account found with this email address."));
+            } else if (msg.contains("deactivated") || msg.contains("inactive")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Your account has been deactivated. Please contact support."));
+            } else if (msg.contains("invalid") || msg.contains("credentials") || msg.contains("password")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Wrong password. Please try again."));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid email or password. Please try again."));
+            }
+        }
 
         List<String> roles = userService.getRolesForEmail(email);
 
