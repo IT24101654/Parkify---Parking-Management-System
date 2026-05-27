@@ -18,7 +18,19 @@ public class EmailService {
         message.setText("Welcome to Parkify!\n\nYour OTP for login is: " + otp +
                 "\n\nThis code is valid for 5 minutes. Please do not share this with anyone.");
 
-        mailSender.send(message);
+        // Print OTP to console (useful since Render Free Tier blocks outbound SMTP)
+        System.out.println("==========================================================");
+        System.out.println("🚀 [DEBUG] OTP for " + to + " is: " + otp);
+        System.out.println("==========================================================");
+
+        // Run email sending in a background thread to prevent blocking the API request
+        new Thread(() -> {
+            try {
+                mailSender.send(message);
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send email to " + to + ". Reason: " + e.getMessage());
+            }
+        }).start();
     }
     public void sendNewUserNotificationEmail(String toAdminEmail, com.Parkify.Parkify.model.User newUser) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -42,7 +54,14 @@ public class EmailService {
         );
 
         message.setText(text);
-        mailSender.send(message);
+        
+        new Thread(() -> {
+            try {
+                mailSender.send(message);
+            } catch (Exception e) {
+                System.err.println("❌ Failed to send new user notification email. Reason: " + e.getMessage());
+            }
+        }).start();
     }
 }
 
