@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Register.css';
 
-axios.defaults.timeout = 15000;
+axios.defaults.timeout = 30000;
 
 function getPasswordStrength(pw) {
     if (!pw) return null;
@@ -27,23 +27,38 @@ const strengthMeta = {
     'high': { label: 'Strong password', cls: 'high' },
 };
 
+/* ─── Password Field with Eye Icon + Strength Bar ───────────────────────── */
 function PasswordStrengthField({ value, onChange, placeholder = 'Create Password' }) {
+    const [showPw, setShowPw] = useState(false);
     const strength = getPasswordStrength(value);
     const isTooShort = strength === 'too-short';
     const meta = strength ? strengthMeta[strength] : null;
 
     return (
         <div className="password-field-wrapper">
-            <input
-                name="password"
-                type="password"
-                placeholder={placeholder}
-                required
-                value={value}
-                onChange={onChange}
-                className="form-input-styled"
-                style={isTooShort ? { borderColor: '#ef4444', marginBottom: 6 } : {}}
-            />
+            <div className="pw-input-row">
+                <input
+                    name="password"
+                    type={showPw ? 'text' : 'password'}
+                    placeholder={placeholder}
+                    required
+                    value={value}
+                    onChange={onChange}
+                    className="form-input-styled"
+                    style={isTooShort ? { borderColor: '#ef4444', marginBottom: 0 } : {}}
+                />
+                <button
+                    type="button"
+                    className="pw-toggle-btn"
+                    onClick={() => setShowPw(v => !v)}
+                    tabIndex={-1}
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                >
+                    <span className="material-symbols-outlined">
+                        {showPw ? 'visibility_off' : 'visibility'}
+                    </span>
+                </button>
+            </div>
             {strength && (
                 <>
                     <div className={`strength-bar-track strength-${meta.cls}`}>
@@ -93,9 +108,31 @@ function Register() {
         );
     };
 
+    /* ── Validation ── */
+    const validateEmail = (em) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+    const validatePhone = (ph) => /^[0-9+\-\s]{7,15}$/.test(ph);
+
     const handleRegisterSubmit = async (e) => {
         e.preventDefault();
         setRegisterError('');
+
+        // Validate fields
+        if (!formData.firstName.trim()) {
+            setRegisterError('First name is required.');
+            return;
+        }
+        if (!formData.lastName.trim()) {
+            setRegisterError('Last name is required.');
+            return;
+        }
+        if (!formData.email.trim() || !validateEmail(formData.email.trim())) {
+            setRegisterError('Please enter a valid email address.');
+            return;
+        }
+        if (!formData.phoneNumber.trim() || !validatePhone(formData.phoneNumber.trim())) {
+            setRegisterError('Please enter a valid phone number (7-15 digits).');
+            return;
+        }
 
         const strength = getPasswordStrength(formData.password);
         if (!strength || strength === 'too-short') {
@@ -106,9 +143,9 @@ function Register() {
         setLoading(true);
         const userPayload = {
             name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
-            email: formData.email,
+            email: formData.email.trim().toLowerCase(),
             password: formData.password,
-            phoneNumber: formData.phoneNumber,
+            phoneNumber: formData.phoneNumber.trim(),
             address: formData.address || '',
             role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER',
             hasInventory: formData.hasInventory,
@@ -118,24 +155,34 @@ function Register() {
 
         try {
             const { data } = await axios.post('/api/auth/register-otp', userPayload);
-            alert(data.message || 'OTP sent to your email!');
             setStep(3);
         } catch (error) {
-            setRegisterError(
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                'Registration failed. Please check your details.'
-            );
+            const msg = error.response?.data?.error || error.response?.data?.message;
+            if (msg?.toLowerCase().includes('email') || msg?.toLowerCase().includes('exists') || msg?.toLowerCase().includes('already')) {
+                setRegisterError('An account with this email already exists. Please login instead.');
+            } else if (error.code === 'ECONNABORTED') {
+                setRegisterError('Server is taking too long. Please try again.');
+            } else {
+                setRegisterError(msg || 'Registration failed. Please check your details and try again.');
+            }
         } finally { setLoading(false); }
     };
 
     const handleVerifyAndRegister = async () => {
         setOtpError('');
+        if (!otp.trim()) {
+            setOtpError('Please enter the OTP sent to your email.');
+            return;
+        }
+        if (otp.trim().length !== 6) {
+            setOtpError('OTP must be 6 digits.');
+            return;
+        }
         setLoading(true);
         try {
             const response = await axios.post('/api/auth/verify-register-otp', {
-                email: formData.email,
-                otp: otp,
+                email: formData.email.trim().toLowerCase(),
+                otp: otp.trim(),
                 role: role === 'owner' ? 'PARKING_OWNER' : 'DRIVER'
             });
 
@@ -146,14 +193,17 @@ function Register() {
             if (role === 'driver') {
                 setStep(4);
             } else {
-                alert('Registration Successful!');
                 navigate('/po-dashboard');
             }
         } catch (error) {
-            setOtpError(
-                error.response?.data?.error ||
-                'Invalid OTP. Please check and try again.'
-            );
+            const msg = error.response?.data?.error || error.response?.data?.message;
+            if (msg?.toLowerCase().includes('expired')) {
+                setOtpError('OTP has expired. Please go back and register again.');
+            } else if (msg?.toLowerCase().includes('invalid') || error.response?.status === 400) {
+                setOtpError('Incorrect OTP. Please check the code sent to your email.');
+            } else {
+                setOtpError(msg || 'Invalid OTP. Please check and try again.');
+            }
         } finally { setLoading(false); }
     };
 
@@ -164,7 +214,6 @@ function Register() {
             if (driverPreferences) {
                 localStorage.setItem('driverPreferences', driverPreferences);
             }
-            alert('Setup Complete! Welcome to Parkify.');
             navigate('/driver-dashboard');
         } catch (error) {
             alert('Something went wrong.');
@@ -223,13 +272,13 @@ function Register() {
 
                         {registerError && <p className="error-message">{registerError}</p>}
 
-                        <form onSubmit={handleRegisterSubmit}>
+                        <form onSubmit={handleRegisterSubmit} noValidate>
                             <div className="input-row">
                                 <input name="firstName" type="text" placeholder="First Name" required onChange={handleChange} className="form-input-styled" />
                                 <input name="lastName" type="text" placeholder="Last Name" required onChange={handleChange} className="form-input-styled" />
                             </div>
                             <input name="email" type="email" placeholder="Email Address" required onChange={handleChange} className="form-input-styled" />
-                            <input name="phoneNumber" type="tel" placeholder="Phone Number" required onChange={handleChange} className="form-input-styled" />
+                            <input name="phoneNumber" type="tel" placeholder="Phone Number (e.g. 0771234567)" required onChange={handleChange} className="form-input-styled" />
 
                             <PasswordStrengthField
                                 value={formData.password}
@@ -252,7 +301,7 @@ function Register() {
                         <h2 className="step-title">Verify Your Email</h2>
                         <p>
                             We've sent a 6-digit code to <strong>{formData.email}</strong>.
-                            Enter it below to complete registration.
+                            Check your inbox (and spam folder) and enter it below.
                         </p>
 
                         {otpError && <p className="error-message">{otpError}</p>}
@@ -261,11 +310,22 @@ function Register() {
                             type="text"
                             placeholder="Enter 6-digit OTP"
                             className="form-input-styled text-center"
-                            onChange={(e) => setOtp(e.target.value)}
+                            maxLength={6}
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                         />
                         <button onClick={handleVerifyAndRegister} className="btn-auth-primary" disabled={loading}>
                             {loading ? 'Verifying...' : 'Verify & Complete'}
                         </button>
+                        <div style={{ marginTop: '12px' }}>
+                            <button
+                                type="button"
+                                className="btn-auth-secondary"
+                                onClick={() => { setStep(2); setOtp(''); setOtpError(''); }}
+                            >
+                                ← Go Back
+                            </button>
+                        </div>
                     </div>
                 )}
 

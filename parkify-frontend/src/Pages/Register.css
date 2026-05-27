@@ -266,6 +266,46 @@
     font-weight: 500;
 }
 
+/* ── Password eye icon wrapper ── */
+.pw-input-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.pw-input-row .form-input-styled {
+    margin-bottom: 0;
+    flex: 1;
+    padding-right: 46px;
+}
+.pw-toggle-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+.pw-toggle-btn:hover { color: #2D4057; }
+.pw-toggle-btn .material-symbols-outlined { font-size: 20px; }
+
+.btn-auth-secondary {
+    background: transparent;
+    border: none;
+    color: #4a90d9;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+}
+
 /* ── Success/Error message bar ── */
 .error-message {
     background: #fff0f0;

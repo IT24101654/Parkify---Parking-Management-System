@@ -4,9 +4,9 @@ import axios from 'axios';
 import Navbar from '../Components/Navbar';
 import './Login.css';
 
-axios.defaults.timeout = 15000;
+axios.defaults.timeout = 30000;
 
-/* ─── Password Strength (reused for reset-password field) ───────────────── */
+/* ─── Password Strength ───────────────────────────────────────────────────── */
 function getPasswordStrength(pw) {
     if (!pw) return null;
     if (pw.length < 8) return 'too-short';
@@ -26,22 +26,38 @@ const strengthMeta = {
     'high': { label: 'Strong password', cls: 'high' },
 };
 
-function PasswordStrengthField({ value, onChange, placeholder = 'New Password' }) {
-    const strength = getPasswordStrength(value);
+/* ─── Password Field with eye icon ──────────────────────────────────────── */
+function PasswordInput({ value, onChange, placeholder = 'Password', showStrength = false }) {
+    const [showPw, setShowPw] = useState(false);
+    const strength = showStrength ? getPasswordStrength(value) : null;
     const isTooShort = strength === 'too-short';
     const meta = strength ? strengthMeta[strength] : null;
+
     return (
         <div className="password-field-wrapper">
-            <input
-                type="password"
-                placeholder={placeholder}
-                className="form-input-styled"
-                required
-                value={value}
-                onChange={onChange}
-                style={isTooShort ? { borderColor: '#ef4444', marginBottom: 6 } : {}}
-            />
-            {strength && (
+            <div className="pw-input-row">
+                <input
+                    type={showPw ? 'text' : 'password'}
+                    placeholder={placeholder}
+                    className="form-input-styled"
+                    required
+                    value={value}
+                    onChange={onChange}
+                    style={isTooShort ? { borderColor: '#ef4444', marginBottom: 0 } : {}}
+                />
+                <button
+                    type="button"
+                    className="pw-toggle-btn"
+                    onClick={() => setShowPw(v => !v)}
+                    tabIndex={-1}
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                >
+                    <span className="material-symbols-outlined">
+                        {showPw ? 'visibility_off' : 'visibility'}
+                    </span>
+                </button>
+            </div>
+            {showStrength && strength && (
                 <>
                     <div className={`strength-bar-track strength-${meta.cls}`}>
                         <div className="strength-segment" />
@@ -73,7 +89,7 @@ function Login() {
     const [forgotOtp, setForgotOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [resetMessage, setResetMessage] = useState('');
-    const [resetMessageType, setResetMessageType] = useState('error'); // 'error' | 'success'
+    const [resetMessageType, setResetMessageType] = useState('error');
     const [resetStep, setResetStep] = useState(1);
 
     /* multi-role state */
@@ -83,14 +99,31 @@ function Login() {
 
     const navigate = useNavigate();
 
+    /* ── Validation ── */
+    const validateEmail = (em) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+
     /* ── Login ── */
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
-        if (!email || !password) {
-            setLoginError('Email and password are required.');
+        setLoginError('');
+
+        if (!email.trim()) {
+            setLoginError('Please enter your email address.');
             return;
         }
-        setLoginError('');
+        if (!validateEmail(email.trim())) {
+            setLoginError('Please enter a valid email address.');
+            return;
+        }
+        if (!password) {
+            setLoginError('Please enter your password.');
+            return;
+        }
+        if (password.length < 8) {
+            setLoginError('Password must be at least 8 characters.');
+            return;
+        }
+
         setLoading(true);
         try {
             const response = await axios.post('/api/auth/login', {
@@ -108,8 +141,18 @@ function Login() {
                 setShowRoleSelect(true);
             }
         } catch (error) {
-            const msg = error.response?.data?.error || error.response?.data?.message || 'Invalid email or password.';
-            setLoginError(msg);
+            const status = error.response?.status;
+            const msg = error.response?.data?.error || error.response?.data?.message;
+
+            if (status === 401 || msg?.toLowerCase().includes('password') || msg?.toLowerCase().includes('invalid')) {
+                setLoginError('Wrong password. Please try again.');
+            } else if (status === 404 || msg?.toLowerCase().includes('not found') || msg?.toLowerCase().includes('email')) {
+                setLoginError('No account found with this email address.');
+            } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+                setLoginError('Server is taking too long to respond. Please try again.');
+            } else {
+                setLoginError(msg || 'Login failed. Please check your credentials and try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -135,11 +178,16 @@ function Login() {
 
     /* ── OTP verify ── */
     const verifyOTP = async () => {
+        if (!otp.trim()) {
+            setLoginError('Please enter the OTP sent to your email.');
+            return;
+        }
+        setLoginError('');
         setLoading(true);
         try {
             const response = await axios.post('/api/auth/verify-otp', {
                 email: email.trim().toLowerCase(),
-                otp: otp,
+                otp: otp.trim(),
                 role: selectedRole
             });
 
@@ -155,7 +203,14 @@ function Login() {
                 default: navigate('/');
             }
         } catch (error) {
-            setLoginError(error.response?.data?.error || 'Invalid OTP. Please try again.');
+            const msg = error.response?.data?.error || error.response?.data?.message;
+            if (msg?.toLowerCase().includes('expired')) {
+                setLoginError('OTP has expired. Please go back and login again to receive a new OTP.');
+            } else if (msg?.toLowerCase().includes('invalid') || error.response?.status === 400) {
+                setLoginError('Incorrect OTP. Please check the code sent to your email and try again.');
+            } else {
+                setLoginError(msg || 'Invalid OTP. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -164,6 +219,16 @@ function Login() {
     /* ── Forgot password: step 1 — send OTP ── */
     const requestPasswordReset = async () => {
         setResetMessage('');
+        if (!forgotEmail.trim()) {
+            setResetMessageType('error');
+            setResetMessage('Please enter your email address.');
+            return;
+        }
+        if (!validateEmail(forgotEmail.trim())) {
+            setResetMessageType('error');
+            setResetMessage('Please enter a valid email address.');
+            return;
+        }
         setLoading(true);
         try {
             await axios.post('/api/users/forgot-password', {
@@ -187,6 +252,11 @@ function Login() {
     /* ── Forgot password: step 2 — verify OTP + set new password ── */
     const performPasswordReset = async () => {
         setResetMessage('');
+        if (!forgotOtp.trim()) {
+            setResetMessageType('error');
+            setResetMessage('Please enter the OTP sent to your email.');
+            return;
+        }
         const strength = getPasswordStrength(newPassword);
         if (!strength || strength === 'too-short') {
             setResetMessageType('error');
@@ -198,7 +268,7 @@ function Login() {
         try {
             await axios.post('/api/users/reset-password', {
                 email: forgotEmail,
-                otp: forgotOtp,
+                otp: forgotOtp.trim(),
                 newPassword: newPassword
             });
             setResetMessageType('success');
@@ -258,20 +328,20 @@ function Login() {
 
                             {loginError && <p className="error-message">{loginError}</p>}
 
-                            <form onSubmit={handleLoginSubmit}>
+                            <form onSubmit={handleLoginSubmit} noValidate>
                                 <input
                                     type="email"
                                     placeholder="Email"
                                     className="form-input-styled"
                                     required
+                                    value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
-                                <input
-                                    type="password"
-                                    placeholder="Password"
-                                    className="form-input-styled"
-                                    required
+                                <PasswordInput
+                                    value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Password"
+                                    showStrength={false}
                                 />
                                 <button type="submit" className="btn-auth-primary" disabled={loading}>
                                     {loading ? 'Sending OTP...' : 'Send OTP'}
@@ -317,18 +387,29 @@ function Login() {
                         <div className="auth-card">
                             <h2>Enter OTP</h2>
                             <p style={{ color: '#6b7280', marginBottom: 16, fontSize: '0.9rem' }}>
-                                A 6-digit code has been sent to <strong>{email}</strong>.
+                                A 6-digit code has been sent to <strong>{email}</strong>. Check your inbox (and spam folder).
                             </p>
                             {loginError && <p className="error-message">{loginError}</p>}
                             <input
                                 placeholder="e.g. 123456"
                                 className="form-input-styled"
                                 required
-                                onChange={(e) => setOtp(e.target.value)}
+                                maxLength={6}
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                             />
                             <button className="btn-auth-primary" onClick={verifyOTP} disabled={loading}>
                                 {loading ? 'Verifying...' : 'Verify OTP'}
                             </button>
+                            <div className="auth-footer" style={{ marginTop: '12px' }}>
+                                <button
+                                    type="button"
+                                    className="btn-auth-secondary"
+                                    onClick={() => { setShowOTP(false); setOtp(''); setLoginError(''); }}
+                                >
+                                    ← Try Again
+                                </button>
+                            </div>
                         </div>
                     )}
 
@@ -373,13 +454,15 @@ function Login() {
                                         placeholder="OTP Code"
                                         className="form-input-styled"
                                         required
+                                        maxLength={6}
                                         value={forgotOtp}
-                                        onChange={(e) => setForgotOtp(e.target.value)}
+                                        onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
                                     />
-                                    <PasswordStrengthField
+                                    <PasswordInput
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         placeholder="New Password"
+                                        showStrength={true}
                                     />
                                     <button
                                         className="btn-auth-primary"
