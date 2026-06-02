@@ -35,7 +35,7 @@ const ParkingDetailsCard = ({
                     <img
                         src={
                             selectedPlace.placeImage && selectedPlace.placeImage !== 'null' && selectedPlace.placeImage !== ''
-                                ? `http://localhost:8080/api/parking/image/${selectedPlace.placeImage}`
+                                ? `/api/parking/image/${selectedPlace.placeImage}`
                                 : parkingBg
                         }
                         alt="Parking"

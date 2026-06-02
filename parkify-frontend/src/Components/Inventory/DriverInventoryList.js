@@ -24,7 +24,7 @@ const DriverInventoryList = ({ selectedType }) => {
             setLoading(true);
             setError('');
             const response = await axios.get(
-                `http://localhost:8080/api/inventory/driver/type/${type}`,
+                `/api/inventory/driver/type/${type}`,
                 { headers: getHeaders() }
             );
             setItems(Array.isArray(response.data) ? response.data : []);

@@ -44,7 +44,7 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
 
             let endpoint = '';
             if (userRole === 'PARKING_OWNER') {
-                endpoint = 'http://localhost:8080/api/inventory/owner';
+                endpoint = '/api/inventory/owner';
                 console.log("OWNER-LEVEL: Fetching shared inventory for owner.");
             } else {
                 const safePlaceId = parkingPlaceId ? Number(parkingPlaceId) : null;
@@ -54,7 +54,7 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
                     setLoading(false);
                     return;
                 }
-                endpoint = `http://localhost:8080/api/inventory/by-parking-place/${safePlaceId}`;
+                endpoint = `/api/inventory/by-parking-place/${safePlaceId}`;
                 console.log("DRIVER-LEVEL: Fetching inventory for parking place:", safePlaceId);
             }
 
@@ -167,14 +167,14 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
 
             if (editingId) {
                 await axios.put(
-                    `http://localhost:8080/api/inventory/${editingId}`,
+                    `/api/inventory/${editingId}`,
                     payload,
                     { headers: getHeaders() }
                 );
                 setSuccessMessage('Item updated successfully!');
             } else {
                 await axios.post(
-                    'http://localhost:8080/api/inventory/add',
+                    '/api/inventory/add',
                     payload,
                     { headers: getHeaders() }
                 );
@@ -212,7 +212,7 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
         try {
             setError('');
             await axios.delete(
-                `http://localhost:8080/api/inventory/${id}`,
+                `/api/inventory/${id}`,
                 { headers: getHeaders() }
             );
             setSuccessMessage('Item deleted successfully!');

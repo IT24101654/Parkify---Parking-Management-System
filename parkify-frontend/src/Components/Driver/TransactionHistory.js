@@ -31,7 +31,7 @@ const TransactionHistory = () => {
             if (sessionId) {
                 try {
                     const token = localStorage.getItem('token');
-                    await axios.get(`http://localhost:8080/api/payments/verify?session_id=${sessionId}`, {
+                    await axios.get(`/api/payments/verify?session_id=${sessionId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     // Clean URL to prevent re-verifying on reload
@@ -42,7 +42,7 @@ const TransactionHistory = () => {
             }
 
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:8080/api/payments/my', {
+            const res = await axios.get('/api/payments/my', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setPayments(res.data);
@@ -61,7 +61,7 @@ const TransactionHistory = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`http://localhost:8080/api/payments/${paymentId}/refund`, { reason }, {
+            await axios.post(`/api/payments/${paymentId}/refund`, { reason }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             window.alert("Refund request submitted successfully!");

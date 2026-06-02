@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './ServiceAppointmentDashboard.css';
 
-const API = 'http://localhost:8080';
+const API = '';
 const SLOTS = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00'];
 
 function ServiceAppointmentDashboard({ selectedPlace, userData }) {

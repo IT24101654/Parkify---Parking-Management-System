@@ -28,7 +28,7 @@ const ServiceCenterDashboard = ({ userId, activeTab }) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:8080/api/service-centers/user/${userId}`, {
+            const response = await axios.get(`/api/service-centers/user/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setServiceCenter(response.data);
@@ -74,7 +74,7 @@ const ServiceCenterDashboard = ({ userId, activeTab }) => {
     const handleUpdateInfo = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:8080/api/service-centers/${serviceCenter.id}`, {
+            await axios.put(`/api/service-centers/${serviceCenter.id}`, {
                 ...serviceCenter,
                 contactNumber: editContact,
                 workingHours: editHours

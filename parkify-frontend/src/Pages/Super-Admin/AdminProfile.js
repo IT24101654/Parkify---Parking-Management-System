@@ -13,7 +13,7 @@ function AdminProfile({ adminData, setAdminData }) {
     const [selectedFile, setSelectedFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
 
-    const API_BASE_URL = 'http://localhost:8080/api/users';
+    const API_BASE_URL = '/api/users';
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -96,7 +96,7 @@ function AdminProfile({ adminData, setAdminData }) {
                 <div className="prof-left">
                     <div className="avatar-wrapper">
                         <img
-                            src={previewUrl || (adminData?.profilePicture ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')}
+                            src={previewUrl || (adminData?.profilePicture ? `/api/users/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')}
                             className="profile-avatar" alt="profile"
                             style={{ objectFit: 'cover' }}
                         />

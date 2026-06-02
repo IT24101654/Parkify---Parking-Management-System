@@ -68,7 +68,7 @@ function ManageUser() {
                                     <td>
                                         <div className="user-name-cell">
                                             <img
-                                                src={user.profilePicture ? `http://localhost:8080/api/users/profile-image/${user.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                                                src={user.profilePicture ? `/api/users/profile-image/${user.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
                                                 alt="profile"
                                                 className="table-avatar"
                                             />
@@ -107,7 +107,7 @@ function ManageUser() {
                         <div className="um-modal-header">
                             <div className="um-modal-avatar-wrapper">
                                 <img
-                                    src={selectedUser.profilePicture ? `http://localhost:8080/api/users/profile-image/${selectedUser.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.name)}&background=random`}
+                                    src={selectedUser.profilePicture ? `/api/users/profile-image/${selectedUser.profilePicture}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.name)}&background=random`}
                                     alt="Profile"
                                     className="um-modal-avatar"
                                 />

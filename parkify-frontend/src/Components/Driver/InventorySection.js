@@ -10,7 +10,7 @@ const InventorySection = ({ parkingPlaceId }) => {
         const fetchInventory = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`http://localhost:8080/api/inventory/by-parking-place/${parkingPlaceId}`, {
+                const response = await axios.get(`/api/inventory/by-parking-place/${parkingPlaceId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setInventory(response.data || []);

@@ -56,7 +56,7 @@ function Drdashboard() {
                 const userId = localStorage.getItem('userId');
                 if (!token || !userId) { navigate('/login'); return; }
                 const { data } = await axios.get(
-                    `http://localhost:8080/api/users/${userId}`,
+                    `/api/users/${userId}`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 setUserData(data);
@@ -140,7 +140,7 @@ function Drdashboard() {
             
             const reqPayload = { preferenceType: pref, latitude: lat, longitude: lng, targetEntity: targetEntity };
             
-            const res = await axios.post(`http://localhost:8080/api/ai-assistant/recommend`, reqPayload, {
+            const res = await axios.post(`/api/ai-assistant/recommend`, reqPayload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -340,7 +340,7 @@ function Drdashboard() {
                         </div>
                         {userData.profilePicture ? (
                             <img
-                                src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`}
+                                src={`/api/users/profile-image/${userData.profilePicture}`}
                                 alt="avatar"
                                 className="profile-avatar"
                                 style={{ objectFit: 'cover' }}

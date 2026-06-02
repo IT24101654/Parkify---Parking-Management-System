@@ -10,7 +10,7 @@ const ServiceCenterSection = ({ userId }) => {
         const fetchServiceCenter = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`http://localhost:8080/api/service-centers/user/${userId}`, {
+                const response = await axios.get(`/api/service-centers/user/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 // Check if the response was successful but empty

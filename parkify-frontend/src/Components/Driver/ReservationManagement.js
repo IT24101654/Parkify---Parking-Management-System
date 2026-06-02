@@ -122,7 +122,7 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
         if (!userId) return;
         try {
             const { data } = await axios.get(
-                `http://localhost:8080/api/vehicles/user/${userId}`,
+                `/api/vehicles/user/${userId}`,
                 { headers: getHeaders() }
             );
             setMyVehicles(data || []);
@@ -136,7 +136,7 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
         if (!id) { setParkingSlots([]); return; }
 
         setSlotsLoading(true);
-        axios.get(`http://localhost:8080/api/slots/place/${id}`, { headers: getHeaders() })
+        axios.get(`/api/slots/place/${id}`, { headers: getHeaders() })
             .then(r => setParkingSlots(r.data || []))
             .catch(() => setParkingSlots([]))
             .finally(() => setSlotsLoading(false));
@@ -163,7 +163,7 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
         try {
             setLoading(true);
             const { data } = await axios.get(
-                'http://localhost:8080/api/reservations/my',
+                '/api/reservations/my',
                 { headers: getHeaders() }
             );
             setReservations(data || []);
@@ -247,13 +247,13 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
 
             if (editingId) {
                 await axios.put(
-                    `http://localhost:8080/api/reservations/update/${editingId}`,
+                    `/api/reservations/update/${editingId}`,
                     payload, { headers: getHeaders() }
                 );
                 showSuccess('Reservation updated successfully!');
             } else {
                 await axios.post(
-                    'http://localhost:8080/api/reservations/book',
+                    '/api/reservations/book',
                     payload, { headers: getHeaders() }
                 );
                 showSuccess('Reservation booked successfully! You will receive a confirmation shortly.');
@@ -296,7 +296,7 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
         if (!window.confirm('Are you sure you want to cancel this reservation?')) return;
         try {
             await axios.put(
-                `http://localhost:8080/api/reservations/cancel/${id}`, {},
+                `/api/reservations/cancel/${id}`, {},
                 { headers: getHeaders() }
             );
             showSuccess('Reservation cancelled.');

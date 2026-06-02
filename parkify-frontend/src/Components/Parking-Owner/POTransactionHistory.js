@@ -26,7 +26,7 @@ const POTransactionHistory = ({ onDataLoaded }) => {
             try {
                 const token = localStorage.getItem('token');
                 const ownerId = localStorage.getItem('userId');
-                const res = await axios.get(`http://localhost:8080/api/payments/owner/${ownerId}/history`, {
+                const res = await axios.get(`/api/payments/owner/${ownerId}/history`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = res.data || [];

@@ -24,7 +24,7 @@ const RefundManagement = () => {
         try {
             const token = localStorage.getItem('token');
             const ownerId = localStorage.getItem('userId');
-            const res = await axios.get(`http://localhost:8080/api/payments/owner/${ownerId}/refunds/pending`, {
+            const res = await axios.get(`/api/payments/owner/${ownerId}/refunds/pending`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setRefunds(res.data);
@@ -40,7 +40,7 @@ const RefundManagement = () => {
         setProcessingId(id);
         try {
             const token = localStorage.getItem('token');
-            await axios.post(`http://localhost:8080/api/payments/owner/refunds/${id}/process`, { approve }, {
+            await axios.post(`/api/payments/owner/refunds/${id}/process`, { approve }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             await loadRefunds();

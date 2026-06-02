@@ -164,7 +164,7 @@ function VehicleManagement() {
     };
 
     const getImageUrl = (fileName) => {
-        return `http://localhost:8080/api/vehicles/docs/${fileName}`;
+        return `/api/vehicles/docs/${fileName}`;
     };
 
     return (

@@ -123,7 +123,7 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
             setLoading(true);
             setError('');
             const response = await axios.get(
-                `http://localhost:8080/api/service-items/center/${serviceCenterId}`,
+                `/api/service-items/center/${serviceCenterId}`,
                 { headers: getHeaders() }
             );
             // Filter by category (case-insensitive)
@@ -178,14 +178,14 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
 
             if (editingId) {
                 await axios.put(
-                    `http://localhost:8080/api/service-items/${editingId}`,
+                    `/api/service-items/${editingId}`,
                     payload,
                     { headers: getHeaders() }
                 );
                 showSuccess(`${selectedCategory} service updated successfully!`);
             } else {
                 await axios.post(
-                    'http://localhost:8080/api/service-items/add',
+                    '/api/service-items/add',
                     payload,
                     { headers: getHeaders() }
                 );
@@ -227,7 +227,7 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
         if (!window.confirm('Are you sure you want to delete this service?')) return;
         try {
             await axios.delete(
-                `http://localhost:8080/api/service-items/${id}`,
+                `/api/service-items/${id}`,
                 { headers: getHeaders() }
             );
             showSuccess('Service deleted successfully!');

@@ -22,7 +22,7 @@ const CheckoutPayment = ({ reservationId, onCancel }) => {
             const token = localStorage.getItem('token');
             const headers = { Authorization: `Bearer ${token}` };
 
-            const { data } = await axios.post(`http://localhost:8080/api/reservations/${reservationId}/pay`, 
+            const { data } = await axios.post(`/api/reservations/${reservationId}/pay`, 
                 { paymentMethod: selectedMethod },
                 { headers }
             );

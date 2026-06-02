@@ -25,7 +25,7 @@ function Dashboard() {
             const token = localStorage.getItem('token');
             if (!token) return;
 
-            const response = await axios.get('http://localhost:8080/api/notifications', {
+            const response = await axios.get('/api/notifications', {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -63,7 +63,7 @@ function Dashboard() {
 
             if (!notif.read) {
                 await axios.put(
-                    `http://localhost:8080/api/notifications/${notif.id}/read`,
+                    `/api/notifications/${notif.id}/read`,
                     {},
                     {
                         headers: { Authorization: `Bearer ${token}` }
@@ -96,7 +96,7 @@ function Dashboard() {
             await Promise.all(
                 unreadNotifications.map((n) =>
                     axios.put(
-                        `http://localhost:8080/api/notifications/${n.id}/read`,
+                        `/api/notifications/${n.id}/read`,
                         {},
                         {
                             headers: { Authorization: `Bearer ${token}` }
@@ -358,7 +358,7 @@ function Dashboard() {
                             <img
                                 src={
                                     adminData?.profilePicture
-                                        ? `http://localhost:8080/api/users/profile-image/${adminData.profilePicture}`
+                                        ? `/api/users/profile-image/${adminData.profilePicture}`
                                         : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                             adminData?.name || 'Admin'
                                         )}&background=2D4057&color=fff`

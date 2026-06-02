@@ -19,7 +19,7 @@ const POReservationOverview = ({ onStatsUpdate }) => {
             setLoading(true);
             const token = localStorage.getItem('token');
             const ownerId = localStorage.getItem('userId');
-            const res = await axios.get(`http://localhost:8080/api/reservations/owner/${ownerId}`, {
+            const res = await axios.get(`/api/reservations/owner/${ownerId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = res.data || [];
@@ -49,7 +49,7 @@ const POReservationOverview = ({ onStatsUpdate }) => {
     const handleAction = async (id, action) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:8080/api/reservations/${id}/${action}`, {}, {
+            await axios.patch(`/api/reservations/${id}/${action}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchReservations();

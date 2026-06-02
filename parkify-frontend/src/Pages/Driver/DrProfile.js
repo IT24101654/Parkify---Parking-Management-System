@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DrProfile.css';
 
-const API_BASE_URL = 'http://localhost:8080/api/users';
-const VEHICLES_API_URL = 'http://localhost:8080/api/vehicles';
+const API_BASE_URL = '/api/users';
+const VEHICLES_API_URL = '/api/vehicles';
 
 const DrProfile = ({ user, authToken, onProfileUpdate }) => {
     const [profileData, setProfileData] = useState(user || {});
@@ -169,7 +169,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
     };
 
     const profilePicUrl = profileData.profilePicture
-        ? `http://localhost:8080/api/users/profile-image/${profileData.profilePicture}`
+        ? `/api/users/profile-image/${profileData.profilePicture}`
         : 'https://ui-avatars.com/api/?name=DR';
 
     return (
@@ -316,7 +316,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                                 <div className="item-card" key={v.id}>
                                     <div className="item-info">
                                         {v.vehicleImage && (
-                                            <img src={`http://localhost:8080/api/vehicles/docs/${v.vehicleImage}`} alt={v.model} className="vehicle-img-thumb" />
+                                            <img src={`/api/vehicles/docs/${v.vehicleImage}`} alt={v.model} className="vehicle-img-thumb" />
                                         )}
                                         <div>
                                             <h4>{v.brand} {v.model}</h4>

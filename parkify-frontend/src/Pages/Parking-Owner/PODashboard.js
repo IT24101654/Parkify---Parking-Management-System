@@ -459,7 +459,7 @@ function PODashboard() {
                         </div>
                         {userData.profilePicture ? (
                             <img
-                                src={`http://localhost:8080/api/users/profile-image/${userData.profilePicture}`}
+                                src={`/api/users/profile-image/${userData.profilePicture}`}
                                 alt="avatar"
                                 className="profile-avatar"
                                 style={{ objectFit: 'cover' }}

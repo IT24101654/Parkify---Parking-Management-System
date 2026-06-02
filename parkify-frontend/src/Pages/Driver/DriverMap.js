@@ -72,12 +72,12 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
         try {
             const token = localStorage.getItem('token');
             const cfg = { headers: { Authorization: `Bearer ${token}` } };
-            const placesRes = await axios.get('http://localhost:8080/api/parking', cfg);
+            const placesRes = await axios.get('/api/parking', cfg);
             const valid = (placesRes.data || []).filter(p => p && p.latitude && p.longitude);
             setParkingPlaces(valid);
 
             try {
-                const favRes = await axios.get('http://localhost:8080/api/favorites/my-favorites', cfg);
+                const favRes = await axios.get('/api/favorites/my-favorites', cfg);
                 if (favRes.data && Array.isArray(favRes.data)) {
                     setFavorites(favRes.data.map(f => f.parkingSlotId));
                 }
@@ -135,29 +135,49 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
         const isFav = favorites.some(favId => String(favId) === String(placeId));
         try {
             if (isFav) {
-                await axios.delete(`http://localhost:8080/api/favorites/remove/${placeId}`, cfg);
+                await axios.delete(`/api/favorites/remove/${placeId}`, cfg);
                 setFavorites(f => f.filter(id => String(id) !== String(placeId)));
             } else {
-                await axios.post(`http://localhost:8080/api/favorites/add/${placeId}`, {}, cfg);
+                await axios.post(`/api/favorites/add/${placeId}`, {}, cfg);
                 setFavorites(f => [...f, placeId]);
             }
         } catch (err) { console.error('Fav toggle error', err); }
     };
 
-    const handleSearch = (e) => {
-        const q = e.target.value;
-        setSearchQuery(q);
-        if (q) {
-            const lowerQ = q.toLowerCase();
+    useEffect(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return;
+
+        const timer = setTimeout(async () => {
+            // 1. Check if there's a matching parking slot in our database
             const match = parkingPlaces.find(p => 
-                p.parkingName?.toLowerCase().includes(lowerQ) ||
-                p.city?.toLowerCase().includes(lowerQ) ||
-                p.area?.toLowerCase().includes(lowerQ) ||
-                p.address?.toLowerCase().includes(lowerQ) ||
-                p.location?.toLowerCase().includes(lowerQ)
+                p.parkingName?.toLowerCase().includes(q) ||
+                p.city?.toLowerCase().includes(q) ||
+                p.area?.toLowerCase().includes(q) ||
+                p.address?.toLowerCase().includes(q) ||
+                p.location?.toLowerCase().includes(q)
             );
-            if (match && match.latitude && match.longitude) setMapCenter([match.latitude, match.longitude]);
-        }
+
+            if (match && match.latitude && match.longitude) {
+                setMapCenter([match.latitude, match.longitude]);
+            } else {
+                // 2. If no matching parking slot, geocode the city via OpenStreetMap
+                try {
+                    const res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${q}&countrycodes=lk`);
+                    if (res.data && res.data.length > 0) {
+                        setMapCenter([parseFloat(res.data[0].lat), parseFloat(res.data[0].lon)]);
+                    }
+                } catch (e) {
+                    console.warn("Geocoding failed", e);
+                }
+            }
+        }, 1000); // 1-second debounce to prevent API spam
+
+        return () => clearTimeout(timer);
+    }, [searchQuery, parkingPlaces]);
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
     };
 
     const getDistLabel = (place) => {

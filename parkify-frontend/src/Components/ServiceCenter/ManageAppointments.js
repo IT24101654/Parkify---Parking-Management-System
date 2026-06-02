@@ -10,7 +10,7 @@ const ManageAppointments = ({ serviceCenterName, onBack }) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
-            const res = await axios.get(`http://localhost:8080/api/service-appointments`, {
+            const res = await axios.get(`/api/service-appointments`, {
                 params: { serviceCenter: serviceCenterName, size: 100 },
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -29,7 +29,7 @@ const ManageAppointments = ({ serviceCenterName, onBack }) => {
     const handleAction = async (bookingId, action) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`http://localhost:8080/api/service-appointments/${bookingId}/${action}`, {}, {
+            await axios.patch(`/api/service-appointments/${bookingId}/${action}`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchAppointments();

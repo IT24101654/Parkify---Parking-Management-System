@@ -3,7 +3,7 @@ import axios from 'axios';
 import './POProfile.css';
 import MapSelectorModal from './MapSelectorModal';
 
-const API_BASE_URL = 'http://localhost:8080/api/users';
+const API_BASE_URL = '/api/users';
 
 const POProfile = ({ user, authToken, onProfileUpdate }) => {
     const [profileData, setProfileData] = useState(user || {});
@@ -93,7 +93,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
     };
 
     const profilePicUrl = profileData.profilePicture 
-            ? `http://localhost:8080/api/users/profile-image/${profileData.profilePicture}` 
+            ? `/api/users/profile-image/${profileData.profilePicture}` 
             : 'https://ui-avatars.com/api/?name=PO';
 
     return (
