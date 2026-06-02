@@ -11,6 +11,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
     const [parkingPlaces, setParkingPlaces] = useState([]);
     const [mapModalOpen, setMapModalOpen] = useState(false);
     const [activeMapField, setActiveMapField] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const fetchParkingPlaces = async () => {
         try {
@@ -47,6 +48,7 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         formData.append("file", file);
 
         try {
+            setIsUploading(true);
             const res = await axios.post(`${API_BASE_URL}/${profileData.id}/upload-profile-image`, formData, {
                 headers: { Authorization: `Bearer ${authToken}` }
             });
@@ -57,6 +59,8 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         } catch (err) {
             console.error(err);
             alert("Failed to upload image.");
+        } finally {
+            setIsUploading(false);
         }
     };
 
@@ -92,9 +96,15 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         }
     };
 
-    const profilePicUrl = profileData.profilePicture 
-            ? `/api/users/profile-image/${profileData.profilePicture}` 
-            : 'https://ui-avatars.com/api/?name=PO';
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    
+    const getProfileImgUrl = (pic) => {
+        if (!pic) return 'https://ui-avatars.com/api/?name=PO';
+        if (pic.startsWith('http')) return pic;
+        return `${baseUrl}/api/users/profile-image/${pic}`;
+    };
+
+    const profilePicUrl = getProfileImgUrl(profileData.profilePicture);
 
     return (
         <div className="po-profile-container">
@@ -102,9 +112,15 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
             <div className="po-profile-header card-glass">
                 <div className="header-left">
                     <div className="avatar-wrapper">
-                        <img src={profilePicUrl} alt="Profile" className="po-avatar-img" />
-                        <label className="avatar-upload-label">
-                            <input type="file" hidden accept="image/*" onChange={handleProfileImageUpload} />
+                        {isUploading ? (
+                            <div className="po-avatar-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e4dfd3' }}>
+                                <span className="material-symbols-outlined search-spin" style={{ fontSize: '32px' }}>autorenew</span>
+                            </div>
+                        ) : (
+                            <img src={profilePicUrl} alt="Profile" className="po-avatar-img" />
+                        )}
+                        <label className="avatar-upload-label" style={{ opacity: isUploading ? 0.5 : 1, pointerEvents: isUploading ? 'none' : 'auto' }}>
+                            <input type="file" hidden accept="image/*" onChange={handleProfileImageUpload} disabled={isUploading} />
                             <span className="material-symbols-outlined">add_a_photo</span>
                         </label>
                     </div>

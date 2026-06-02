@@ -11,6 +11,8 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
 
     const [vehicles, setVehicles] = useState([]);
     const [isAddingVehicle, setIsAddingVehicle] = useState(false);
+    const [isUploadingProfile, setIsUploadingProfile] = useState(false);
+    const [isSavingVehicle, setIsSavingVehicle] = useState(false);
     const [editingVehicleId, setEditingVehicleId] = useState(null);
     const [newVehicle, setNewVehicle] = useState({ vehicleNumber: '', brand: '', model: '', type: 'Car', fuelType: 'Petrol' });
     const [vImage, setVImage] = useState(null);
@@ -52,6 +54,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         const userId = profileData.id || localStorage.getItem('userId');
 
         try {
+            setIsUploadingProfile(true);
             const res = await axios.post(`${API_BASE_URL}/${userId}/upload-profile-image`, formData, {
                 headers: { Authorization: `Bearer ${authToken}` }
             });
@@ -62,6 +65,8 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         } catch (err) {
             console.error(err);
             alert("Failed to upload image.");
+        } finally {
+            setIsUploadingProfile(false);
         }
     };
 
@@ -117,6 +122,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         if (lImage) formData.append("licenseImage", lImage);
 
         try {
+            setIsSavingVehicle(true);
             if (editingVehicleId) {
                 await axios.put(`${VEHICLES_API_URL}/${editingVehicleId}`, formData, {
                     headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'multipart/form-data' }
@@ -125,6 +131,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
             } else {
                 if (!vImage || !lImage) {
                     alert("Images are required for new vehicles.");
+                    setIsSavingVehicle(false);
                     return;
                 }
                 const userId = profileData.id || localStorage.getItem('userId');
@@ -139,6 +146,8 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         } catch (err) {
             console.error(err);
             alert("Failed to save vehicle details.");
+        } finally {
+            setIsSavingVehicle(false);
         }
     };
 
@@ -189,9 +198,15 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
             <div className="dr-profile-header card-glass">
                 <div className="header-left">
                     <div className="avatar-wrapper">
-                        <img src={profilePicUrl} alt="Profile" className="dr-avatar-img" />
-                        <label className="avatar-upload-label">
-                            <input type="file" hidden accept="image/*" onChange={handleProfileImageUpload} />
+                        {isUploadingProfile ? (
+                            <div className="dr-avatar-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e4dfd3' }}>
+                                <span className="material-symbols-outlined search-spin" style={{ fontSize: '32px' }}>autorenew</span>
+                            </div>
+                        ) : (
+                            <img src={profilePicUrl} alt="Profile" className="dr-avatar-img" />
+                        )}
+                        <label className="avatar-upload-label" style={{ opacity: isUploadingProfile ? 0.5 : 1, pointerEvents: isUploadingProfile ? 'none' : 'auto' }}>
+                            <input type="file" hidden accept="image/*" onChange={handleProfileImageUpload} disabled={isUploadingProfile} />
                             <span className="material-symbols-outlined">add_a_photo</span>
                         </label>
                     </div>
@@ -310,8 +325,15 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                                 </div>
 
                                 <div className="form-actions">
-                                    <button type="button" className="btn-cancel" onClick={resetVehicleForm}>Cancel</button>
-                                    <button type="submit" className="save-btn" style={{ marginTop: 0 }}>{editingVehicleId ? "Update Vehicle" : "Save Vehicle"}</button>
+                                    <button type="button" className="btn-cancel" onClick={resetVehicleForm} disabled={isSavingVehicle}>Cancel</button>
+                                    <button type="submit" className="save-btn" style={{ marginTop: 0 }} disabled={isSavingVehicle}>
+                                        {isSavingVehicle ? (
+                                            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                                <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                                Saving...
+                                            </span>
+                                        ) : editingVehicleId ? "Update Vehicle" : "Save Vehicle"}
+                                    </button>
                                 </div>
                             </form>
                         )}
