@@ -168,8 +168,9 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
         setIsAddingVehicle(true);
     };
 
+    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
     const profilePicUrl = profileData.profilePicture
-        ? `/api/users/profile-image/${profileData.profilePicture}`
+        ? `${baseUrl}/api/users/profile-image/${profileData.profilePicture}`
         : 'https://ui-avatars.com/api/?name=DR';
 
     return (
@@ -316,7 +317,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                                 <div className="item-card" key={v.id}>
                                     <div className="item-info">
                                         {v.vehicleImage && (
-                                            <img src={`/api/vehicles/docs/${v.vehicleImage}`} alt={v.model} className="vehicle-img-thumb" />
+                                            <img src={`${baseUrl}/api/vehicles/docs/${v.vehicleImage}`} alt={v.model} className="vehicle-img-thumb" />
                                         )}
                                         <div>
                                             <h4>{v.brand} {v.model}</h4>

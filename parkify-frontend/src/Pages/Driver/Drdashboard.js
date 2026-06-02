@@ -340,7 +340,7 @@ function Drdashboard() {
                         </div>
                         {userData.profilePicture ? (
                             <img
-                                src={`/api/users/profile-image/${userData.profilePicture}`}
+                                src={`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/users/profile-image/${userData.profilePicture}`}
                                 alt="avatar"
                                 className="profile-avatar"
                                 style={{ objectFit: 'cover' }}
