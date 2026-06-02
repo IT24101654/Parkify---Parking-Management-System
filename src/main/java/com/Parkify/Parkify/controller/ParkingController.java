@@ -25,6 +25,9 @@ public class ParkingController {
     @Autowired
     private ParkingService parkingService;
 
+    @Autowired
+    private com.Parkify.Parkify.service.CloudinaryService cloudinaryService;
+
     @GetMapping
     public List<ParkingPlace> getAll() {
         return parkingService.getAllParkingPlaces();
@@ -85,20 +88,12 @@ public class ParkingController {
                 return ResponseEntity.badRequest().body("Only image file uploads are allowed");
             }
 
-            String uploadDir = "parking-photos/";
-            File dir = new File(uploadDir);
-            if (!dir.exists())
-                dir.mkdirs();
-
-            String fileName = "PARKING_" + id + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir + fileName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            parkingService.updateParkingImage(id, fileName);
+            String imageUrl = cloudinaryService.uploadImage(file, "parking_places");
+            parkingService.updateParkingImage(id, imageUrl);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Parking image uploaded successfully",
-                    "fileName", fileName));
+                    "fileName", imageUrl));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
         }

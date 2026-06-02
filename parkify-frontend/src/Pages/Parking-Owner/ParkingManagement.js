@@ -572,7 +572,7 @@ const ParkingManagement = ({ onManageInventory }) => {
 
                         <div className="detailed-modal-body">
                             {/* Modern Hero Section */}
-                            <div className="place-preview-hero" style={{ backgroundImage: `url(${selectedPlaceForDetails.placeImage ? `/api/parking/image/${selectedPlaceForDetails.placeImage}` : parkingBg})` }}>
+                            <div className="place-preview-hero" style={{ backgroundImage: `url(${selectedPlaceForDetails.placeImage && selectedPlaceForDetails.placeImage.startsWith('http') ? selectedPlaceForDetails.placeImage : (selectedPlaceForDetails.placeImage ? `/api/parking/image/${selectedPlaceForDetails.placeImage}` : parkingBg)})` }}>
                                 <div className="hero-overlay">
                                     <div className="hero-badge-row">
                                         <span className={`status-chip ${selectedPlaceForDetails.status.toLowerCase()}`}>{selectedPlaceForDetails.status}</span>

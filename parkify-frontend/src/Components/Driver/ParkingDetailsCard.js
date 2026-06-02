@@ -13,6 +13,12 @@ const ParkingDetailsCard = ({
         if (onBookNow) onBookNow(selectedPlace);
     };
 
+    const getParkingImgUrl = (pic) => {
+        if (!pic || pic === 'null' || pic === '') return parkingBg;
+        if (pic.startsWith('http')) return pic;
+        return `/api/parking/image/${pic}`;
+    };
+
     return (
         /* Full-screen fixed overlay backdrop */
         <div
@@ -33,11 +39,7 @@ const ParkingDetailsCard = ({
                 {/* LEFT: Header Image */}
                 <div className="pdc-card-header">
                     <img
-                        src={
-                            selectedPlace.placeImage && selectedPlace.placeImage !== 'null' && selectedPlace.placeImage !== ''
-                                ? `/api/parking/image/${selectedPlace.placeImage}`
-                                : parkingBg
-                        }
+                        src={getParkingImgUrl(selectedPlace.placeImage)}
                         alt="Parking"
                         onError={(e) => { e.target.onerror = null; e.target.src = parkingBg; }}
                     />
