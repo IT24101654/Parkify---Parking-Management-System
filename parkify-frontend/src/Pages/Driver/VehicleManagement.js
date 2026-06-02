@@ -164,7 +164,8 @@ function VehicleManagement() {
     };
 
     const getImageUrl = (fileName) => {
-        return `/api/vehicles/docs/${fileName}`;
+        const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        return `${baseUrl}/api/vehicles/docs/${fileName}`;
     };
 
     return (
