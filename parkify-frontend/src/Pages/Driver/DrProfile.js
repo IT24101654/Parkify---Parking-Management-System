@@ -169,9 +169,20 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
     };
 
     const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-    const profilePicUrl = profileData.profilePicture
-        ? `${baseUrl}/api/users/profile-image/${profileData.profilePicture}`
-        : 'https://ui-avatars.com/api/?name=DR';
+    
+    const getProfileImgUrl = (pic) => {
+        if (!pic) return 'https://ui-avatars.com/api/?name=DR';
+        if (pic.startsWith('http')) return pic;
+        return `${baseUrl}/api/users/profile-image/${pic}`;
+    };
+    
+    const getVehicleImgUrl = (pic) => {
+        if (!pic) return '';
+        if (pic.startsWith('http')) return pic;
+        return `${baseUrl}/api/vehicles/docs/${pic}`;
+    };
+
+    const profilePicUrl = getProfileImgUrl(profileData.profilePicture);
 
     return (
         <div className="dr-profile-container">
@@ -317,7 +328,7 @@ const DrProfile = ({ user, authToken, onProfileUpdate }) => {
                                 <div className="item-card" key={v.id}>
                                     <div className="item-info">
                                         {v.vehicleImage && (
-                                            <img src={`${baseUrl}/api/vehicles/docs/${v.vehicleImage}`} alt={v.model} className="vehicle-img-thumb" />
+                                            <img src={getVehicleImgUrl(v.vehicleImage)} alt={v.model} className="vehicle-img-thumb" />
                                         )}
                                         <div>
                                             <h4>{v.brand} {v.model}</h4>

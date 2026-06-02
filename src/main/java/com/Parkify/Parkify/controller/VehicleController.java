@@ -23,6 +23,9 @@ public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
 
+    @Autowired
+    private com.Parkify.Parkify.service.CloudinaryService cloudinaryService;
+
     @PostMapping("/add/{userId}")
     public ResponseEntity<?> addVehicle(
             @PathVariable("userId") Long userId,
@@ -35,15 +38,15 @@ public class VehicleController {
             @RequestParam("licenseImage") MultipartFile lImage) {
 
         try {
-            String uploadDir = "vehicle-docs/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-
-            String vFileName = "VEH_" + vehicleNumber + "_" + vImage.getOriginalFilename();
-            String lFileName = "LIC_" + vehicleNumber + "_" + lImage.getOriginalFilename();
-
-            Files.copy(vImage.getInputStream(), Paths.get(uploadDir + vFileName), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(lImage.getInputStream(), Paths.get(uploadDir + lFileName), StandardCopyOption.REPLACE_EXISTING);
+            String vUrl = null;
+            if (vImage != null && !vImage.isEmpty()) {
+                vUrl = cloudinaryService.uploadImage(vImage, "vehicles");
+            }
+            
+            String lUrl = null;
+            if (lImage != null && !lImage.isEmpty()) {
+                lUrl = cloudinaryService.uploadImage(lImage, "licenses");
+            }
 
             Vehicle vehicle = new Vehicle();
             vehicle.setVehicleNumber(vehicleNumber);
@@ -52,7 +55,7 @@ public class VehicleController {
             vehicle.setType(type);
             vehicle.setFuelType(fuelType);
 
-            Vehicle savedVehicle = vehicleService.addVehicle(userId, vehicle, vFileName, lFileName);
+            Vehicle savedVehicle = vehicleService.addVehicle(userId, vehicle, vUrl, lUrl);
             return ResponseEntity.ok(savedVehicle);
 
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
@@ -90,20 +93,14 @@ public class VehicleController {
             @RequestParam(value = "licenseImage", required = false) MultipartFile lImage) {
 
         try {
-            String uploadDir = "vehicle-docs/";
-            File dir = new File(uploadDir);
-            if (!dir.exists()) dir.mkdirs();
-
-            String vFileName = null;
+            String vUrl = null;
             if (vImage != null && !vImage.isEmpty()) {
-                vFileName = "VEH_UPD_" + vehicleNumber + "_" + vImage.getOriginalFilename();
-                Files.copy(vImage.getInputStream(), Paths.get(uploadDir + vFileName), StandardCopyOption.REPLACE_EXISTING);
+                vUrl = cloudinaryService.uploadImage(vImage, "vehicles");
             }
 
-            String lFileName = null;
+            String lUrl = null;
             if (lImage != null && !lImage.isEmpty()) {
-                lFileName = "LIC_UPD_" + vehicleNumber + "_" + lImage.getOriginalFilename();
-                Files.copy(lImage.getInputStream(), Paths.get(uploadDir + lFileName), StandardCopyOption.REPLACE_EXISTING);
+                lUrl = cloudinaryService.uploadImage(lImage, "licenses");
             }
 
             Vehicle vehicle = new Vehicle();
@@ -113,7 +110,7 @@ public class VehicleController {
             vehicle.setType(type);
             vehicle.setFuelType(fuelType);
 
-            Vehicle updatedVehicle = vehicleService.updateVehicle(vehicleId, vehicle, vFileName, lFileName);
+            Vehicle updatedVehicle = vehicleService.updateVehicle(vehicleId, vehicle, vUrl, lUrl);
             return ResponseEntity.ok(updatedVehicle);
 
         } catch (org.springframework.dao.DataIntegrityViolationException e) {

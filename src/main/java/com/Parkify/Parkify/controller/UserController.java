@@ -27,6 +27,7 @@ public class UserController {
     @Autowired private UserService userService;
     @Autowired private UserServiceExtra userExtraService;
     @Autowired private VehicleService vehicleService;
+    @Autowired private com.Parkify.Parkify.service.CloudinaryService cloudinaryService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
@@ -107,15 +108,10 @@ public class UserController {
     public ResponseEntity<?> uploadProfileImage(@PathVariable("id") Long id,
                                                 @RequestParam("file") MultipartFile file) throws IOException {
 
-        String uploadDir = "user-photos/";
-        new File(uploadDir).mkdirs();
+        String imageUrl = cloudinaryService.uploadImage(file, "profiles");
+        userService.updateProfilePicture(id, imageUrl);
 
-        String fileName = "PROFILE_" + id + "_" + file.getOriginalFilename();
-        Files.copy(file.getInputStream(), Paths.get(uploadDir + fileName), StandardCopyOption.REPLACE_EXISTING);
-
-        userService.updateProfilePicture(id, fileName);
-
-        return ResponseEntity.ok(Map.of("fileName", fileName));
+        return ResponseEntity.ok(Map.of("fileName", imageUrl));
     }
 
     @GetMapping("/profile-image/{fileName}")

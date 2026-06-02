@@ -264,6 +264,13 @@ function Drdashboard() {
         setAutoOpenResv(false);
     }, []);
 
+    const getProfileImgUrl = (pic) => {
+        if (!pic) return '';
+        if (pic.startsWith('http')) return pic;
+        const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+        return `${baseUrl}/api/users/profile-image/${pic}`;
+    };
+
     if (!userData) return <div className="loading">Loading Dashboard...</div>;
 
     const firstName = (userData.name || 'Driver').split(' ')[0];
@@ -340,7 +347,7 @@ function Drdashboard() {
                         </div>
                         {userData.profilePicture ? (
                             <img
-                                src={`${process.env.REACT_APP_API_URL || 'http://localhost:8080'}/api/users/profile-image/${userData.profilePicture}`}
+                                src={getProfileImgUrl(userData.profilePicture)}
                                 alt="avatar"
                                 className="profile-avatar"
                                 style={{ objectFit: 'cover' }}

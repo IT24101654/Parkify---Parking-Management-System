@@ -163,9 +163,11 @@ function VehicleManagement() {
         if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
-    const getImageUrl = (fileName) => {
+    const getImageUrl = (urlOrFileName) => {
+        if (!urlOrFileName) return '';
+        if (urlOrFileName.startsWith('http')) return urlOrFileName;
         const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-        return `${baseUrl}/api/vehicles/docs/${fileName}`;
+        return `${baseUrl}/api/vehicles/docs/${urlOrFileName}`;
     };
 
     return (
