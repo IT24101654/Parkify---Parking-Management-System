@@ -36,6 +36,7 @@ const TransactionHistory = () => {
                     });
                     // Clean URL to prevent re-verifying on reload
                     window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
                 } catch (verifyErr) {
                     console.error("Failed to verify local session", verifyErr);
                 }
