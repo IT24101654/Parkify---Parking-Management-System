@@ -90,6 +90,8 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
     const [viewItem, setViewItem]         = useState(null);
     const [formErrors, setFormErrors]     = useState({});
     const [form, setForm]                 = useState(EMPTY_FORM);
+    const [lastUpdated, setLastUpdated]   = useState(null);
+    const [refreshing, setRefreshing]     = useState(false);
 
     // ── Driver's vehicles & parking slots ──
     const [myVehicles, setMyVehicles]   = useState([]);
@@ -159,22 +161,34 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
     }, [autoOpenForm, prefillData, buildForm, onFormOpenHandled]);
 
     // ── Load reservations ─────────────────────────────────
-    const loadReservations = useCallback(async () => {
+    const loadReservations = useCallback(async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
+            else setRefreshing(true);
             const { data } = await axios.get(
                 '/api/reservations/my',
                 { headers: getHeaders() }
             );
             setReservations(data || []);
+            setLastUpdated(new Date());
         } catch {
-            showError('Failed to load reservations. Please check your connection.');
+            if (!silent) showError('Failed to load reservations. Please check your connection.');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // Initial load
     useEffect(() => { loadReservations(); }, [loadReservations]);
+
+    // ── Auto-poll every 30 seconds ────────────────────────
+    useEffect(() => {
+        const interval = setInterval(() => {
+            loadReservations(true); // silent refresh (no spinner)
+        }, 30000);
+        return () => clearInterval(interval); // cleanup on unmount
+    }, [loadReservations]);
 
     // ── Auto-calculate duration & total ───────────────────
     useEffect(() => {
@@ -316,7 +330,34 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
         <div className="resv-container">
 
             {/* ── Page Header ── */}
-            <div className="resv-header" style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '5px' }}>
+            <div className="resv-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '5px' }}>
+                {/* Last updated indicator */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        fontSize: '0.78rem', color: P.taupe, fontStyle: 'italic'
+                    }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '15px', color: refreshing ? P.primary : '#5C6B51' }}>
+                            {refreshing ? 'sync' : 'check_circle'}
+                        </span>
+                        {refreshing ? 'Refreshing...' : lastUpdated
+                            ? `Updated ${lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+                            : 'Loading...'}
+                    </span>
+                    <button
+                        onClick={() => loadReservations(true)}
+                        disabled={refreshing}
+                        title="Refresh now"
+                        style={{
+                            background: 'none', border: `1px solid ${P.primaryBdr}`, borderRadius: '8px',
+                            padding: '4px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                            gap: '4px', fontSize: '0.78rem', color: P.primary, transition: 'all 0.2s'
+                        }}
+                    >
+                        <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>refresh</span>
+                        Refresh
+                    </button>
+                </div>
                 <button className="resv-add-btn"
                     onClick={() => { setForm(buildForm()); setEditingId(null); setFormErrors({}); setShowForm(true); }}>
                     <span className="material-symbols-outlined">add_circle</span>

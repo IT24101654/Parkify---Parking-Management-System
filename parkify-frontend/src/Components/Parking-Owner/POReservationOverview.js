@@ -5,6 +5,8 @@ import './POReservationOverview.css';
 const POReservationOverview = ({ onStatsUpdate }) => {
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState(null);
     const [selectedReservation, setSelectedReservation] = useState(null);
     const [viewModal, setViewModal] = useState(false);
     const [stats, setStats] = useState({
@@ -14,9 +16,10 @@ const POReservationOverview = ({ onStatsUpdate }) => {
         cancelled: 0
     });
 
-    const fetchReservations = useCallback(async () => {
+    const fetchReservations = useCallback(async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
+            else setRefreshing(true);
             const token = localStorage.getItem('token');
             const ownerId = localStorage.getItem('userId');
             const res = await axios.get(`/api/reservations/owner/${ownerId}`, {
@@ -24,7 +27,8 @@ const POReservationOverview = ({ onStatsUpdate }) => {
             });
             const data = res.data || [];
             setReservations(data);
-            
+            setLastUpdated(new Date());
+
             // Calculate stats
             setStats({
                 total: data.length,
@@ -36,14 +40,24 @@ const POReservationOverview = ({ onStatsUpdate }) => {
                 onStatsUpdate(data);
             }
         } catch (err) {
-            console.error('Failed to load reservations', err);
+            if (!silent) console.error('Failed to load reservations', err);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
-    }, []);
+    }, [onStatsUpdate]);
 
+    // Initial load
     useEffect(() => {
         fetchReservations();
+    }, [fetchReservations]);
+
+    // Auto-poll every 30 seconds — picks up new driver bookings silently
+    useEffect(() => {
+        const interval = setInterval(() => {
+            fetchReservations(true);
+        }, 30000);
+        return () => clearInterval(interval);
     }, [fetchReservations]);
 
     const handleAction = async (id, action) => {
@@ -114,6 +128,37 @@ const POReservationOverview = ({ onStatsUpdate }) => {
                     <div className="header-text">
                         <h3>Reservation List</h3>
                         <p>Track all driver bookings for your parking locations</p>
+                    </div>
+                    {/* Live refresh indicator */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
+                        <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '5px',
+                            fontSize: '0.78rem', color: '#968478', fontStyle: 'italic'
+                        }}>
+                            <span className="material-symbols-outlined" style={{
+                                fontSize: '15px',
+                                color: refreshing ? '#A17060' : '#5C6B51',
+                                animation: refreshing ? 'spin 1s linear infinite' : 'none'
+                            }}>
+                                {refreshing ? 'sync' : 'check_circle'}
+                            </span>
+                            {refreshing ? 'Refreshing...' : lastUpdated
+                                ? `Updated ${lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`
+                                : ''}
+                        </span>
+                        <button
+                            onClick={() => fetchReservations(true)}
+                            disabled={refreshing}
+                            title="Refresh now"
+                            style={{
+                                background: 'none', border: '1px solid #ddd0c8', borderRadius: '8px',
+                                padding: '4px 10px', cursor: 'pointer', display: 'inline-flex',
+                                alignItems: 'center', gap: '4px', fontSize: '0.78rem', color: '#A17060'
+                            }}
+                        >
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>refresh</span>
+                            Refresh
+                        </button>
                     </div>
                 </div>
 
