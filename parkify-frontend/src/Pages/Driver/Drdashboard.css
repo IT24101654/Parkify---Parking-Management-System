@@ -745,111 +745,116 @@ html {
 /* ─── Responsive Media Queries (Mobile Fixes) ─── */
 @media screen and (max-width: 768px) {
     .dr-dashboard {
-        flex-direction: column-reverse; /* Sidebar at bottom */
+        flex-direction: row; /* Keep standard flex direction */
     }
 
     .dr-sidebar {
-        width: 100%;
-        height: 70px;
-        flex-direction: row;
-        padding: 10px;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         position: fixed;
-        bottom: 0;
+        top: 0;
+        left: -280px; /* Hidden by default */
+        width: 250px;
+        height: 100vh;
+        z-index: 2000;
+        transition: 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    }
+    
+    .dr-sidebar.active {
         left: 0;
-        z-index: 1000;
-        justify-content: space-around;
-        align-items: center;
-        gap: 5px;
     }
 
+    /* We need logo and logout visible */
     .sidebar-logo, .dr-logout-bottom {
-        display: none; /* Hide logo and logout on bottom nav */
+        display: flex;
     }
 
     .sidebar-nav {
-        flex-direction: row;
-        justify-content: space-around;
-        width: 100%;
-        gap: 0;
+        flex-direction: column;
     }
 
     .sidebar-nav button {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: flex-start;
+        height: 48px;
+    }
+    
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 1999;
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* Hamburger */
+    .mobile-menu-btn {
+        display: flex;
+        cursor: pointer;
         padding: 5px;
-        height: auto;
-        justify-content: center;
-        border-radius: 8px;
+        margin-right: 15px;
+        color: var(--text-dark);
     }
-
-    .sidebar-nav button span.material-symbols-outlined {
-        font-size: 24px;
-        margin-bottom: 3px;
-    }
-
-    .sidebar-nav button .nav-text {
-        font-size: 10px;
+    
+    .mobile-menu-btn span {
+        font-size: 28px;
     }
 
     .dr-main {
-        height: calc(100vh - 70px);
-        margin-bottom: 70px;
+        height: 100vh;
+        margin-bottom: 0;
+        width: 100%;
+    }
+
+    .dr-scroll-container {
+        height: calc(100vh - 75px);
+        padding: 20px;
     }
 
     .dr-navbar {
         padding: 15px;
-        height: auto;
-        flex-wrap: wrap;
-        gap: 15px;
+        justify-content: space-between;
     }
 
     .nav-search-wrapper {
-        width: 100%;
-        order: 2; /* Move search below profile */
-    }
-
-    .nav-search {
-        width: 100%;
+        display: none;
     }
 
     .nav-profile {
-        width: 100%;
-        justify-content: space-between;
-        order: 1;
+        gap: 10px;
     }
 
-    .dr-scroll-container {
-        padding: 15px;
-        height: calc(100vh - 140px); /* 70px navbar + 70px sidebar */
+    .profile-info {
+        display: none;
     }
 
     .features-grid {
-        justify-content: space-between;
+        gap: 10px;
     }
 
     .feature-card {
-        width: calc(50% - 7px);
-        max-width: 100%;
+        width: calc(50% - 5px);
+        max-width: none;
+        min-height: 160px;
         padding: 15px;
-        min-height: 150px;
     }
-
+    
     .fc-title {
         font-size: 15px;
     }
-
+    
     .fc-desc {
-        display: none; /* Hide description on mobile to save space */
+        display: none;
     }
-
+    
     .fc-icon-wrapper {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
         margin-bottom: 10px;
-    }
-
-    .inner-card {
-        padding: 15px;
     }
 }

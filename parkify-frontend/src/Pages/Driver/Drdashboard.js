@@ -42,6 +42,7 @@ function Drdashboard() {
     const [autoOpenResv, setAutoOpenResv] = useState(false);
     
     const [checkoutReservationId, setCheckoutReservationId] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     const isProgrammaticScroll = useRef(false);
     const scrollTaskTimeout = useRef(null);
@@ -325,8 +326,9 @@ function Drdashboard() {
 
     return (
         <div className="dr-dashboard">
+            <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
 
-            <aside className="dr-sidebar">
+            <aside className={`dr-sidebar ${isSidebarOpen ? 'active' : ''}`}>
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
                     <h1>Parkify</h1>
@@ -386,6 +388,9 @@ function Drdashboard() {
             <main className="dr-main">
 
                 <header className="dr-navbar">
+                    <div className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+                        <span className="material-symbols-outlined">menu</span>
+                    </div>
                     <div className="nav-search-wrapper">
                         <div className="nav-search">
                             <span className="material-symbols-outlined">location_on</span>

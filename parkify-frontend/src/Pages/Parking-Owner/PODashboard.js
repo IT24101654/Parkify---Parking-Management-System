@@ -17,6 +17,7 @@ function PODashboard() {
     const [userData, setUserData] = useState(null);
     const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
     const [currentPlaceForInventory, setCurrentPlaceForInventory] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const isProgrammaticScroll = useRef(false);
     const scrollTaskTimeout = useRef(null);
     const scrollContainerRef = useRef(null);
@@ -330,8 +331,9 @@ function PODashboard() {
 
     return (
         <div className="po-dashboard">
+            <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
             {/* Sidebar (Structure untouched) */}
-            <aside className="po-sidebar">
+            <aside className={`po-sidebar ${isSidebarOpen ? 'active' : ''}`}>
                 <div className="sidebar-logo">
                     <span className="material-symbols-outlined">directions_car</span>
                     <h1>Parkify</h1>
@@ -392,6 +394,9 @@ function PODashboard() {
 
             <main className="po-main">
                 <header className="po-navbar">
+                    <div className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+                        <span className="material-symbols-outlined">menu</span>
+                    </div>
                     <div className="nav-search-wrapper" ref={searchRef}>
                         <div className={`nav-search${isSearchOpen ? ' nav-search--active' : ''}`}>
                             <span className={`material-symbols-outlined${isSearchLoading ? ' search-spin' : ''}`}>search</span>

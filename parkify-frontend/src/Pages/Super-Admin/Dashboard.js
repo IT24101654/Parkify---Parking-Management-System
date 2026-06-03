@@ -10,6 +10,7 @@ function Dashboard() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [adminData, setAdminData] = useState(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
@@ -219,7 +220,8 @@ function Dashboard() {
 
     return (
         <div className="db-container">
-            <aside className="db-sidebar">
+            <div className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+            <aside className={`db-sidebar ${isSidebarOpen ? 'active' : ''}`}>
                 <div className="db-logo">
                     <span className="material-symbols-outlined">garage</span>
                     <h1>Parkify</h1>
@@ -259,6 +261,9 @@ function Dashboard() {
 
             <main className="db-main">
                 <header className="db-header">
+                    <div className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+                        <span className="material-symbols-outlined">menu</span>
+                    </div>
                     <div className="db-search">
                         <span className="material-symbols-outlined">search</span>
                         <input type="text" placeholder="Search analytics..." />
