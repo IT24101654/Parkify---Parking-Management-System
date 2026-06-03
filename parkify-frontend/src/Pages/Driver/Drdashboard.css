@@ -757,14 +757,24 @@ html {
         z-index: 2000;
         transition: 0.3s ease;
         box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+        overflow-y: auto; /* Allow scroll so logout is always reachable */
+        display: flex;
+        flex-direction: column;
     }
     
     .dr-sidebar.active {
         left: 0;
     }
 
-    /* We need logo and logout visible */
-    .sidebar-logo, .dr-logout-bottom {
+    /* Logout must always be visible at the bottom */
+    .dr-logout-bottom {
+        display: flex;
+        margin-top: auto;
+        flex-shrink: 0;
+    }
+
+    /* We need logo visible */
+    .sidebar-logo {
         display: flex;
     }
 

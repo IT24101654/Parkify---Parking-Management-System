@@ -404,7 +404,7 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
                     <p>Loading reservations...</p>
                 </div>
             ) : reservations.length > 0 ? (
-                <div className="table-container">
+                    <div className="table-container">
                     <table className="inventory-table">
                         <thead>
                             <tr>
@@ -474,6 +474,75 @@ const ReservationManagement = ({ userData, prefillData, autoOpenForm, onFormOpen
                             ))}
                         </tbody>
                     </table>
+
+                    {/* ── Mobile Card View (shown via CSS when table is hidden on small screens) ── */}
+                    <div className="resv-mobile-cards">
+                        {reservations.map(r => (
+                            <div key={`card-${r.id}`} className="resv-card">
+                                <div className="resv-card-header">
+                                    <span className="resv-card-id">#{r.id}</span>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                        <button className="btn-edit resv-btn-view" title="View" onClick={() => setViewItem(r)}>
+                                            <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>visibility</span>
+                                        </button>
+                                        {r.status !== 'CANCELLED' && r.status !== 'COMPLETED' && (
+                                            <>
+                                                <button className="btn-edit" title="Edit" onClick={() => handleEdit(r)}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>edit</span>
+                                                </button>
+                                                <button className="btn-delete" title="Cancel" onClick={() => handleCancel(r.id)}>
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>cancel</span>
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="resv-card-row">
+                                    <span className="resv-card-label">Driver</span>
+                                    <div className="resv-driver-cell" style={{ gap: '6px' }}>
+                                        <span className="resv-driver-avatar" style={{ width: '24px', height: '24px', fontSize: '10px' }}>
+                                            {(r.driverName || 'D').charAt(0).toUpperCase()}
+                                        </span>
+                                        <span className="resv-card-value">{r.driverName || '—'}</span>
+                                    </div>
+                                </div>
+                                <div className="resv-card-row">
+                                    <span className="resv-card-label">Parking</span>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div className="resv-card-value">{r.parkingName || '—'}</div>
+                                        <div style={{ fontSize: '11px', color: '#a0aec0' }}>{r.parkingLocation || ''}</div>
+                                    </div>
+                                </div>
+                                <div className="resv-card-row">
+                                    <span className="resv-card-label">Slot</span>
+                                    <span className="resv-slot-chip">{r.slotNumber || '—'}</span>
+                                </div>
+                                <div className="resv-card-row">
+                                    <span className="resv-card-label">Date</span>
+                                    <span className="resv-card-value">{r.reservationDate || '—'}</span>
+                                </div>
+                                <div className="resv-card-row">
+                                    <span className="resv-card-label">Time</span>
+                                    <span className="resv-card-value">{r.startTime || '—'} → {r.endTime || '—'}</span>
+                                </div>
+                                <div className="resv-card-row" style={{ borderBottom: 'none' }}>
+                                    <span className="resv-card-label">Payment</span>
+                                    {(r.paymentStatus === 'PENDING' || !r.paymentStatus) ? (
+                                        <button
+                                            className="resv-pay-badge resv-pay-action-btn"
+                                            onClick={() => onNavigateToPayment && onNavigateToPayment(r.id)}
+                                        >
+                                            <span className="material-symbols-outlined" style={{ fontSize: '13px', marginRight: '3px' }}>account_balance_wallet</span>
+                                            Pay Now
+                                        </button>
+                                    ) : (
+                                        <PayBadge status={r.paymentStatus || 'PENDING'} />
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             ) : (
                 <div className="empty-state">

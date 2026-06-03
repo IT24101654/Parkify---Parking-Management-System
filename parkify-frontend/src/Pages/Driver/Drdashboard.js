@@ -43,6 +43,8 @@ function Drdashboard() {
     
     const [checkoutReservationId, setCheckoutReservationId] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [showTextInput, setShowTextInput] = useState(false);
+    const [textInputValue, setTextInputValue] = useState('');
     
     const isProgrammaticScroll = useRef(false);
     const scrollTaskTimeout = useRef(null);
@@ -201,7 +203,8 @@ function Drdashboard() {
 
     const startVoiceAssistant = () => {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert('Your browser does not support Voice Recognition.');
+            // Mobile browsers that don't support speech API → show text input fallback
+            setShowTextInput(true);
             return;
         }
         
@@ -239,11 +242,15 @@ function Drdashboard() {
         recognition.onerror = (event) => {
             console.error("Speech error:", event.error);
             if (event.error === 'not-allowed') {
-                alert("Microphone Access Blocked! Please click the Site Settings icon next to localhost:3000 in your browser URL bar, and allow Microphone access.");
+                alert("Microphone Access Blocked! Please allow microphone access in your browser settings.");
+            } else if (event.error === 'service-not-allowed' || event.error === 'service_not_allowed') {
+                // Mobile browsers (iOS Safari, some Android) block speech recognition
+                // Show text input fallback instead
+                setShowTextInput(true);
             } else if (event.error === 'no-speech') {
-                alert("No speech detected. Please check if your microphone is working properly.");
+                setShowTextInput(true);
             } else {
-                alert("Speech error: " + event.error);
+                setShowTextInput(true);
             }
             setIsVoiceOpen(false);
             setVoiceTranscript('');
@@ -297,6 +304,14 @@ function Drdashboard() {
     const handleFormOpenHandled = useCallback(() => {
         setAutoOpenResv(false);
     }, []);
+
+    const handleTextSearch = async () => {
+        const query = textInputValue.trim();
+        if (!query) return;
+        setShowTextInput(false);
+        setTextInputValue('');
+        await stopAndProcessVoice(query);
+    };
 
     const getProfileImgUrl = (pic) => {
         if (!pic) return '';
@@ -735,6 +750,83 @@ function Drdashboard() {
 
                 </div>
             </main>
+
+            {/* ── Text Input Fallback Modal (for mobile / browsers without Speech API) ── */}
+            {showTextInput && (
+                <div style={{
+                    position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    zIndex: 9999, padding: '20px'
+                }} onClick={(e) => e.target === e.currentTarget && setShowTextInput(false)}>
+                    <div style={{
+                        background: 'white', borderRadius: '24px', padding: '32px',
+                        width: '100%', maxWidth: '480px',
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+                        fontFamily: 'Inter, sans-serif'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div style={{
+                                width: '44px', height: '44px', borderRadius: '14px',
+                                background: '#f5f0eb', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', flexShrink: 0
+                            }}>
+                                <span className="material-symbols-outlined" style={{ color: '#B08974', fontSize: '22px' }}>search</span>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#1a202c' }}>AI Parking Search</h3>
+                                <p style={{ margin: 0, fontSize: '0.82rem', color: '#a0aec0' }}>Type what you're looking for</p>
+                            </div>
+                            <button onClick={() => setShowTextInput(false)} style={{
+                                marginLeft: 'auto', background: 'none', border: 'none',
+                                fontSize: '22px', cursor: 'pointer', color: '#a0aec0', lineHeight: 1
+                            }}>×</button>
+                        </div>
+
+                        <input
+                            type="text"
+                            value={textInputValue}
+                            onChange={e => setTextInputValue(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleTextSearch()}
+                            placeholder="e.g. nearest parking, cheap parking, find inventory..."
+                            autoFocus
+                            style={{
+                                width: '100%', padding: '14px 16px', borderRadius: '12px',
+                                border: '2px solid #ede9e3', fontSize: '1rem',
+                                fontFamily: 'Inter, sans-serif', outline: 'none',
+                                boxSizing: 'border-box', marginBottom: '16px',
+                                transition: 'border-color 0.2s'
+                            }}
+                            onFocus={e => e.target.style.borderColor = '#B08974'}
+                            onBlur={e => e.target.style.borderColor = '#ede9e3'}
+                        />
+
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                            {['Nearest parking', 'Cheap parking', 'Near service center', 'Find inventory'].map(hint => (
+                                <button key={hint} onClick={() => setTextInputValue(hint.toLowerCase())}
+                                    style={{
+                                        background: '#f5f0eb', color: '#B08974',
+                                        border: '1px solid #ddd0c8', borderRadius: '20px',
+                                        padding: '6px 14px', fontSize: '0.82rem', fontWeight: 600,
+                                        cursor: 'pointer', fontFamily: 'Inter, sans-serif'
+                                    }}>
+                                    {hint}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button onClick={handleTextSearch} disabled={!textInputValue.trim() || isAiThinking}
+                            style={{
+                                width: '100%', padding: '14px', borderRadius: '12px',
+                                background: textInputValue.trim() ? '#B08974' : '#e2d9d3',
+                                color: 'white', border: 'none', fontSize: '1rem',
+                                fontWeight: 700, cursor: textInputValue.trim() ? 'pointer' : 'not-allowed',
+                                fontFamily: 'Inter, sans-serif', transition: 'background 0.2s'
+                            }}>
+                            {isAiThinking ? 'Finding...' : '🔍 Find Parking'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
