@@ -53,8 +53,14 @@ function VehicleManagement() {
     };
 
     const handleFileChange = (e) => {
-        if (e.target.name === 'vehicleImage') setVImage(e.target.files[0]);
-        if (e.target.name === 'licenseImage') setLImage(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file && file.size > 2 * 1024 * 1024) {
+            alert("File is too large! Please select an image smaller than 2MB.");
+            e.target.value = '';
+            return;
+        }
+        if (e.target.name === 'vehicleImage') setVImage(file);
+        if (e.target.name === 'licenseImage') setLImage(file);
     };
 
     const resetForm = () => {

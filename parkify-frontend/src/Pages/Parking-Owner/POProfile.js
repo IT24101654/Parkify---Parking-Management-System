@@ -44,6 +44,13 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Prevent huge files from causing long upload times or timeouts
+        if (file.size > 2 * 1024 * 1024) {
+            alert("File is too large! Please select an image smaller than 2MB.");
+            e.target.value = ''; // Reset input
+            return;
+        }
+
         const formData = new FormData();
         formData.append("file", file);
 
@@ -58,9 +65,10 @@ const POProfile = ({ user, authToken, onProfileUpdate }) => {
             alert("Profile image uploaded successfully");
         } catch (err) {
             console.error(err);
-            alert("Failed to upload image.");
+            alert("Failed to upload image. Please try again.");
         } finally {
             setIsUploading(false);
+            e.target.value = ''; // Reset input so user can try again
         }
     };
 
