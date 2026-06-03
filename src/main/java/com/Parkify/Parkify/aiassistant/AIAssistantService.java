@@ -19,7 +19,8 @@ public class AIAssistantService {
 
     public AIParkingResponseDTO recommend(AIParkingRequestDTO request) {
         List<ParkingPlace> places = parkingRepository.findAll();
-        places.removeIf(p -> !"ACTIVE".equalsIgnoreCase(p.getStatus()));
+        places.removeIf(p -> p.getStatus() == null || 
+            (!p.getStatus().equalsIgnoreCase("ACTIVE") && !p.getStatus().equalsIgnoreCase("AVAILABLE")));
 
         if ("INVENTORY".equalsIgnoreCase(request.getTargetEntity())) {
             places.removeIf(p -> p.getHasInventory() == null || !p.getHasInventory());
