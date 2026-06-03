@@ -406,10 +406,60 @@ function Drdashboard() {
                                         <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px', color: '#B08974' }}>lightbulb</span>
                                         Try saying:
                                     </span>
-                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#B08974', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(176, 137, 116, 0.2)' }}>"Nearest parking"</span>
-                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#B08974', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(176, 137, 116, 0.2)' }}>"Cheap parking"</span>
-                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#7A806B', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(122, 128, 107, 0.2)' }}>"Near service center"</span>
-                                    <span style={{ backgroundColor: 'rgba(176, 137, 116, 0.1)', color: '#7A806B', padding: '3px 10px', borderRadius: '12px', border: '1px solid rgba(122, 128, 107, 0.2)' }}>"Find inventory"</span>
+                                    {[
+                                        { label: 'Nearest parking',    cmd: 'nearest parking',    color: '#B08974', bg: 'rgba(176, 137, 116, 0.1)', border: 'rgba(176, 137, 116, 0.2)' },
+                                        { label: 'Cheap parking',      cmd: 'cheap parking',      color: '#B08974', bg: 'rgba(176, 137, 116, 0.1)', border: 'rgba(176, 137, 116, 0.2)' },
+                                        { label: 'Near service center', cmd: 'near service center', color: '#7A806B', bg: 'rgba(122, 128, 107, 0.1)', border: 'rgba(122, 128, 107, 0.2)' },
+                                        { label: 'Find inventory',     cmd: 'find inventory',     color: '#7A806B', bg: 'rgba(122, 128, 107, 0.1)', border: 'rgba(122, 128, 107, 0.2)' },
+                                    ].map(({ label, cmd, color, bg, border }) => (
+                                        <button
+                                            key={cmd}
+                                            onClick={() => {
+                                                // Stop any active mic first
+                                                if (recognitionRef.current) {
+                                                    recognitionRef.current.stop();
+                                                    recognitionRef.current = null;
+                                                }
+                                                if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
+                                                setIsVoiceOpen(false);
+                                                setVoiceTranscript(cmd);
+                                                stopAndProcessVoice(cmd);
+                                            }}
+                                            disabled={isAiThinking}
+                                            title={`Click to try: "${label}"`}
+                                            style={{
+                                                backgroundColor: bg,
+                                                color,
+                                                padding: '4px 12px',
+                                                borderRadius: '12px',
+                                                border: `1px solid ${border}`,
+                                                cursor: isAiThinking ? 'not-allowed' : 'pointer',
+                                                fontSize: '0.85rem',
+                                                fontFamily: 'Inter, sans-serif',
+                                                fontWeight: '500',
+                                                transition: 'all 0.18s ease',
+                                                opacity: isAiThinking ? 0.5 : 1,
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                            }}
+                                            onMouseEnter={e => {
+                                                e.currentTarget.style.backgroundColor = color;
+                                                e.currentTarget.style.color = 'white';
+                                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                                e.currentTarget.style.boxShadow = `0 4px 12px ${border}`;
+                                            }}
+                                            onMouseLeave={e => {
+                                                e.currentTarget.style.backgroundColor = bg;
+                                                e.currentTarget.style.color = color;
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = 'none';
+                                            }}
+                                        >
+                                            <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>touch_app</span>
+                                            "{label}"
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         </div>
