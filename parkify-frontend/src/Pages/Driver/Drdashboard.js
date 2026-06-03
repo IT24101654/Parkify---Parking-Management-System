@@ -186,14 +186,9 @@ function Drdashboard() {
                 const bestPlace = res.data.data.recommendedPlace;
                 setActiveContextPlace(bestPlace);
                 
-                if (targetEntity === 'INVENTORY') {
-                    scrollToSection('inventory');
-                } else if (targetEntity === 'SERVICE') {
-                    scrollToSection('services');
-                } else {
-                    scrollToSection('find-slots');
-                    setMapPopupPlace(bestPlace);
-                }
+                // Always show the recommended place on the map first
+                scrollToSection('find-slots');
+                setMapPopupPlace(bestPlace);
             }
         } catch (err) {
             console.error("AI Assistant Error:", err);
