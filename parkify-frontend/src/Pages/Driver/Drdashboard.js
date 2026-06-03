@@ -103,6 +103,43 @@ function Drdashboard() {
     }, [userData, activeTab]);
 
 
+    // ── Get FRESH GPS location (4s timeout, falls back to localStorage) ──
+    const getFreshLocation = () => new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve({
+                lat: parseFloat(localStorage.getItem('driverLat')) || 6.9271,
+                lng: parseFloat(localStorage.getItem('driverLng')) || 79.8612,
+            });
+            return;
+        }
+        const fallbackTimer = setTimeout(() => {
+            resolve({
+                lat: parseFloat(localStorage.getItem('driverLat')) || 6.9271,
+                lng: parseFloat(localStorage.getItem('driverLng')) || 79.8612,
+            });
+        }, 4000);
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                clearTimeout(fallbackTimer);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                // Update localStorage so rest of app is also fresh
+                localStorage.setItem('driverLat', lat);
+                localStorage.setItem('driverLng', lng);
+                resolve({ lat, lng });
+            },
+            () => {
+                clearTimeout(fallbackTimer);
+                resolve({
+                    lat: parseFloat(localStorage.getItem('driverLat')) || 6.9271,
+                    lng: parseFloat(localStorage.getItem('driverLng')) || 79.8612,
+                });
+            },
+            { enableHighAccuracy: true, timeout: 4000, maximumAge: 0 }
+        );
+    });
+
     const stopAndProcessVoice = async (finalTranscript) => {
         if (recognitionRef.current) {
             recognitionRef.current.stop();
@@ -135,9 +172,9 @@ function Drdashboard() {
         try {
             setIsAiThinking(true);
             const token = localStorage.getItem('token');
-            
-            let lat = parseFloat(localStorage.getItem('driverLat')) || 6.9271;
-            let lng = parseFloat(localStorage.getItem('driverLng')) || 79.8612;
+
+            // ── Always get FRESH GPS before AI call ──────────────
+            const { lat, lng } = await getFreshLocation();
             
             const reqPayload = { preferenceType: pref, latitude: lat, longitude: lng, targetEntity: targetEntity };
             
