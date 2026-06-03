@@ -243,3 +243,20 @@
 .po-res-modal .status-pill, .po-res-modal .payment-pill {
     display: inline-block;
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+    .po-res-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .po-res-table-wrapper {
+        padding: 15px;
+        overflow-x: auto; /* Enable horizontal scroll for table */
+    }
+
+    .po-res-detail-grid {
+        grid-template-columns: 1fr;
+        padding: 20px 20px;
+    }
+}

@@ -326,3 +326,39 @@
     font-size: 0.9rem;
     margin-bottom: 14px;
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+    .auth-container {
+        padding: 10px;
+    }
+    
+    .role-selection-card {
+        padding: 25px 15px;
+    }
+
+    .role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vehicle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .input-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .scrollable-form {
+        padding: 20px 15px;
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+    }
+
+    .role-box {
+        padding: 20px;
+    }
+}

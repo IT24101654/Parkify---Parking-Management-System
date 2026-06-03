@@ -72,3 +72,18 @@
 .glass-card {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+  .ov-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .ov-images {
+    grid-template-columns: 1fr;
+  }
+  
+  .img-glass img {
+    height: auto;
+  }
+}

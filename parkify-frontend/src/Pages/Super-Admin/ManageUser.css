@@ -322,3 +322,18 @@
       transform: translateY(0);
   }
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+  .user-card-main {
+    padding: 15px;
+  }
+
+  .um-modal-content {
+    width: 95%;
+  }
+
+  .um-modal-details-grid {
+    grid-template-columns: 1fr;
+  }
+}

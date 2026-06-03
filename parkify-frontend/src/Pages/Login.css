@@ -267,3 +267,43 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+  .auth-page {
+    padding-top: 50px;
+  }
+
+  .auth-split-container {
+    flex-direction: column;
+  }
+
+  .auth-visual {
+    padding: 30px 20px;
+    flex: 0 0 200px;
+    text-align: center;
+  }
+
+  .visual-text h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .visual-text p {
+    font-size: 0.9rem;
+  }
+
+  .auth-form-container {
+    padding: 25px 20px;
+    align-items: flex-start; /* So it doesn't stay centered vertically if visual takes space */
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .auth-card h2 {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+}

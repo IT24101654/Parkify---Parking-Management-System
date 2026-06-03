@@ -348,18 +348,26 @@ function Drdashboard() {
                         <span className="material-symbols-outlined">account_balance_wallet</span>
                         <span className="nav-text">Payments</span>
                     </button>
-                    {hasInventory && (
-                        <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => scrollToSection('inventory')}>
-                            <span className="material-symbols-outlined">inventory</span>
-                            <span className="nav-text">Inventory</span>
-                        </button>
-                    )}
-                    {hasService && (
-                        <button className={activeTab === 'services' ? 'active' : ''} onClick={() => scrollToSection('services')}>
-                            <span className="material-symbols-outlined">build</span>
-                            <span className="nav-text">Vehicle Services</span>
-                        </button>
-                    )}
+                    <button className={activeTab === 'inventory' ? 'active' : ''} onClick={() => {
+                        if (hasInventory) {
+                            scrollToSection('inventory');
+                        } else {
+                            stopAndProcessVoice('find inventory');
+                        }
+                    }}>
+                        <span className="material-symbols-outlined">inventory</span>
+                        <span className="nav-text">Inventory</span>
+                    </button>
+                    <button className={activeTab === 'services' ? 'active' : ''} onClick={() => {
+                        if (hasService) {
+                            scrollToSection('services');
+                        } else {
+                            stopAndProcessVoice('near service center');
+                        }
+                    }}>
+                        <span className="material-symbols-outlined">build</span>
+                        <span className="nav-text">Vehicle Services</span>
+                    </button>
                     <button className={activeTab === 'vehicles' ? 'active' : ''} onClick={() => scrollToSection('vehicles')}>
                         <span className="material-symbols-outlined">directions_car</span>
                         <span className="nav-text">My Vehicles</span>
@@ -540,8 +548,13 @@ function Drdashboard() {
                                 footerIcon="shopping_cart"
                                 footerText="Shop Now"
                                 colorClass="fc-color-taupe"
-                                visible={hasInventory}
-                                onClick={() => scrollToSection('inventory')}
+                                onClick={() => {
+                                    if (hasInventory) {
+                                        scrollToSection('inventory');
+                                    } else {
+                                        stopAndProcessVoice('find inventory');
+                                    }
+                                }}
                             />
                             <FeatureCard
                                 icon="build"
@@ -550,8 +563,13 @@ function Drdashboard() {
                                 footerIcon="handyman"
                                 footerText="Expert Care"
                                 colorClass="fc-color-dark"
-                                visible={hasService}
-                                onClick={() => scrollToSection('services')}
+                                onClick={() => {
+                                    if (hasService) {
+                                        scrollToSection('services');
+                                    } else {
+                                        stopAndProcessVoice('near service center');
+                                    }
+                                }}
                             />
                             <FeatureCard
                                 icon="directions_car"
