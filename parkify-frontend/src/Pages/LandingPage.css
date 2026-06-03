@@ -152,3 +152,61 @@
     margin-bottom: 25px;
     color: #AE8E82;
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+    .navbar {
+        height: auto;
+        padding: 15px 0;
+    }
+    
+    .nav-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .hero {
+        padding: 120px 20px 60px; /* Account for taller navbar */
+    }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .type-container {
+        white-space: normal; /* Allow wrapping on small screens */
+        border-right: none;  /* Remove blink cursor on mobile to prevent overflow issues */
+        width: auto !important; /* Override animation width */
+        animation: none; /* Disable typing animation on mobile to allow natural wrapping */
+    }
+
+    .hero p {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+
+    .hero-btns {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .hero-btns button {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    .grid-container {
+        grid-template-columns: 1fr;
+        padding: 40px 20px;
+    }
+}
