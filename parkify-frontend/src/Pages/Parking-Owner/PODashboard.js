@@ -82,13 +82,12 @@ function PODashboard() {
             setUserData(response.data);
         } catch (error) {
             console.error('Failed to fetch user data', error);
-            setUserData({
-                id: localStorage.getItem('userId') || 1,
-                name: 'Parking Owner',
-                email: localStorage.getItem('userEmail') || 'owner@parkify.ai',
-                hasInventory: false,
-                hasServiceCenter: false
-            });
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                localStorage.clear();
+                navigate('/login');
+            } else {
+                setUserData('error');
+            }
         }
     }, [navigate]);
 
@@ -313,6 +312,19 @@ function PODashboard() {
             </>
         );
     }, []);
+
+    if (userData === 'error') {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: 'var(--bg-primary)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '64px', color: '#6d4242d4', marginBottom: '16px' }}>cloud_off</span>
+                <h2 style={{ fontSize: '2rem', color: 'var(--text-dark)', marginBottom: '8px' }}>Server is waking up or busy</h2>
+                <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)', marginBottom: '24px' }}>Please try again in a few moments.</p>
+                <button className="primary-btn" onClick={() => window.location.reload()} style={{ padding: '12px 24px', fontSize: '1.1rem', cursor: 'pointer', border: 'none', borderRadius: '8px', background: '#6d4242d4', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="material-symbols-outlined">refresh</span> Retry Now
+                </button>
+            </div>
+        );
+    }
 
     if (!userData) return <div className="loading">Loading Dashboard...</div>;
 
