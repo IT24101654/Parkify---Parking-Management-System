@@ -88,6 +88,8 @@ const ParkingManagement = ({ onManageInventory }) => {
     const [showSlotManager, setShowSlotManager] = useState(false);
     const [currentPlaceForSlots, setCurrentPlaceForSlots] = useState(null);
     const [errors, setErrors] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
+    const [deletingPlaceId, setDeletingPlaceId] = useState(null);
 
 
     useEffect(() => {
@@ -192,6 +194,7 @@ const ParkingManagement = ({ onManageInventory }) => {
         }
 
         try {
+            setIsSaving(true);
             const token = localStorage.getItem('token');
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -237,6 +240,8 @@ const ParkingManagement = ({ onManageInventory }) => {
         } catch (error) {
             console.error("Action error:", error);
             alert("Action failed: " + (error.response?.data?.error || error.response?.data?.message || typeof error.response?.data === 'string' ? error.response.data : error.message));
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -299,6 +304,7 @@ const ParkingManagement = ({ onManageInventory }) => {
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this place?")) {
             try {
+                setDeletingPlaceId(id);
                 const token = localStorage.getItem('token');
                 const config = { headers: { Authorization: `Bearer ${token}` } };
                 await axios.delete(`/api/parking/delete/${id}`, config);
@@ -307,6 +313,8 @@ const ParkingManagement = ({ onManageInventory }) => {
             } catch (error) {
                 console.error("Deletion error:", error);
                 alert("Error deleting record.");
+            } finally {
+                setDeletingPlaceId(null);
             }
         }
     };
@@ -408,8 +416,12 @@ const ParkingManagement = ({ onManageInventory }) => {
                                             <button className="pm-action-icon edit" onClick={(e) => { e.stopPropagation(); handleEdit(place); }} style={{ marginRight: '10px', backgroundColor: '#3498db', color: 'white' }}>
                                                 <i className="fa fa-edit"></i>
                                             </button>
-                                            <button className="pm-action-icon delete" onClick={(e) => { e.stopPropagation(); handleDelete(place.id); }}>
-                                                <i className="fa fa-trash"></i>
+                                            <button className="pm-action-icon delete" onClick={(e) => { e.stopPropagation(); handleDelete(place.id); }} disabled={deletingPlaceId === place.id}>
+                                                {deletingPlaceId === place.id ? (
+                                                    <span className="material-symbols-outlined search-spin" style={{ fontSize: '14px' }}>autorenew</span>
+                                                ) : (
+                                                    <i className="fa fa-trash"></i>
+                                                )}
                                             </button>
                                         </td>
                                     </tr>
@@ -548,8 +560,15 @@ const ParkingManagement = ({ onManageInventory }) => {
                                     </MapContainer>
                                 </div>
 
-                                <button type="submit" className="pm-submit-btn" style={{ backgroundColor: palette.darkBlue }}>
-                                    {isEditMode ? 'UPDATE PARKING PLACE' : 'REGISTER PARKING PLACE'}
+                                <button type="submit" className="pm-submit-btn" style={{ backgroundColor: palette.darkBlue }} disabled={isSaving}>
+                                    {isSaving ? (
+                                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                            <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span> 
+                                            {isEditMode ? 'UPDATING...' : 'REGISTERING...'}
+                                        </span>
+                                    ) : (
+                                        isEditMode ? 'UPDATE PARKING PLACE' : 'REGISTER PARKING PLACE'
+                                    )}
                                 </button>
                             </form>
                         </div>

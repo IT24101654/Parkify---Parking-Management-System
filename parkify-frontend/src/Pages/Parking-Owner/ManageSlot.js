@@ -15,6 +15,8 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
     });
     const [expandedGroups, setExpandedGroups] = useState({});
     const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [deletingSlotId, setDeletingSlotId] = useState(null);
 
     const showMessage = (text, type = 'success') => {
         setStatusMsg({ text, type });
@@ -42,6 +44,7 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
     const handleBulkCreate = async (e) => {
         e.preventDefault();
         try {
+            setIsGenerating(true);
             const token = localStorage.getItem('token');
             const cfg = { headers: { Authorization: `Bearer ${token}` } };
             const payload = { ...bulkSlotData, placeId: place.id };
@@ -52,12 +55,15 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
         } catch (error) {
             console.error("Error bulk creating slots", error);
             showMessage("Failed to generate slots.", "error");
+        } finally {
+            setIsGenerating(false);
         }
     };
 
     const handleDeleteSlot = async (slotId) => {
         if (!window.confirm("Are you sure you want to delete this slot?")) return;
         try {
+            setDeletingSlotId(slotId);
             const token = localStorage.getItem('token');
             const cfg = { headers: { Authorization: `Bearer ${token}` } };
             await axios.delete(`/api/slots/delete/${slotId}`, cfg);
@@ -66,6 +72,8 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
         } catch (error) {
             console.error("Error deleting slot", error);
             showMessage("Failed to delete slot.", "error");
+        } finally {
+            setDeletingSlotId(null);
         }
     };
 
@@ -171,7 +179,13 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
                                         <option value="EV">EV Station</option>
                                     </select>
                                 </div>
-                                <button onClick={handleBulkCreate} className="pm-primary-btn">Generate Slots</button>
+                                <button onClick={handleBulkCreate} className="pm-primary-btn" disabled={isGenerating}>
+                                    {isGenerating ? (
+                                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                            <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span> Generating...
+                                        </span>
+                                    ) : "Generate Slots"}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -205,8 +219,13 @@ const ManageSlot = ({ place, isOpen, onClose }) => {
                                                         <button
                                                             className="mini-del-btn"
                                                             onClick={(e) => { e.stopPropagation(); handleDeleteSlot(slot.id); }}
+                                                            disabled={deletingSlotId === slot.id}
                                                         >
-                                                            <FontAwesomeIcon icon={faTimes} />
+                                                            {deletingSlotId === slot.id ? (
+                                                                <span className="material-symbols-outlined search-spin" style={{ fontSize: '14px' }}>autorenew</span>
+                                                            ) : (
+                                                                <FontAwesomeIcon icon={faTimes} />
+                                                            )}
                                                         </button>
                                                     </div>
                                                 ))}

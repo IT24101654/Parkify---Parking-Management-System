@@ -87,6 +87,7 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [formErrors, setFormErrors] = useState({});
     const [saving, setSaving] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
 
     const [form, setForm] = useState({
         name: '',
@@ -226,6 +227,7 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this service?')) return;
         try {
+            setDeletingId(id);
             await axios.delete(
                 `/api/service-items/${id}`,
                 { headers: getHeaders() }
@@ -236,6 +238,8 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
             console.error('Service delete error:', err);
             const serverMsg = err.response?.data?.error || err.message;
             showError(serverMsg || 'Failed to delete service.');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -406,7 +410,12 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
                                     disabled={saving}
                                     style={{ background: saving ? '#c4bdb6' : cfg.color }}
                                 >
-                                    {saving ? 'Saving...' : (editingId ? 'Update Service' : `Save Service`)}
+                                    {saving ? (
+                                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                            <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                            Saving...
+                                        </span>
+                                    ) : (editingId ? 'Update Service' : `Save Service`)}
                                 </button>
                             </div>
                         </form>
@@ -456,8 +465,12 @@ const ManageServiceItems = ({ selectedCategory, serviceCenterId }) => {
                                             <button className="btn-edit" title="Edit" onClick={() => handleEdit(item)}>
                                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
                                             </button>
-                                            <button className="btn-delete" title="Delete" onClick={() => handleDelete(item.id)}>
-                                                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                                            <button className="btn-delete" title="Delete" onClick={() => handleDelete(item.id)} disabled={deletingId === item.id}>
+                                                {deletingId === item.id ? (
+                                                    <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                                ) : (
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                                                )}
                                             </button>
                                         </div>
                                     </td>

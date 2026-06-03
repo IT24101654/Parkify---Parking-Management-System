@@ -44,6 +44,7 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
     const [updateSlots, setUpdateSlots] = useState([]);
     const [updateSlotsLoading, setUpdateSlotsLoading] = useState(false);
     const [updateLoading, setUpdateLoading] = useState(false);
+    const [cancelingId, setCancelingId] = useState(null);
 
     // ── Toast ────────────────────────────────────────────────────
     const [toast, setToast] = useState(null);
@@ -281,6 +282,7 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
     const handleCancel = async (bookingId) => {
         if (!window.confirm(`Cancel appointment ${bookingId}?`)) return;
         try {
+            setCancelingId(bookingId);
             await axios.patch(`${API}/api/service-appointments/${bookingId}/cancel`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -288,6 +290,8 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
             fetchAppointments();
         } catch (err) {
             showToast(err.response?.data?.message || 'Cancel failed.', 'error');
+        } finally {
+            setCancelingId(null);
         }
     };
 
@@ -574,10 +578,17 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
                         </div>
 
                         <button type="submit" className="sa-submit-btn" disabled={bookingLoading}>
-                            <span className="material-symbols-outlined">
-                                {bookingLoading ? 'hourglass_top' : 'calendar_add_on'}
-                            </span>
-                            {bookingLoading ? 'Booking…' : 'Book Appointment'}
+                            {bookingLoading ? (
+                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                    Booking…
+                                </span>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined">calendar_add_on</span>
+                                    Book Appointment
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>
@@ -640,9 +651,19 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
                                             <button
                                                 className="sa-cancel-btn"
                                                 onClick={() => handleCancel(a.bookingId)}
+                                                disabled={cancelingId === a.bookingId}
                                             >
-                                                <span className="material-symbols-outlined">cancel</span>
-                                                Cancel
+                                                {cancelingId === a.bookingId ? (
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                                        Canceling...
+                                                    </span>
+                                                ) : (
+                                                    <>
+                                                        <span className="material-symbols-outlined">cancel</span>
+                                                        Cancel
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
                                     )}
@@ -728,7 +749,14 @@ function ServiceAppointmentDashboard({ selectedPlace, userData }) {
                                 />
                             </div>
                             <button type="submit" className="sa-submit-btn" disabled={updateLoading || !updateForm.timeSlot}>
-                                {updateLoading ? 'Updating…' : 'Save Changes'}
+                                {updateLoading ? (
+                                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                        <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                        Updating…
+                                    </span>
+                                ) : (
+                                    'Save Changes'
+                                )}
                             </button>
                         </form>
                     </div>

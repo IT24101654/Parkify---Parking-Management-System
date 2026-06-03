@@ -16,6 +16,8 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
     const [editingId, setEditingId] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [formErrors, setFormErrors] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
     const userRole = localStorage.getItem('userRole') || 'PARKING_OWNER';
 
     const [form, setForm] = useState({
@@ -146,6 +148,7 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
         if (!validateForm()) return;
 
         try {
+            setIsSaving(true);
             setError('');
             const payload = {
                 itemName: form.itemName,
@@ -188,6 +191,8 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
         } catch (err) {
             console.error('Error saving item:', err);
             setError(err.response?.data?.message || 'Failed to save item');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -210,6 +215,7 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
         if (!window.confirm('Are you sure you want to delete this item?')) return;
 
         try {
+            setDeletingId(id);
             setError('');
             await axios.delete(
                 `/api/inventory/${id}`,
@@ -221,6 +227,8 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
         } catch (err) {
             console.error('Error deleting item:', err);
             setError('Failed to delete item');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -447,8 +455,15 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
                                 <button type="button" className="btn-cancel" onClick={resetForm}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="btn-submit">
-                                    {editingId ? 'Update Item' : 'Add Item'}
+                                <button type="submit" className="btn-submit" disabled={isSaving}>
+                                    {isSaving ? (
+                                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                            <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                            {editingId ? 'Updating...' : 'Adding...'}
+                                        </span>
+                                    ) : (
+                                        editingId ? 'Update Item' : 'Add Item'
+                                    )}
                                 </button>
                             </div>
                         </form>
@@ -518,8 +533,13 @@ const ManageInventory = ({ selectedType, parkingPlaceId }) => {
                                                     className="btn-delete"
                                                     onClick={() => handleDelete(item.id)}
                                                     title="Delete"
+                                                    disabled={deletingId === item.id}
                                                 >
-                                                    🗑️
+                                                    {deletingId === item.id ? (
+                                                        <span className="material-symbols-outlined search-spin" style={{ fontSize: '14px' }}>autorenew</span>
+                                                    ) : (
+                                                        '🗑️'
+                                                    )}
                                                 </button>
                                             </td>
                                         )}

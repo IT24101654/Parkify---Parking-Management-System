@@ -8,6 +8,8 @@ function VehicleManagement() {
     const [error, setError] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [editingVehicle, setEditingVehicle] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
 
 
     const storedTypes = JSON.parse(localStorage.getItem("selectedVehicles")) || ['Car', 'Bike', 'Van'];
@@ -83,6 +85,7 @@ function VehicleManagement() {
             if (lImage) data.append("licenseImage", lImage);
 
             try {
+                setIsSaving(true);
                 const token = localStorage.getItem('token');
                 await axios.put(`/api/vehicles/${editingVehicle.id}`, data, {
                     headers: {
@@ -96,6 +99,8 @@ function VehicleManagement() {
             } catch (err) {
                 console.error("Error updating vehicle:", err);
                 alert("Failed to update vehicle details.");
+            } finally {
+                setIsSaving(false);
             }
         } else {
 
@@ -114,6 +119,7 @@ function VehicleManagement() {
             data.append("licenseImage", lImage);
 
             try {
+                setIsSaving(true);
                 const token = localStorage.getItem('token');
                 await axios.post(`/api/vehicles/add/${userId}`, data, {
                     headers: {
@@ -128,6 +134,8 @@ function VehicleManagement() {
             } catch (err) {
                 console.error("Error adding vehicle:", err);
                 alert("Failed to add vehicle. Check details and try again.");
+            } finally {
+                setIsSaving(false);
             }
         }
     };
@@ -136,6 +144,7 @@ function VehicleManagement() {
         if (!window.confirm("Are you sure you want to remove this vehicle?")) return;
 
         try {
+            setDeletingId(vehicleId);
             const token = localStorage.getItem('token');
             await axios.delete(`/api/vehicles/${vehicleId}`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -145,6 +154,8 @@ function VehicleManagement() {
         } catch (err) {
             console.error("Error deleting vehicle:", err);
             alert("Could not delete vehicle.");
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -239,9 +250,18 @@ function VehicleManagement() {
                             </div>
                         </div>
 
-                        <button type="submit" className="vm-btn-submit">
-                            <span className="material-symbols-outlined">{editingVehicle ? 'update' : 'save'}</span>
-                            {editingVehicle ? "Update Vehicle" : "Save Vehicle"}
+                        <button type="submit" className="vm-btn-submit" disabled={isSaving}>
+                            {isSaving ? (
+                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                    {editingVehicle ? "Updating..." : "Saving..."}
+                                </span>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined">{editingVehicle ? 'update' : 'save'}</span>
+                                    {editingVehicle ? "Update Vehicle" : "Save Vehicle"}
+                                </>
+                            )}
                         </button>
                     </form>
                 </div>
@@ -290,8 +310,12 @@ function VehicleManagement() {
                                         <button className="vm-action-btn edit" onClick={() => openEditMode(v)} title="Edit Details">
                                             <span className="material-symbols-outlined">edit</span>
                                         </button>
-                                        <button className="vm-action-btn delete" onClick={() => handleDeleteVehicle(v.id)} title="Delete Vehicle">
-                                            <span className="material-symbols-outlined">delete</span>
+                                        <button className="vm-action-btn delete" onClick={() => handleDeleteVehicle(v.id)} title="Delete Vehicle" disabled={deletingId === v.id}>
+                                            {deletingId === v.id ? (
+                                                <span className="material-symbols-outlined search-spin" style={{ fontSize: '18px' }}>autorenew</span>
+                                            ) : (
+                                                <span className="material-symbols-outlined">delete</span>
+                                            )}
                                         </button>
                                     </div>
                                 </div>
