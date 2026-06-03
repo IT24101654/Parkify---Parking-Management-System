@@ -182,19 +182,24 @@ public class PaymentController {
             if (payment != null && "PENDING".equals(payment.getStatus())) {
                 // If the webhook hasn't hit yet (e.g. local testing), we verify it manually
                 payment.setStatus("PAID");
-                payment.getReservation().setPaymentStatus("PAID");
-                payment.getReservation().setStatus("CONFIRMED"); // Ensure it's confirmed
+                if (payment.getReservation() != null) {
+                    payment.getReservation().setPaymentStatus("PAID");
+                    payment.getReservation().setStatus("CONFIRMED"); // Ensure it's confirmed
+                    reservationRepository.save(payment.getReservation());
+                }
                 paymentRepository.save(payment);
                 System.out.println("Payment fallback verified successfully for session: " + sessionId);
 
                 // Fallback SMS sending since webhooks don't reach localhost
-                smsNotificationService.sendPaymentConfirmation(
-                        String.valueOf(payment.getReservation().getId()),
-                        String.valueOf(payment.getAmount()),
-                        payment.getPaymentMethod(),
-                        payment.getReservation().getDriverName(),
-                        null // Fallback handled inside SmsService
-                );
+                if (payment.getReservation() != null) {
+                    smsNotificationService.sendPaymentConfirmation(
+                            String.valueOf(payment.getReservation().getId()),
+                            String.valueOf(payment.getAmount()),
+                            payment.getPaymentMethod(),
+                            payment.getReservation().getDriverName(),
+                            null // Fallback handled inside SmsService
+                    );
+                }
             }
             return ResponseEntity.ok(Map.of("status", "verified"));
         } catch (Exception e) {
