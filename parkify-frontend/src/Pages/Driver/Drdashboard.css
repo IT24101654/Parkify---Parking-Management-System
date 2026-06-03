@@ -756,45 +756,55 @@ html {
     .dr-sidebar {
         position: fixed;
         top: 0;
-        left: -280px; /* Hidden by default */
-        width: 250px;
+        left: -280px;
+        width: 260px;
         height: 100vh;
         z-index: 2000;
         transition: 0.3s ease;
         box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-        overflow: hidden; /* Sidebar itself does NOT scroll */
+        overflow: hidden;
         display: flex;
         flex-direction: column;
+        padding: 16px 14px; /* Compact padding — saves space vs desktop 30px */
+        gap: 0;
     }
     
     .dr-sidebar.active {
         left: 0;
     }
 
-    /* Logout always pinned to bottom — never scrolls away */
-    .dr-logout-bottom {
-        display: flex;
-        flex-shrink: 0;
-        margin-top: 0;
-    }
-
-    /* We need logo visible */
+    /* Logo — compact on mobile */
     .sidebar-logo {
         display: flex;
         flex-shrink: 0;
+        margin-bottom: 8px; /* Override desktop 30px */
+        padding-left: 6px;
     }
 
-    /* Nav scrolls internally so logout stays pinned */
+    /* Nav scrolls, has room for logout below */
     .sidebar-nav {
         flex-direction: column;
         flex: 1;
         overflow-y: auto;
+        gap: 4px;
+        padding-bottom: 64px; /* Space reserved for the logout button */
     }
 
     .sidebar-nav button {
         flex-direction: row;
         justify-content: flex-start;
-        height: 48px;
+        height: 44px;
+    }
+
+    /* Logout ABSOLUTELY pinned to very bottom of sidebar — always visible */
+    .dr-logout-bottom {
+        display: flex;
+        position: absolute;
+        bottom: 14px;
+        left: 14px;
+        right: 14px;
+        width: auto;
+        margin-top: 0;
     }
     
     /* Overlay */
