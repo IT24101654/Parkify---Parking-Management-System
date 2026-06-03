@@ -192,6 +192,11 @@ html {
     z-index: 5;
 }
 
+/* Hide hamburger by default on desktop — shown only on mobile via media query */
+.mobile-menu-btn {
+    display: none;
+}
+
 
 .nav-search-wrapper {
     position: relative;
@@ -757,7 +762,7 @@ html {
         z-index: 2000;
         transition: 0.3s ease;
         box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-        overflow-y: auto; /* Allow scroll so logout is always reachable */
+        overflow: hidden; /* Sidebar itself does NOT scroll */
         display: flex;
         flex-direction: column;
     }
@@ -766,20 +771,24 @@ html {
         left: 0;
     }
 
-    /* Logout must always be visible at the bottom */
+    /* Logout always pinned to bottom — never scrolls away */
     .dr-logout-bottom {
         display: flex;
-        margin-top: auto;
         flex-shrink: 0;
+        margin-top: 0;
     }
 
     /* We need logo visible */
     .sidebar-logo {
         display: flex;
+        flex-shrink: 0;
     }
 
+    /* Nav scrolls internally so logout stays pinned */
     .sidebar-nav {
         flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
     }
 
     .sidebar-nav button {
