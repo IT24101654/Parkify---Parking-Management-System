@@ -374,7 +374,7 @@ function Dashboard() {
                             <img
                                 src={
                                     adminData?.profilePicture
-                                        ? `/api/users/profile-image/${adminData.profilePicture}`
+                                        ? (adminData.profilePicture.startsWith('http') ? adminData.profilePicture : `${axios.defaults.baseURL || ''}/api/users/profile-image/${adminData.profilePicture}`)
                                         : `https://ui-avatars.com/api/?name=${encodeURIComponent(
                                             adminData?.name || 'Admin'
                                         )}&background=2D4057&color=fff`

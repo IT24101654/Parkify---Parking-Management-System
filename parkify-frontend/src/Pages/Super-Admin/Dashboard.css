@@ -847,6 +847,22 @@
         display: none;
     }
 
+    .db-notification-dropdown {
+        width: 90vw;
+        max-width: 320px;
+        right: -60px;
+        top: 45px;
+    }
+
+    .db-notification-item {
+        padding: 12px 15px;
+    }
+
+    .db-notification-content p {
+        font-size: 12px;
+        white-space: normal; /* Ensure text wraps */
+    }
+
     .features-grid {
         gap: 10px;
         justify-content: space-between;

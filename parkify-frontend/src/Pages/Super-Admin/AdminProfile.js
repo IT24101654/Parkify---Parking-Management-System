@@ -96,7 +96,7 @@ function AdminProfile({ adminData, setAdminData }) {
                 <div className="prof-left">
                     <div className="avatar-wrapper">
                         <img
-                            src={previewUrl || (adminData?.profilePicture ? `/api/users/profile-image/${adminData.profilePicture}` : 'https://ui-avatars.com/api/?name=Admin')}
+                            src={previewUrl || (adminData?.profilePicture ? (adminData.profilePicture.startsWith('http') ? adminData.profilePicture : `${axios.defaults.baseURL || ''}/api/users/profile-image/${adminData.profilePicture}`) : 'https://ui-avatars.com/api/?name=Admin')}
                             className="profile-avatar" alt="profile"
                             style={{ objectFit: 'cover' }}
                         />
