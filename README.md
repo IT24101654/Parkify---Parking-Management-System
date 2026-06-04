@@ -162,14 +162,14 @@ http://localhost:8080
 
 ## 👥 Team Members
 
-| Student ID | Name |
-|------------|------|
-| IT24102636 | DISSANAYAKE R.P.Y.R. |
-| IT24101671 | MUNTHAS F.M. |
+| Student ID | Name                            |
+|------------|---------------------------------|
+| IT24102636 | DISSANAYAKE R.P.Y.R.            |
+| IT24101671 | MUNTHAS F.M.                    |
 | IT24101654 | HASARINDA W.D.Y.L.- Team Leader |
-| IT24101820 | VIKIRUTHAN P. |
-| IT24100902 | CHANDANAYAKE S.P.V.V. |
-| IT24100036 | SURENTHIRAN K. |
+| IT24101820 | VIKIRUTHAN P.                   |
+| IT24100902 | CHANDANAYAKE S.P.V.V.           |
+| IT24100036 | SURENTHIRAN K.                  |
 
 ---
 
