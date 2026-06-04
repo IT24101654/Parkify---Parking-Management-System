@@ -664,8 +664,8 @@ function PODashboard() {
                             <h1 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#7A806B', margin: '0 0 6px 0', letterSpacing: '-0.5px', lineHeight: '1.15' }}>Earnings Overview</h1>
                             <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#9C8C79', margin: '0 0 14px 0', lineHeight: '1.5' }}>Track your income and performance</p>
                         </div>
-                        <div className="features-grid" style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' }}>
-                            <div className="feature-card" style={{ cursor: 'default', width: '250px', minHeight: '190px', padding: '20px 15px', display: 'flex', flexDirection: 'column' }}>
+                        <div className="earnings-grid">
+                            <div className="feature-card earnings-card">
                                 <div className="fc-icon-wrapper" style={{ background: '#f5f5f0', color: 'var(--accent-green)', margin: '0 auto 12px auto' }}>
                                     <span className="material-symbols-outlined">payments</span>
                                 </div>
@@ -675,7 +675,7 @@ function PODashboard() {
                                 </div>
                                 <div className="fc-footer" style={{ textAlign: 'center', marginBottom: '0' }}><span>Updated Just Now</span></div>
                             </div>
-                            <div className="feature-card" style={{ cursor: 'default', width: '250px', minHeight: '190px', padding: '20px 15px', display: 'flex', flexDirection: 'column' }}>
+                            <div className="feature-card earnings-card">
                                 <div className="fc-icon-wrapper fc-color-thyme" style={{ margin: '0 auto 12px auto' }}>
                                     <span className="material-symbols-outlined">pending_actions</span>
                                 </div>
@@ -685,7 +685,7 @@ function PODashboard() {
                                 </div>
                                 <div className="fc-footer" style={{ textAlign: 'center', marginBottom: '0' }}><span>Awaiting Confirmation</span></div>
                             </div>
-                            <div className="feature-card" style={{ cursor: 'default', width: '250px', minHeight: '190px', padding: '20px 15px', display: 'flex', flexDirection: 'column' }}>
+                            <div className="feature-card earnings-card">
                                 <div className="fc-icon-wrapper" style={{ background: '#f0f3f5', color: 'var(--accent-blue)', margin: '0 auto 12px auto' }}>
                                     <span className="material-symbols-outlined">group</span>
                                 </div>

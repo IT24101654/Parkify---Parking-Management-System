@@ -728,6 +728,23 @@ html {
     width: 100%;
 }
 
+.earnings-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.earnings-grid .earnings-card {
+    cursor: default;
+    width: 250px;
+    min-height: 190px;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+}
+
 .remove-feature-btn {
     position: absolute;
     right: 0;
@@ -1077,5 +1094,37 @@ html {
 
     .dashboard-section {
         margin-bottom: 60px;
+    }
+    
+    .remove-feature-btn {
+        position: static;
+        margin: 10px auto 0 auto;
+        width: fit-content;
+    }
+
+    .earnings-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        gap: 15px;
+        padding-bottom: 15px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .earnings-grid::-webkit-scrollbar {
+        height: 6px;
+    }
+    .earnings-grid::-webkit-scrollbar-thumb {
+        background: #A88373;
+        border-radius: 10px;
+    }
+
+    .earnings-grid .earnings-card {
+        flex: 0 0 250px;
+        scroll-snap-align: center;
+        width: 250px;
+        min-height: 190px;
     }
 }
