@@ -1065,6 +1065,10 @@ html {
         display: none;
     }
     
+    .earnings-card .fc-desc {
+        display: block !important;
+    }
+    
     .fc-icon-wrapper {
         margin-bottom: 10px;
     }
