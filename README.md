@@ -43,7 +43,7 @@ This system supports **three user roles**:
 |----------|------------|
 | **Backend** | Java Spring Boot |
 | **Frontend** | CSS, JavaScript |
-| **Database** | MySQL |
+| **Database** | MongoDB |
 | **Mapping** | Google Maps URL Integration |
 | **Version Control** | Git & GitHub |
 | **IDE** | IntelliJ IDEA / VS Code |
@@ -110,8 +110,6 @@ Users can:
 **`parkify-frontend/src/`**
 - CSS, JavaScript, and image assets
 
-**`database/`**
-- MySQL Scripts — Database setup and seed files
 
 **`README.md`** — Project documentation
 
@@ -138,26 +136,6 @@ Users can:
 ```bash
 git clone https://github.com/yourusername/SmartParkingSystem.git
 cd SmartParkingSystem
-```
-
-### Step 2 — Open the Project
-
-Open using **IntelliJ IDEA** or **VS Code**.
-
-### Step 3 — Configure the Database
-
-Create a MySQL database:
-
-```sql
-CREATE DATABASE smart_parking_db;
-```
-
-Update `src/main/resources/application.properties`:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/smart_parking_db
-spring.datasource.username=root
-spring.datasource.password=your_password
 ```
 
 ### Step 4 — Run the Application
@@ -188,7 +166,7 @@ http://localhost:8080
 |------------|------|
 | IT24102636 | DISSANAYAKE R.P.Y.R. |
 | IT24101671 | MUNTHAS F.M. |
-| IT24101654 | HASARINDA W.D.Y.L. |
+| IT24101654 | HASARINDA W.D.Y.L.- Team Leader |
 | IT24101820 | VIKIRUTHAN P. |
 | IT24100902 | CHANDANAYAKE S.P.V.V. |
 | IT24100036 | SURENTHIRAN K. |
