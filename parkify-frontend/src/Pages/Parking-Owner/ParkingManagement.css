@@ -932,12 +932,12 @@
         margin-bottom: 14px;
     }
 
-    /* Detail view modal — full screen on mobile */
+    /* Detail view modal — centered card on mobile */
     .detailed-info-modal {
-        max-width: 100% !important;
-        width: 100% !important;
-        max-height: 95vh;
-        border-radius: 16px 16px 0 0 !important;
+        max-width: 95% !important;
+        width: 95% !important;
+        max-height: 90vh;
+        border-radius: 20px !important;
     }
 
     .detailed-content-grid {
@@ -952,6 +952,8 @@
 
     .place-preview-hero {
         height: 200px !important;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
     }
 
     .pricing-grid {
