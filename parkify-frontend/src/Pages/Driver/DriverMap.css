@@ -939,7 +939,7 @@
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .dm-map-container {
         height: 380px;
     }
@@ -961,5 +961,34 @@
     .dm-search-row {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
     }
-}
+
+    .dm-search-box {
+        min-width: unset;
+    }
+
+    .dm-show-fav-toggle {
+        justify-content: center;
+    }
+
+    .dm-modal-overlay {
+        padding: 12px;
+        align-items: flex-end;
+    }
+
+    .dm-modal {
+        border-radius: 22px 22px 0 0;
+        max-width: 100%;
+    }
+
+    .dm-action-row {
+        flex-direction: column;
+    }
+
+    .dm-book-btn,
+    .dm-explicit-fav-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

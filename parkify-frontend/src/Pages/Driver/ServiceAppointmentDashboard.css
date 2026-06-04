@@ -442,3 +442,64 @@
 .sa-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
 .sa-update-action-btn { background: var(--accent-blue); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
 .sa-update-action-btn:hover { background: #0284c7; }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+    .sa-sc-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .sa-sc-contact {
+        white-space: normal;
+    }
+
+    .sa-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 4px;
+        flex-wrap: nowrap;
+    }
+
+    .sa-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sa-tab {
+        flex-shrink: 0;
+        padding: 10px 14px;
+    }
+
+    .sa-book-panel,
+    .sa-history-panel {
+        padding: 18px 14px;
+    }
+
+    .sa-appt-actions {
+        flex-wrap: wrap;
+    }
+
+    .sa-appt-top {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .sa-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .sa-modal-content {
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        padding: 20px 16px 30px;
+        max-height: 90vh;
+    }
+
+    .sa-submit-btn {
+        width: 100%;
+    }
+}

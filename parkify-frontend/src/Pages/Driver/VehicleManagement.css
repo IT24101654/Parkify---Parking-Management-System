@@ -320,3 +320,47 @@
     border-radius: 8px;
     font-weight: 500;
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+    .vm-list {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .vm-form-card {
+        padding: 16px;
+    }
+
+    .vm-form-header h3 {
+        font-size: 17px;
+    }
+
+    .vm-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .vm-btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vm-btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vm-vehicle-card-modern {
+        max-width: 100%;
+    }
+
+    .vm-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .vm-vehicle-img-container {
+        height: 160px;
+    }
+}
+

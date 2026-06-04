@@ -896,3 +896,87 @@
 .pm-table tr:hover .pm-price-val {
     color: #A88373;
 }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+    /* Table — scrollable on mobile */
+    .pm-table-card {
+        padding: 55px 12px 16px;
+    }
+
+    .pm-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pm-table th,
+    .pm-table td {
+        padding: 12px 10px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .pm-page-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    /* Add form — single column */
+    .pm-actual-form {
+        padding: 20px 16px;
+    }
+
+    .pm-grid-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    /* Detail view modal — full screen on mobile */
+    .detailed-info-modal {
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: 95vh;
+        border-radius: 16px 16px 0 0 !important;
+    }
+
+    .detailed-content-grid {
+        grid-template-columns: 1fr;
+        padding: 16px !important;
+        gap: 12px !important;
+    }
+
+    .hero-overlay h1 {
+        font-size: 1.8rem !important;
+    }
+
+    .place-preview-hero {
+        height: 200px !important;
+    }
+
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Small modal card — full width */
+    .pm-modal-card {
+        width: 95%;
+        border-radius: 16px;
+    }
+
+    .pm-modal-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pm-modal-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .pm-form-card {
+        border-radius: 12px;
+    }
+
+    .pm-form-header h2 {
+        font-size: 1.1rem;
+    }
+}

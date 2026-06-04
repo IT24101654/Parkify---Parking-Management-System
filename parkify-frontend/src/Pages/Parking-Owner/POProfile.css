@@ -494,3 +494,90 @@
 .loc-badge.private { background: #dbeafe; color: #1e40af; }
 .loc-badge.vip     { background: #fef3c7; color: #92400e; }
 .loc-badge.staff   { background: #ede9fe; color: #5b21b6; }
+
+/* ─── Responsive Media Queries (Mobile Fixes) ─── */
+@media screen and (max-width: 768px) {
+  .po-profile-container {
+    gap: 16px;
+  }
+
+  .po-profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .header-left {
+    gap: 14px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .avatar-wrapper {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+  }
+
+  .header-info h2 {
+    font-size: 20px;
+  }
+
+  .primary-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .po-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn-cancel,
+  .form-actions .save-btn {
+    width: 100%;
+  }
+
+  .loc-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .loc-delete-btn {
+    align-self: flex-end;
+  }
+
+  .map-modal-content {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    max-height: 90vh;
+  }
+
+  .map-modal-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .map-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .card-glass {
+    padding: 16px;
+  }
+
+  .address-input-wrapper {
+    flex-direction: column;
+  }
+}
+

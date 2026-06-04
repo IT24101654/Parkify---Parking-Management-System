@@ -750,7 +750,7 @@ html {
 /* ─── Responsive Media Queries (Mobile Fixes) ─── */
 @media screen and (max-width: 768px) {
     .dr-dashboard {
-        flex-direction: row; /* Keep standard flex direction */
+        flex-direction: row;
     }
 
     .dr-sidebar {
@@ -760,34 +760,29 @@ html {
         width: 260px;
         height: 100vh;
         z-index: 2000;
-        transition: 0.3s ease;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-        overflow: hidden;
+        transition: left 0.3s ease;
+        box-shadow: 5px 0 20px rgba(0,0,0,0.25);
         display: flex;
         flex-direction: column;
-        padding: 16px 14px; /* Compact padding — saves space vs desktop 30px */
-        gap: 0;
+        padding: 16px 14px;
+        /* No overflow:hidden — so logout stays visible in flex flow */
     }
     
     .dr-sidebar.active {
         left: 0;
     }
 
-    /* Logo — compact on mobile */
     .sidebar-logo {
         display: flex;
         flex-shrink: 0;
-        margin-bottom: 8px; /* Override desktop 30px */
-        padding-left: 6px;
+        margin-bottom: 20px;
     }
 
-    /* Nav scrolls, has room for logout below */
     .sidebar-nav {
-        flex-direction: column;
         flex: 1;
         overflow-y: auto;
         gap: 4px;
-        padding-bottom: 64px; /* Space reserved for the logout button */
+        padding-bottom: 0;
     }
 
     .sidebar-nav button {
@@ -796,15 +791,13 @@ html {
         height: 44px;
     }
 
-    /* Logout ABSOLUTELY pinned to very bottom of sidebar — always visible */
+    /* ✅ FIXED: logout uses natural flex-flow — always visible at bottom */
     .dr-logout-bottom {
+        position: static;
         display: flex;
-        position: absolute;
-        bottom: 14px;
-        left: 14px;
-        right: 14px;
-        width: auto;
-        margin-top: 0;
+        margin-top: 10px;
+        width: 100%;
+        flex-shrink: 0;
     }
     
     /* Overlay */
@@ -844,11 +837,12 @@ html {
 
     .dr-scroll-container {
         height: calc(100vh - 75px);
-        padding: 20px;
+        padding: 16px;
     }
 
     .dr-navbar {
-        padding: 15px;
+        padding: 0 15px;
+        height: 65px;
         justify-content: space-between;
     }
 
@@ -864,6 +858,26 @@ html {
         display: none;
     }
 
+    /* Section heading overrides — uses !important to override JSX inline styles */
+    .dashboard-section h1 {
+        font-size: 1.7rem !important;
+        letter-spacing: -0.3px !important;
+        line-height: 1.2 !important;
+    }
+
+    .dashboard-section h2 {
+        font-size: 1.4rem !important;
+    }
+
+    .dashboard-section h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .dashboard-section {
+        margin-bottom: 60px;
+    }
+
+    /* Feature cards — 2-column grid on mobile */
     .features-grid {
         gap: 10px;
     }
@@ -871,12 +885,12 @@ html {
     .feature-card {
         width: calc(50% - 5px);
         max-width: none;
-        min-height: 160px;
-        padding: 15px;
+        min-height: 150px;
+        padding: 14px;
     }
     
     .fc-title {
-        font-size: 15px;
+        font-size: 14px;
     }
     
     .fc-desc {
@@ -885,5 +899,19 @@ html {
     
     .fc-icon-wrapper {
         margin-bottom: 10px;
+    }
+
+    /* Map — full width on mobile */
+    .driver-map-wrapper-override {
+        min-height: 380px;
+    }
+
+    /* Voice assistant — compact */
+    .va-overview-widget {
+        padding: 4px 0;
+    }
+
+    .va-overview-label {
+        font-size: 11px;
     }
 }
