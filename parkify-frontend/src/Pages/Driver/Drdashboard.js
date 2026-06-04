@@ -221,8 +221,10 @@ function Drdashboard() {
         const recognition = new SpeechRecognition();
         recognitionRef.current = recognition;
         recognition.lang = 'en-US';
-        recognition.continuous = true;
-        recognition.interimResults = true;
+        
+        // Disable continuous and interim for better mobile (iOS Safari/Android Chrome) compatibility
+        recognition.continuous = false;
+        recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
         recognition.onresult = (event) => {
@@ -236,19 +238,19 @@ function Drdashboard() {
             if (voiceTimeoutRef.current) clearTimeout(voiceTimeoutRef.current);
             voiceTimeoutRef.current = setTimeout(() => {
                 stopAndProcessVoice(cleanTranscript);
-            }, 2500); 
+            }, 1000); // Process faster since we only get final results now
         };
 
         recognition.onerror = (event) => {
             console.error("Speech error:", event.error);
             if (event.error === 'not-allowed') {
                 alert("Microphone Access Blocked! Please allow microphone access in your browser settings.");
-            } else if (event.error === 'service-not-allowed' || event.error === 'service_not_allowed') {
-                // Mobile browsers (iOS Safari, some Android) block speech recognition
-                // Show text input fallback instead
+                setShowTextInput(true);
+            } else if (event.error === 'service-not-allowed' || event.error === 'network') {
                 setShowTextInput(true);
             } else if (event.error === 'no-speech') {
-                setShowTextInput(true);
+                // Do not fallback to text immediately on no-speech, as mobile browsers sometimes trigger this prematurely
+                console.log("No speech detected.");
             } else {
                 setShowTextInput(true);
             }
