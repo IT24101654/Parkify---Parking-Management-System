@@ -326,10 +326,28 @@
     .pdc-card-content { grid-column: 1; grid-row: 2; }
 }
 
-@media (max-width: 600px) {
-    .pdc-overlay { padding: 0; align-items: flex-end; }
-    .pdc-card-side-panel { width: 100vw; border-radius: 28px 28px 0 0; max-height: 90vh; }
-    .pdc-card-header { border-radius: 28px 28px 0 0; }
-    .pdc-details-grid { grid-template-columns: 1fr; }
-    .pdc-feature-actions { flex-direction: column; }
+@media (max-width: 768px) {
+    .pdc-overlay { 
+        padding: 0; 
+        align-items: flex-end; 
+    }
+    .pdc-card-side-panel { 
+        width: 100vw; 
+        border-radius: 28px 28px 0 0; 
+        max-height: 85dvh; 
+    }
+    .pdc-card-header { 
+        border-radius: 28px 28px 0 0; 
+        min-height: 180px; 
+        height: 180px; 
+    }
+    .pdc-card-content {
+        padding: 20px 20px 40px 20px; /* Extra bottom padding for iOS home bar */
+    }
+    .pdc-details-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .pdc-feature-actions { 
+        flex-direction: column; 
+    }
 }
