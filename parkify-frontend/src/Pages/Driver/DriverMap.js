@@ -61,6 +61,7 @@ const DEFAULT_CENTER = [6.9271, 79.8612];
 
 const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewServices, onBookNow }) => {
     const [parkingPlaces, setParkingPlaces] = useState([]);
+    const [publicPlaces, setPublicPlaces] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [driverPos, setDriverPos] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
@@ -100,6 +101,36 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
         );
     }, []);
 
+    const fetchPublicPlaces = async (lat, lng) => {
+        try {
+            const query = `[out:json];(node["amenity"="parking"](around:3000,${lat},${lng});way["amenity"="parking"](around:3000,${lat},${lng}););out center;`;
+            const res = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+            if (res.data && res.data.elements) {
+                const mapped = res.data.elements.map(el => {
+                    const elLat = el.lat || el.center?.lat;
+                    const elLon = el.lon || el.center?.lon;
+                    if (!elLat || !elLon) return null;
+                    return {
+                        id: `osm-${el.id}`,
+                        parkingName: el.tags?.name || 'Public Parking',
+                        latitude: elLat,
+                        longitude: elLon,
+                        status: 'AVAILABLE',
+                        type: el.tags?.parking || 'Public',
+                        slots: el.tags?.capacity || 'N/A',
+                        price: el.tags?.fee === 'no' ? 'Free' : (el.tags?.fee || 'Varies'),
+                        address: el.tags?.['addr:street'] || 'Unknown Address',
+                        location: 'Public Location',
+                        isPublicPlace: true
+                    };
+                }).filter(Boolean);
+                setPublicPlaces(mapped);
+            }
+        } catch (err) {
+            console.warn('Overpass API error', err);
+        }
+    };
+
     useEffect(() => {
         loadData();
         startGPS();
@@ -108,7 +139,14 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
         };
     }, [startGPS]);
 
-    const filtered = parkingPlaces.filter(p => {
+    useEffect(() => {
+        if (driverPos && publicPlaces.length === 0) {
+            fetchPublicPlaces(driverPos[0], driverPos[1]);
+        }
+    }, [driverPos, publicPlaces.length]);
+
+    const allPlaces = [...parkingPlaces, ...publicPlaces];
+    const filtered = allPlaces.filter(p => {
         const q = searchQuery.toLowerCase();
         const matchesSearch = !q || 
             p.parkingName?.toLowerCase().includes(q) || 
@@ -187,6 +225,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
     };
 
     const getIcon = (place) => {
+        if (place.isPublicPlace) return makeIcon('#7f8c8d');
         const isFavorite = favorites.some(favId => String(favId) === String(place.id));
         if (isFavorite) return makeIcon('#9b59b6', true);
         if (nearbyIds.has(place.id)) return makeIcon('#f39c12');
@@ -209,6 +248,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
                     <span className="dm-legend-dot" style={{ background: '#27ae60' }}></span><span>Available</span>
                     <span className="dm-legend-dot" style={{ background: '#f39c12' }}></span><span>Nearby</span>
                     <span className="dm-legend-dot" style={{ background: '#e74c3c' }}></span><span>Full</span>
+                    <span className="dm-legend-dot" style={{ background: '#7f8c8d' }}></span><span>Public</span>
                 </div>
             </div>
 

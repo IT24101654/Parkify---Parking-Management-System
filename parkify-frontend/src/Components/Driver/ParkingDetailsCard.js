@@ -136,12 +136,26 @@ const ParkingDetailsCard = ({
                         )}
                     </div>
 
-                    {/* Book Now */}
-                    <div className="pdc-action-row">
-                        <button className="pdc-book-now-btn" onClick={handleBookNow}>
-                            <span className="material-symbols-outlined">book_online</span>
-                            BOOK NOW
+                    {/* Action Buttons */}
+                    <div className="pdc-action-row" style={{ display: 'flex', gap: '10px' }}>
+                        <button 
+                            className="pdc-directions-btn" 
+                            onClick={() => {
+                                if (selectedPlace.latitude && selectedPlace.longitude) {
+                                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${selectedPlace.latitude},${selectedPlace.longitude}`, '_blank');
+                                }
+                            }}
+                        >
+                            <span className="material-symbols-outlined">directions</span>
+                            Directions
                         </button>
+
+                        {(!selectedPlace.isPublicPlace) && (
+                            <button className="pdc-book-now-btn" onClick={handleBookNow}>
+                                <span className="material-symbols-outlined">book_online</span>
+                                BOOK NOW
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
