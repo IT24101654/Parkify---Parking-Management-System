@@ -87,7 +87,12 @@ const ParkingDetailsCard = ({
                             <span className="material-symbols-outlined">schedule</span>
                             <div>
                                 <p className="pdc-label">Hours</p>
-                                <p className="pdc-val">{selectedPlace.is24Hours ? 'Open 24/7' : `${selectedPlace.openHours} – ${selectedPlace.closeHours}`}</p>
+                                <p className="pdc-val">
+                                    {selectedPlace.isPublicPlace 
+                                        ? 'Open 24/7 (Public)' 
+                                        : (selectedPlace.is24Hours ? 'Open 24/7' : `${selectedPlace.openHours} – ${selectedPlace.closeHours}`)
+                                    }
+                                </p>
                             </div>
                         </div>
                         <div className="pdc-detail-item">
@@ -108,7 +113,9 @@ const ParkingDetailsCard = ({
                             <span className="material-symbols-outlined">mail</span>
                             <div>
                                 <p className="pdc-label">Owner Email</p>
-                                <p className="pdc-val" style={{ textTransform: 'none', fontSize: '0.75rem' }}>{selectedPlace.ownerEmail || 'owner@parkify.lk'}</p>
+                                <p className="pdc-val" style={{ textTransform: 'none', fontSize: '0.75rem' }}>
+                                    {selectedPlace.isPublicPlace ? 'N/A' : (selectedPlace.ownerEmail || 'owner@parkify.lk')}
+                                </p>
                             </div>
                         </div>
                     </div>

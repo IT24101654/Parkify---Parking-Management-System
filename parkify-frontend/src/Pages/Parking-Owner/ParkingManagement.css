@@ -932,7 +932,6 @@
         margin-bottom: 14px;
     }
 
-    /* Detail view modal — centered card on mobile */
     .detailed-info-modal {
         max-width: 95% !important;
         width: 95% !important;
@@ -981,4 +980,4 @@
     .pm-form-header h2 {
         font-size: 1.1rem;
     }
-}
+}
