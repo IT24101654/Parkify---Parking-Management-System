@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import {
-    MapContainer, TileLayer, Marker, Circle, useMap
+    MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents
 } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -56,12 +56,23 @@ function MapController({ center }) {
     return null;
 }
 
+function MapEvents({ onMoveEnd }) {
+    const map = useMapEvents({
+        moveend: () => {
+            const center = map.getCenter();
+            onMoveEnd([center.lat, center.lng]);
+        }
+    });
+    return null;
+}
+
 //  Default center (Colombo) //
 const DEFAULT_CENTER = [6.9271, 79.8612];
 
 const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewServices, onBookNow }) => {
     const [parkingPlaces, setParkingPlaces] = useState([]);
     const [publicPlaces, setPublicPlaces] = useState([]);
+    const [lastFetchCenter, setLastFetchCenter] = useState(null);
     const [favorites, setFavorites] = useState([]);
     const [driverPos, setDriverPos] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
@@ -102,6 +113,10 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
     }, []);
 
     const fetchPublicPlaces = async (lat, lng) => {
+        if (lastFetchCenter && getDistanceKm(lastFetchCenter[0], lastFetchCenter[1], lat, lng) < 3) {
+            return; // Don't fetch if we haven't moved far
+        }
+        setLastFetchCenter([lat, lng]);
         try {
             const query = `[out:json];(node["amenity"="parking"](around:8000,${lat},${lng});way["amenity"="parking"](around:8000,${lat},${lng}););out center;`;
             const res = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
@@ -148,7 +163,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
     const allPlaces = [...parkingPlaces, ...publicPlaces];
     const filtered = allPlaces.filter(p => {
         const q = searchQuery.toLowerCase();
-        const matchesSearch = !q || 
+        const matchesSearch = p.isPublicPlace || !q || 
             p.parkingName?.toLowerCase().includes(q) || 
             p.location?.toLowerCase().includes(q) ||
             p.city?.toLowerCase().includes(q) ||
@@ -270,6 +285,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
                 <MapContainer center={driverPos || DEFAULT_CENTER} zoom={13} style={{ width: '100%', height: '100%' }}>
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap" />
                     {mapCenter && <MapController center={mapCenter} />}
+                    <MapEvents onMoveEnd={(center) => fetchPublicPlaces(center[0], center[1])} />
                     {driverPos && (
                         <>
                             <Marker position={driverPos} icon={driverIcon} />
