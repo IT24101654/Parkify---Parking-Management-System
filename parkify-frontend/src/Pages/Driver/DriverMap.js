@@ -304,6 +304,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
 
                 <ParkingDetailsCard
                     selectedPlace={selectedPlace}
+                    driverPos={driverPos}
                     onToggleFavorite={toggleFavorite}
                     isFavorite={selectedPlace && favorites.some(favId => String(favId) === String(selectedPlace.id))}
                     onClose={() => setSelectedPlace(null)}

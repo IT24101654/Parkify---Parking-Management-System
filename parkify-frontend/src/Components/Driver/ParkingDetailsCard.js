@@ -3,7 +3,7 @@ import './ParkingDetailsCard.css';
 import parkingBg from '../../Assets/parking-bg.jpg';
 
 const ParkingDetailsCard = ({
-    selectedPlace, onToggleFavorite, isFavorite, onClose, nearbyIds, getDistLabel,
+    selectedPlace, driverPos, onToggleFavorite, isFavorite, onClose, nearbyIds, getDistLabel,
     onViewInventory, onViewServices, onBookNow
 }) => {
 
@@ -150,7 +150,9 @@ const ParkingDetailsCard = ({
                             className="pdc-directions-btn" 
                             onClick={() => {
                                 if (selectedPlace.latitude && selectedPlace.longitude) {
-                                    window.open(`https://www.google.com/maps/dir/?api=1&destination=${selectedPlace.latitude},${selectedPlace.longitude}`, '_blank');
+                                    const dest = `${selectedPlace.latitude},${selectedPlace.longitude}`;
+                                    const origin = driverPos ? `&origin=${driverPos[0]},${driverPos[1]}` : '';
+                                    window.open(`https://www.google.com/maps/dir/?api=1${origin}&destination=${dest}`, '_blank');
                                 }
                             }}
                         >
