@@ -87,12 +87,7 @@ const ParkingDetailsCard = ({
                             <span className="material-symbols-outlined">schedule</span>
                             <div>
                                 <p className="pdc-label">Hours</p>
-                                <p className="pdc-val">
-                                    {selectedPlace.isPublicPlace 
-                                        ? 'Open 24/7 (Public)' 
-                                        : (selectedPlace.is24Hours ? 'Open 24/7' : `${selectedPlace.openHours} – ${selectedPlace.closeHours}`)
-                                    }
-                                </p>
+                                <p className="pdc-val">{selectedPlace.is24Hours ? 'Open 24/7' : `${selectedPlace.openHours} – ${selectedPlace.closeHours}`}</p>
                             </div>
                         </div>
                         <div className="pdc-detail-item">
