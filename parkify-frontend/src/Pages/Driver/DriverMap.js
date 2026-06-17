@@ -103,7 +103,7 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
 
     const fetchPublicPlaces = async (lat, lng) => {
         try {
-            const query = `[out:json];(node["amenity"="parking"](around:3000,${lat},${lng});way["amenity"="parking"](around:3000,${lat},${lng}););out center;`;
+            const query = `[out:json];(node["amenity"="parking"](around:8000,${lat},${lng});way["amenity"="parking"](around:8000,${lat},${lng}););out center;`;
             const res = await axios.get(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
             if (res.data && res.data.elements) {
                 const mapped = res.data.elements.map(el => {
@@ -140,10 +140,10 @@ const DriverMap = ({ selectedPlace, setSelectedPlace, onViewInventory, onViewSer
     }, [startGPS]);
 
     useEffect(() => {
-        if (driverPos && publicPlaces.length === 0) {
-            fetchPublicPlaces(driverPos[0], driverPos[1]);
+        if (mapCenter) {
+            fetchPublicPlaces(mapCenter[0], mapCenter[1]);
         }
-    }, [driverPos, publicPlaces.length]);
+    }, [mapCenter]);
 
     const allPlaces = [...parkingPlaces, ...publicPlaces];
     const filtered = allPlaces.filter(p => {
